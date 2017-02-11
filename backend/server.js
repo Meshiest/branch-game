@@ -1,17 +1,29 @@
 'use-strict';
 
-var app = require('express')();
+const express = require('express');
+var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
 const session = require('express-session');
+const RedisStore = require('connect-redis')(session);
 const mysql = require('mysql');
 const fs = require('fs');
 const crypto = require('crypto');
+const redis = require('redis');
 
-const port = 8080;
 const secret = process.env.HASH_SECRET;
+const port = 8080;
 const version = "1.0.0";
+ 
+app.set('trust proxy', 1);
+app.use(session({
+  secret: secret,
+  store: new RedisStore({
+    host: 'redis',
+  }),
+}));
+
 
 const MYSQL_CONF = {
   host: "mysql",
@@ -19,8 +31,6 @@ const MYSQL_CONF = {
   password: process.env.MYSQL_PASSWORD,
   database: process.env.MYSQL_DATABASE
 };
-
-console.log('init');
 
 // Database query
 function dbQuery(callback) {
@@ -43,12 +53,18 @@ function createToken() {
 // App
 app.get('/', function (req, res) {
   res.json({
-    "message": "Welcome to Branch API v"+version
+    message: "Welcome to Branch API v"+version
   });
 });
 
 app.get('/user', (req, res) => {
-  var id = req.session.name;
+  //var id = req.session.name;
+  var name = req.session.name;
+  if(typeof name !== 'undefined') {
+    res.json({name: name});
+  } else {
+    res.status(403).json({message: "Not Authorized"});
+  }
 });
 
 app.post('/login', (req, res) => {
@@ -60,7 +76,6 @@ app.post('/login', (req, res) => {
     (error, results, fields) => {
       if(error) {
         res.status(422).json({error: "User Already Exists"});
-        console.log("nope");
       } else {
         res.status(202).json({
           name: name
@@ -120,7 +135,7 @@ function init() {
       } else {
         console.log("Result", results);
         console.log('Running on http://localhost:' + port);
-        app.listen(port);
+        http.listen(port);
       }
     });
   });
