@@ -1,0 +1,2 @@
+#!/bin/bash
+docker restart branch_backend_1 && docker logs -f branch_backend_1

@@ -1,0 +1,35 @@
+db:
+  image: mysql
+  restart: always
+  volumes:
+    - ./mysql:/var/lib/mysql
+  env_file: 
+    - ./common.env
+  expose:
+    - "3306"
+
+backend:
+  build: ./backend
+  restart: always
+  command: "npm start"
+  env_file:
+    - ./common.env
+  volumes: 
+   - ./backend:/usr/src/app
+  links:
+    - db:mysql
+
+nginx:
+  image: nginx
+  restart: always
+  volumes:
+   - ./nginx.conf:/etc/nginx/conf.d/default.conf
+   - ./frontend:/nginx/html:ro
+   - ./ssl/cert.crt:/etc/ssl/certs/cert.crt
+   - ./ssl/key.key:/etc/ssl/private/key.key
+  ports:
+   - "443:443"
+   - "80:80"
+  links:
+    - backend
+
