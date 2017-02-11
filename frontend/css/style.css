@@ -118,9 +118,42 @@ h2 {
   transition: all 0.2s;
 }
 
+.button:hover {
+  background-color: #0277BD;
+}
+
+.button:disabled {
+  background-color: #757575;
+  cursor: wait;
+}
+
+.button:disabled:hover {
+  background-color: #616161;
+}
+
 .form-container {
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+.wiggle {
+  animation: wiggle 1 0.5s ease-in-out;
+}
+
+@keyframes wiggle {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-12px);
+  }
+  75% {
+    transform: translateX(12px);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 .input-container {
@@ -132,21 +165,11 @@ h2 {
 .input-container i {
   color: #9E9E9E;
   margin: 4px;
-  transition: all 0.2s;
 }
 
 .input-container input[type=text],
 .input-container input[type=password] {
   padding: 4px;
-}
-
-input + i {
-  background-color: #ff0;
-  color: #0288D1;
-}
-
-.button:hover {
-  background-color: #0277BD;
 }
 
 .flex-grow {

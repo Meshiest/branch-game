@@ -19,6 +19,8 @@ const version = "1.0.0";
 app.set('trust proxy', 1);
 app.use(session({
   secret: secret,
+  saveUninitialized: true,
+  resave: false,
   store: new RedisStore({
     host: 'redis',
   }),
@@ -68,7 +70,14 @@ app.get('/user', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  var name = request.params.name;
+  console.log("Create",req.query);
+  var name = req.query.name.toLowercase();
+  
+  if(!name.match(/^[a-z\d]{3,20}$/g)) {
+    res.status(422).json({error: 'Invalid Username'});
+    return;
+  }
+
   var token = createToken();
   dbQuery((db) => {
 
@@ -90,8 +99,14 @@ app.post('/login', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  var name = request.params.name;
-  var token = request.params.token;
+  console.log("Login",req.query);
+  var name = req.query.name.toLowercase();
+  var token = req.query.token;
+
+  if(!name.match(/^[a-z\d]{3,20}$/g) || !token.match(/^[a-zA-Z0-9]{5}$/g)) {
+    res.status(422).json({error: 'Invalid Credentials'});
+    return;
+  } 
   
   dbQuery((db) => {
     db.query("SELECT * from users WHERE name='"+name+"' AND token='"+token+"';", 
