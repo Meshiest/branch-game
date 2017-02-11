@@ -1,6 +1,7 @@
 'use-strict';
 
 const express = require('express');
+const bodyParser = require('body-parser');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -11,21 +12,23 @@ const mysql = require('mysql');
 const fs = require('fs');
 const crypto = require('crypto');
 const redis = require('redis');
+const base64url = require('base64url');
 
-const secret = process.env.HASH_SECRET;
+const SECRET = process.env.HASH_SECRET;
 const port = 8080;
 const version = "1.0.0";
+
  
 app.set('trust proxy', 1);
+app.use(bodyParser.json());
 app.use(session({
-  secret: secret,
+  secret: SECRET,
   saveUninitialized: true,
   resave: false,
   store: new RedisStore({
     host: 'redis',
   }),
 }));
-
 
 const MYSQL_CONF = {
   host: "mysql",
@@ -43,13 +46,10 @@ function dbQuery(callback) {
 
 // generates an auth token
 function createToken() {
-  var hash = crypto.createHmac('sha256', SECRET);
-  // wow such secure
-  crypto.randomBytes(256, (err, buf) => {
-    if (err) throw err;
-    hash.update(buf.toString('hex'));
-  });
-  return hash.digest('hex').substr(0, 5);
+  // wow secure
+  return base64url(crypto.randomBytes(100))
+    .replace(/[^a-zA-Z0-9]/g,"")
+    .substr(0, 5);
 }
 
 // App
@@ -60,7 +60,6 @@ app.get('/', function (req, res) {
 });
 
 app.get('/user', (req, res) => {
-  //var id = req.session.name;
   var name = req.session.name;
   if(typeof name !== 'undefined') {
     res.json({name: name});
@@ -69,42 +68,64 @@ app.get('/user', (req, res) => {
   }
 });
 
-app.post('/login', (req, res) => {
-  console.log("Create",req.query);
-  var name = req.query.name.toLowercase();
+app.post('/logout', (req, res) => {
+  var name = req.session.name;
+  if(typeof name !== 'undefined') {
+    req.session.name = undefined;
+    res.json({message: 'ok'});
+  } else {
+    res.status(403).json({message: "Not Authorized"});
+  }
+});
+
+app.post('/user', (req, res) => {
   
-  if(!name.match(/^[a-z\d]{3,20}$/g)) {
-    res.status(422).json({error: 'Invalid Username'});
+  var name = req.body.name;
+  if(typeof name === 'undefined') {
+    res.status(400).json({message: 'Bad Request'});
+    return;
+  }
+
+  name = name.toLowerCase();
+  
+  if(!name.match(/^[a-z0-9\d]{3,20}$/)) {
+    res.status(400).json({message: 'Invalid Username'});
     return;
   }
 
   var token = createToken();
+
   dbQuery((db) => {
 
     db.query("INSERT INTO users (name,token) VALUES ('"+name+"','"+token+"');",
     (error, results, fields) => {
       if(error) {
-        res.status(422).json({error: "User Already Exists"});
+        res.status(422).json({message: "User Already Exists"});
       } else {
+        req.session.name = name;
         res.status(202).json({
-          name: name
+          name: name,
+          token: token
         });
-
-        console.log("fields", results);
-        //req.session.id
+        console.log('create name',name);
       }
     });
 
   });
 });
 
-app.get('/login', (req, res) => {
-  console.log("Login",req.query);
-  var name = req.query.name.toLowercase();
-  var token = req.query.token;
+app.post('/login', (req, res) => {
+  var name = req.body.name;
+  var token = req.body.token;
+  if(typeof name === 'undefined' || typeof token === 'undefined') {
+    res.status(400).json({message: 'Bad Request'});
+    return;
+  }
 
-  if(!name.match(/^[a-z\d]{3,20}$/g) || !token.match(/^[a-zA-Z0-9]{5}$/g)) {
-    res.status(422).json({error: 'Invalid Credentials'});
+  name = name.toLowerCase();
+
+  if(!name.match(/^[a-z0-9\d]{3,20}$/g) || !token.match(/^[a-zA-Z0-9]{5}$/g)) {
+    res.status(400).json({message: 'Invalid Credentials'});
     return;
   } 
   
@@ -112,14 +133,12 @@ app.get('/login', (req, res) => {
     db.query("SELECT * from users WHERE name='"+name+"' AND token='"+token+"';", 
     (error, results, fields) => {
 
-      if(error) { 
-        res.status(403).json({error: 'Forbidden'});
-        console.log("ERROR", error);
-        throw error;
-
+      if(error || !results.length) { 
+        res.status(403).json({message: 'Forbidden'});
       } else {
+        req.session.name = results[0].name;
         res.json({
-          name: name
+          name: results[0].name
         });
       }
     });
@@ -140,6 +159,8 @@ function init() {
   CREATE TABLE IF NOT EXISTS users (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(48) UNIQUE,
+    losses INT,
+    wins INT,
     token VARCHAR(5)
   );`, (error, results, fields) => {
       if(error) {
