@@ -6,11 +6,6 @@
     "class": "future",
     "displayName": "Citizen",
     "buffs": [
-      "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
-      "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
-      "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
-      "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
-      "Nullify Buffs for Enemy Units"
     ],
     "meta": {
       "hp": 35,
@@ -46,11 +41,6 @@
     "class": "future",
     "displayName": "Watcher",
     "buffs": [
-      "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
-      "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
-      "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
-      "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
-      "Nullify Buffs for Enemy Units"
     ],
     "meta": {
       "hp": 60,
@@ -86,11 +76,6 @@
     "class": "future",
     "displayName": "Gunner",
     "buffs": [
-      "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
-      "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
-      "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
-      "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
-      "Nullify Buffs for Enemy Units"
     ],
     "meta": {
       "hp": 50,
@@ -126,11 +111,7 @@
     "class": "future",
     "displayName": "Sniper",
     "buffs": [
-      "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
-      "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
-      "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
-      "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
-      "Nullify Buffs for Enemy Units"
+      "- 10 Speed to Enemy Units"
     ],
     "meta": {
       "hp": 100,
@@ -166,11 +147,7 @@
     "class": "future",
     "displayName": "Ranger",
     "buffs": [
-      "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
-      "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
-      "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
-      "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
-      "Nullify Buffs for Enemy Units"
+      "Ranger gets Attacking Priority"
     ],
     "meta": {
       "hp": 85,
@@ -206,11 +183,7 @@
     "class": "future",
     "displayName": "Striker",
     "buffs": [
-      "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
-      "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
-      "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
-      "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
-      "Nullify Buffs for Enemy Units"
+      "- 10 Health to Non-Targeted Enemy Units When Attacking",
     ],
     "meta": {
       "hp": 75,
@@ -222,7 +195,7 @@
         "ownAtk": 0,
         "offAtk": 0,
         "ownHp": 0,
-        "offHp": -10,
+        "offHp": 0,
         "provoke": false,
         "priority": false,
         "debuffNull": false,
@@ -245,11 +218,6 @@
     "class": "feudal",
     "displayName": "Commoner",
     "buffs": [
-      "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
-      "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
-      "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
-      "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
-      "Nullify Buffs for Enemy Units"
     ],
     "meta": {
       "hp": 35,
@@ -285,11 +253,6 @@
     "class": "feudal",
     "displayName": "Knight",
     "buffs": [
-      "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
-      "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
-      "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
-      "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
-      "Nullify Buffs for Enemy Units"
     ],
     "meta": {
       "hp": 60,
@@ -325,11 +288,6 @@
     "class": "feudal",
     "displayName": "Thief",
     "buffs": [
-      "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
-      "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
-      "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
-      "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
-      "Nullify Buffs for Enemy Units"
     ],
     "meta": {
       "hp": 50,
@@ -365,11 +323,9 @@
     "class": "feudal",
     "displayName": "Great Knight",
     "buffs": [
-      "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
-      "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
-      "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
-      "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
-      "Nullify Buffs for Enemy Units"
+      "Great Knight Provoke Activated",
+      "When Defending, 1 Defense Mod on Self",
+      "When Defending, 2/3 Defense Mod on Allies",
     ],
     "meta": {
       "hp": 100,
@@ -405,11 +361,7 @@
     "class": "feudal",
     "displayName": "Assassin",
     "buffs": [
-      "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
-      "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
-      "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
-      "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
-      "Nullify Buffs for Enemy Units"
+      "+ 10 Speed to Team Units"
     ],
     "meta": {
       "hp": 75,
@@ -445,11 +397,7 @@
     "class": "feudal",
     "displayName": "Royal Knight",
     "buffs": [
-      "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
-      "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
-      "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
-      "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
-      "Nullify Buffs for Enemy Units"
+      "+ 5 Attack and Speed to Team Units"
     ],
     "meta": {
       "hp": 85,
@@ -484,11 +432,6 @@
     "class": "fantasy",
     "displayName": "Student",
     "buffs": [
-      "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
-      "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
-      "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
-      "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
-      "Nullify Buffs for Enemy Units"
     ],
     "meta": {
       "hp": 35,
@@ -524,11 +467,6 @@
     "class": "fantasy",
     "displayName": "Spell Caster",
     "buffs": [
-      "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
-      "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
-      "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
-      "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
-      "Nullify Buffs for Enemy Units"
     ],
     "meta": {
       "hp": 50,
@@ -564,11 +502,6 @@
     "class": "fantasy",
     "displayName": "Beast Tamer",
     "buffs": [
-      "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
-      "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
-      "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
-      "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
-      "Nullify Buffs for Enemy Units"
     ],
     "meta": {
       "hp": 60,
@@ -604,11 +537,7 @@
     "class": "fantasy",
     "displayName": "Dragon Master",
     "buffs": [
-      "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
-      "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
-      "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
-      "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
-      "Nullify Buffs for Enemy Units"
+      "+ 20 HP for Team Units (per turn)"
     ],
     "meta": {
       "hp": 100,
@@ -644,11 +573,7 @@
     "class": "fantasy",
     "displayName": "Summoner",
     "buffs": [
-      "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
-      "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
-      "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
-      "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
-      "Nullify Buffs for Enemy Units"
+      "Nullify Debuffs for Enemy Units",
     ],
     "meta": {
       "hp": 85,
@@ -684,10 +609,6 @@
     "class": "fantasy",
     "displayName": "Arch Mage",
     "buffs": [
-      "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
-      "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
-      "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
-      "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
       "Nullify Buffs for Enemy Units"
     ],
     "meta": {

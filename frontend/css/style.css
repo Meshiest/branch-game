@@ -275,6 +275,11 @@ h3 {
   align-self: flex-start;
 }
 
+.classes.vert {
+  flex-direction: column;
+  align-self: stretch;
+}
+
 .battle-pane .message {
   align-self: center;
 }
@@ -406,23 +411,23 @@ h3 {
 }
 
 .class-card .avatar.sprite-1 {
-  background-position-x: 192;
+  background-position-x: 960px;
 }
 
 .class-card .avatar.sprite-2 {
-  background-position-x: 384;
+  background-position-x: 768px;
 }
 
 .class-card .avatar.sprite-3 {
-  background-position-x: 576;
+  background-position-x: 576px;
 }
 
 .class-card .avatar.sprite-4 {
-  background-position-x: 768;
+  background-position-x: 384px;
 }
 
 .class-card .avatar.sprite-5 {
-  background-position-x: 768;
+  background-position-x: 192px;
 }
 
 .class-card.dead {
@@ -461,10 +466,9 @@ h3 {
   align-items: center;
   display: flex;
   flex-direction: column;
-  height: 60px;
   justify-content: center;
   left: 0;
-  padding: 4px;
+  padding: 8px;
   position: absolute;
   top: 0;
   width: 100%;
@@ -473,6 +477,18 @@ h3 {
 .status-bar .health {
   color: #fff;
   font-size: 20px;
+}
+
+.status-bar .stats {
+  color: #fff;
+  display: flex;
+  flex-direction: row;
+  font-size: 20px;
+  width: 100%;
+}
+
+.status-bar .stats span {
+  text-align: center;
 }
 
 .commands {
@@ -519,4 +535,45 @@ h3 {
 
 .commands .action-button.active {
   background-color: rgba(255, 255, 255, 0.2);
+}
+
+.round-counter {
+  font-size: 30px;
+  left: 50%;
+  position: absolute;
+  top: 60px;
+  transform: translateX(-50%);
+}
+
+.class-info-container {
+  align-self: stretch;
+  background-color: #E0E0E0;
+  display: flex;
+  flex-direction: row;
+  margin: 10px;
+  padding: 10px;
+}
+
+.class-info-container > .class-card {
+  margin: 0;
+}
+
+.class-info {
+  background-color: #F5F5F5;
+  flex-grow: 1;
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.class-info table {
+  font-size: 20px;
+}
+
+.class-info td:first-child {
+  font-weight: bold;
+  min-width: 100px;
+  padding-right: 5px;
+  text-align: right;
 }

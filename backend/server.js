@@ -15,6 +15,9 @@ const redis = require('redis');
 const base64url = require('base64url');
 const Game = require('./game.js');
 
+const types = JSON.parse(fs.readFileSync("json/branch.json"));
+
+
 const SECRET = process.env.HASH_SECRET;
 const port = 8080;
 const version = "1.0.0";
@@ -57,6 +60,10 @@ app.get('/', function (req, res) {
   res.json({
     message: "Welcome to Branch API v"+version
   });
+});
+
+app.get('/types', function(req, res) {
+  res.json(types);
 });
 
 app.get('/user', (req, res) => {

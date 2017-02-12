@@ -78,11 +78,22 @@
     };
   });
 
-  app.controller('AppCtrl', function($rootScope, $scope, $location, $http){
+  app.controller('AppCtrl', function($rootScope, $scope, $location, $http, $timeout){
     $rootScope.inBattle = false;
     $rootScope.loggedIn = false;
     $rootScope.username = "";
     $rootScope.offline = false;
+    $rootScope.types = {};
+
+    $scope.getTypes = function() {
+      $http.get('/api/types').then((resp) => {
+        $rootScope.types = resp.data;
+      }, (err) => {
+        $timeout($scope.getTypes, 1000);
+      });
+    };
+
+    $scope.getTypes();
 
     // log out button on top right
     $scope.logOut = function() {
@@ -139,6 +150,14 @@
     };
   });
 
+  app.directive('battlePrep', function($parse) {
+    return {
+      restrict: 'E',
+      scope: true,
+      templateUrl: "views/battle-prep.html"
+    };
+  });
+
 
   app.controller('BattleCtrl', function($scope, $rootScope, $http, $location){
     $scope.phase = 'lobby';
@@ -146,6 +165,7 @@
     $scope.ready = false;
     $scope.recruits = [];
     $scope.ip = 0;
+    $scope.round = 0;
     $scope.opponentRecruits = [];
     $rootScope.inBattle = true;
 
@@ -270,8 +290,31 @@
         $scope.ip = selfState.ip;
         $scope.recruits = selfState.classes;
         $scope.opponentRecruits = opponentState.classes;
+        $scope.round = selfState.round;
         console.log('PROGRESS');
         $scope.phase = 'progress';
+      });
+    });
+
+    socket.on('prep', (selfState, opponentState) => {
+      console.log('prepping for next Round', selfState, opponentState);
+      $scope.$evalAsync(() => {
+        $scope.ready = false;
+        $scope.ip = selfState.ip;
+        $scope.recruits = selfState.classes;
+        $scope.opponentRecruits = opponentState.classes;
+        $scope.round = selfState.round;
+        $scope.phase = 'prep';
+      });
+    });
+
+    socket.on('update', (selfState) => {
+      console.log('updating unit', selfState);
+      $scope.$evalAsync(() => {
+        $scope.ready = false;
+        $scope.ip = selfState.ip;
+        $scope.round = selfState.round;
+        $scope.recruits = selfState.classes;
       });
     });
 

@@ -14,13 +14,15 @@ function shuffle(a) {
   }
 }
 
+const typeConv = {
+  "future": "100",
+  "feudal": "200",
+  "fantasy": "300"
+};
+
 class Recruit {
   constructor(type, index, player) {
-    var typeConv = {
-      "future": "100",
-      "feudal": "200",
-      "fantasy": "300"
-    };
+    
     var base = types[typeConv[type]];
     this.ability = false;
     this.type = typeConv[type];
@@ -121,6 +123,48 @@ module.exports = class {
     if(this.player1.ready && this.player2.ready) {
       console.log('running round');
       this.runRound();
+    }
+  }
+  
+  // please don't reverse engineer this please
+  upgradePrep(player, action) {
+    if(player.ready || player.ip === 0) return;
+    if(action.target < 0 || action.target > 2) return;
+
+    var target = player.classes[action.target];
+    if(!target.living()) return;
+
+    if(action.type == 'upgrade') {
+      // we can't go there
+      if(!target.evolutions.includes(action.next))
+        return;
+      target.applySpecs(types[action.next]);
+      player.ip --;
+    } else if(action.type == 'power' && !target.ability) {
+      target.ability = true;
+      player.ip --;
+    }
+
+    player.socket.emit('update', {
+      classes: player.classes.map((a)=>{return a.blob();}),
+      ip: player.ip,
+      round: this.round,
+    });
+  }
+
+  addBuffs() {
+    // add health from dragon tamers lol
+  }
+
+  readyPrep(player, isReady, options) {
+    player.ready = isReady;
+    player.options = options;
+
+    console.log('player is ready');
+    if((this.player1.ready || this.player1.ip === 0) && (this.player2.ready || this.player2.ip === 0)) {
+      console.log('running round');
+      this.addBuffs();
+      this.nextRound();
     }
   }
 
@@ -413,24 +457,52 @@ module.exports = class {
 
     var ip = Math.floor(damage * settings.ipModifier);
     console.log("IP is ", ip, "from", damage ,"damage");
+    this.player1.ip = ip;
+    this.player2.ip = ip;
+    if(ip > 0)
+      this.startPrep();
+    else {
+      this.addBuffs();
+      this.nextRound();
+    }
 
-    this.nextRound();
+  }
 
+  startPrep() {
+    this.player1.ready = false;
+    this.player2.ready = false;
+    this.state = 'prep';
+    var player1State = {
+      classes: this.player1.classes.map((a)=>{return a.blob();}),
+      ip: this.player1.ip,
+      round: this.round,
+    };
+    var player2State = {
+      classes: this.player2.classes.map((a)=>{return a.blob();}),
+      ip: this.player2.ip,
+      round: this.round,
+    };
+    this.player1.socket.emit('prep', player1State, player2State);
+    this.player2.socket.emit('prep', player2State, player1State);
   }
 
   // tell the players what comes next
   nextRound() {
     this.player1.ready = false;
+    this.player1.ip = 0;
     this.player2.ready = false;
+    this.player2.ip = 0;
     this.state = 'round';
     this.rounds++;
     var player1State = {
       classes: this.player1.classes.map((a)=>{return a.blob();}),
-      ip: this.player1.ip
+      ip: this.player1.ip,
+      round: this.round,
     };
     var player2State = {
       classes: this.player2.classes.map((a)=>{return a.blob();}),
-      ip: this.player2.ip
+      ip: this.player2.ip,
+      round: this.round,
     };
     this.player1.socket.emit('round', player1State, player2State);
     this.player2.socket.emit('round', player2State, player1State);

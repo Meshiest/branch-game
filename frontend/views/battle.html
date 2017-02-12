@@ -3,5 +3,7 @@
   <battle-setup class="battle-container" ng-switch-when="setup"></battle-setup>
   <battle-lobby class="battle-container" ng-switch-when="lobby"></battle-lobby>
   <battle-progress class="battle-container" ng-switch-when="progress"></battle-progress>
+  <battle-prep class="battle-container" ng-switch-when="prep"></battle-prep>
   <battle-end class="battle-container" ng-switch-when="end"></battle-end>
 </div>
+<div class="round-counter" ng-if="phase=='progress'||phase=='prep'">Round {{round + 1}}</div>

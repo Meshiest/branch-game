@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<div class="battle-pane">
+  <div class="classes enemy center">
+    <div class="class-card {{recruit.class}}" ng-repeat="recruit in opponentRecruits" ng-click="selectTarget(recruit)" ng-class="{selectingRecruit, dead:(recruit.health <= 0)}">
+      <div class="status-bar">
+        <span class="health">{{recruit.health}} / {{recruit.maxHealth}}</span>
+      </div>
+      <div class="avatar {{recruit.class}} sprite-{{recruit.sprite}}"></div>
+      <h2 class="name">{{recruit.name}}</h2>
+    </div>
+  </div>
+  <div class="message">
+    <span class="instruction" ng-show="selectingRecruit">Select a Target</span>
+      <button class="button" ng-click="toggleRoundReady()" ng-show="roundReady()" ng-class="{red: ready}">{{ready ? "Not " : ""}}Ready</button>
+  </div>
+  <div class="classes vert">
+    <div class="class-info-container" ng-repeat="recruit in recruits" ng-if="recruit.health > 0">
+      <div class="class-card {{recruit.class}}" ng-class="{dead: (recruit.health <= 0)}">
+        <div class="status-bar">
+          <span class="health">{{recruit.health}} / {{recruit.maxHealth}}</span>
+        </div>
+        <div class="avatar {{recruit.class}} sprite-{{recruit.sprite}}"></div>
+        <h2 class="name">{{recruit.name}}</h2>
+      </div>
+      <div class="class-info">
+        <table>
+          <tr><td>Attack</td><td>{{recruit.attack}}</td></tr>
+          <tr><td>Speed</td><td>{{recruit.speed}}</td></tr>
+        </table>
+        <span class="flex-grow"></span>
+        <div class="class-card {{types[upgrade].class}}" ng-class="{active: selectingRecruit == recruit}" ng-repeat="upgrade in recruit.evolutions">
+          <div class="status-bar">
+            <span class="stats">
+              <span>ATK: {{types[upgrade].meta.atk}}</span>
+              <span>SPD: {{types[upgrade].meta.spd}}</span>
+              <span>HP: +{{types[upgrade].meta.hp-recruit.maxHealth}}</span>
+            </span>
+          </div>
+          <div class="avatar {{recruit.class}} sprite-{{types[upgrade].sprite}}"></div>
+          <h2 class="name">{{types[upgrade].displayName}}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
