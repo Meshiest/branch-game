@@ -208,6 +208,12 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('upgrade', (action) => {
+    if(player.game >= 0 && games[player.game].state === 'prep') {
+      games[player.game].upgradePrep(player, action);
+    }
+  });
+
   socket.on('ready', (bool, options) => {
     if(player.game != -1) {
       var game = games[player.game];
@@ -215,6 +221,8 @@ io.on('connection', (socket) => {
         game.readySetup(player, bool, options);
       if(game.state == 'round')
         game.readyRound(player, bool, options);
+      if(game.state == 'prep')
+        game.readyPrep(player, bool);
 
     }
   });

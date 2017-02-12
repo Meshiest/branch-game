@@ -128,16 +128,20 @@ module.exports = class {
   
   // please don't reverse engineer this please
   upgradePrep(player, action) {
-    if(player.ready || player.ip === 0) return;
+    if(player.ip === 0) return;
+    player.ready = false;
+    console.log("round 2 lol");
     if(action.target < 0 || action.target > 2) return;
-
+    console.log('upgrading1');
     var target = player.classes[action.target];
     if(!target.living()) return;
 
+    console.log('upgrading2');
     if(action.type == 'upgrade') {
       // we can't go there
       if(!target.evolutions.includes(action.next))
         return;
+      console.log('upgrading3');
       target.applySpecs(types[action.next]);
       player.ip --;
     } else if(action.type == 'power' && !target.ability) {
@@ -156,12 +160,11 @@ module.exports = class {
     // add health from dragon tamers lol
   }
 
-  readyPrep(player, isReady, options) {
+  readyPrep(player, isReady) {
     player.ready = isReady;
-    player.options = options;
 
-    console.log('player is ready');
-    if((this.player1.ready || this.player1.ip === 0) && (this.player2.ready || this.player2.ip === 0)) {
+    console.log('player is ready', this.player1.ready, this.player2.ready);
+    if(this.player1.ready && this.player2.ready) {
       console.log('running round');
       this.addBuffs();
       this.nextRound();
@@ -458,13 +461,10 @@ module.exports = class {
     var ip = Math.floor(damage * settings.ipModifier);
     console.log("IP is ", ip, "from", damage ,"damage");
     this.player1.ip = ip;
+    this.player1.ready = false;
     this.player2.ip = ip;
-    if(ip > 0)
-      this.startPrep();
-    else {
-      this.addBuffs();
-      this.nextRound();
-    }
+    this.player2.ready = false;
+    this.startPrep();
 
   }
 

@@ -173,6 +173,24 @@
     var socket = $scope.socket = io.connect(location.origin, {path: '/api/socket.io/'});
     console.log('Opening Socket');
 
+    $scope.upgrade = function(recruit, evolution) {
+      console.log('upgrading')
+      $scope.ready = false;
+      socket.emit('upgrade', {
+        type: 'upgrade',
+        next: evolution,
+        target: $scope.recruits.indexOf(recruit)
+      });
+    };
+
+    $scope.power = function(recruit) {
+      $scope.ready = false;
+      socket.emit('upgrade', {
+        type: 'power',
+        target: $scope.recruits.indexOf(recruit)
+      });
+    };
+
     $scope.startAttack = function(recruit) {
       if($scope.ready)
         return;
@@ -248,6 +266,12 @@
       $scope.ready = !$scope.ready;
       var classes = $scope.slots.map((e) => {return Object.keys(e)[0];});
       socket.emit('ready', $scope.ready, $scope.ready ? classes : []);
+    };
+
+    // for prep phase
+    $scope.togglePrepReady = function() {
+      $scope.ready = !$scope.ready;
+      socket.emit('ready', $scope.ready);
     };
 
     // remove a recruit

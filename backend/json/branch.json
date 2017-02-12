@@ -183,7 +183,7 @@
     "class": "future",
     "displayName": "Striker",
     "buffs": [
-      "- 10 Health to Non-Targeted Enemy Units When Attacking",
+      "- 10 Health to Non-Targeted Enemy Units When Attacking"
     ],
     "meta": {
       "hp": 75,
@@ -325,7 +325,7 @@
     "buffs": [
       "Great Knight Provoke Activated",
       "When Defending, 1 Defense Mod on Self",
-      "When Defending, 2/3 Defense Mod on Allies",
+      "When Defending, 2/3 Defense Mod on Allies"
     ],
     "meta": {
       "hp": 100,
@@ -573,7 +573,7 @@
     "class": "fantasy",
     "displayName": "Summoner",
     "buffs": [
-      "Nullify Debuffs for Enemy Units",
+      "Nullify Debuffs for Enemy Units"
     ],
     "meta": {
       "hp": 85,
