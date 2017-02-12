@@ -188,6 +188,13 @@ io.on('connection', (socket) => {
         if(opponent >= 0) {
           var id = gameId++;
           var game = games[id] = new Game(id, player, players[opponent]);
+
+          game.onDone = function() {
+            this.player1.game = -1;
+            this.player2.game = -1;
+            delete games[id];
+          }.bind(game);
+
           delete lobby[player.id];
           delete lobby[opponent];
           game.start();
@@ -203,7 +210,7 @@ io.on('connection', (socket) => {
         // player is leaving a game
       } else if(player.game >= 0) {
         console.log('forfeit', player.id);
-        games[player.game].end('forfeit');
+        games[player.game].end('Opponent Forfeit', 'Opponent Forfeit');
       }
     }
   });
@@ -231,7 +238,7 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     if(player.game >= 0) {
       console.log('disconnect in game', player.id);
-      games[player.game].end('quit');
+      games[player.game].end('Opponent Disconnected', 'Opponent Disconnected');
       delete games[player.game];
     }
     delete lobby[player.id];

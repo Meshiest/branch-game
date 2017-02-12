@@ -93,10 +93,12 @@ module.exports = class {
 
   // sorry guy :(
   // game has ended or someone has left
-  end(reason) {
+  end(reason1, reason2) {
     this.player1.game = -1;
     this.player2.game = -1;
-    this.emit('done', reason);
+    this.player1.socket.emit('done', reason1);
+    this.player2.socket.emit('done', reason2);
+    this.onDone();
   }
 
   // emit to messages
@@ -446,6 +448,7 @@ module.exports = class {
       for(var j = 0; j < livingRecruits.length; j++) {
         var other = livingRecruits[j];
         if(other.team == recruit.team || !other.rec.living()) continue;
+        console.log("striker?", recruit.rec.type == "111");
         if(other.id == recruit.moveTarget) {
           console.log('targeting',other.id,'(',recruit.moveTarget,')','from',recruit.id);
           var baseDamage = recruit.attack; // base attack
@@ -457,6 +460,7 @@ module.exports = class {
           damage += baseDamage;
           other.rec.health -= baseDamage;
         } else if(recruit.rec.type == "111") { // striker does splash damage
+          console.log("splash damage");
           damage += 10;
           other.rec.health -= 10;
         }
@@ -477,9 +481,10 @@ module.exports = class {
     }
     if(!alive) {
       console.log('no player1 alive')
-      this.end("win player2");
+      this.end("You're Bad", "Good Job");
       return;
     }
+    var alive = false;
     for(var i = 0; i < this.player2.classes.length; i++) {
       var recruit = this.player2.classes[i];
       if(!recruit.living()) {
@@ -492,7 +497,7 @@ module.exports = class {
     }
     if(!alive) {
       console.log('no player2 alive')
-      this.end("win player1");
+      this.end("Good Job", "You're Bad");
       return;
     }
 

@@ -126,6 +126,7 @@
     });
   });
 
+  // kill me... need persistent scopes and unique template urls
   app.directive('battleLobby', function($parse) {
     return {
       restrict: 'E',
@@ -158,6 +159,14 @@
     };
   });
 
+  app.directive('battleEnd', function($parse) {
+    return {
+      restrict: 'E',
+      scope: true,
+      templateUrl: "views/battle-end.html"
+    };
+  });
+
 
   app.controller('BattleCtrl', function($scope, $rootScope, $http, $location){
     $scope.phase = 'lobby';
@@ -172,6 +181,18 @@
     $scope.selectingRecruit = undefined;
     var socket = $scope.socket = io.connect(location.origin, {path: '/api/socket.io/'});
     console.log('Opening Socket');
+
+    $scope.newBattle = function() {
+      $scope.phase = 'lobby';
+      $scope.slots = [];
+      $scope.ready = false;
+      $scope.recruits = [];
+      $scope.ip = 0;
+      $scope.round = 0;
+      $scope.opponentRecruits = [];
+      $rootScope.inBattle = true;
+      socket.emit('lobby', true);
+    };
 
     $scope.upgrade = function(recruit, evolution) {
       console.log('upgrading');
@@ -189,6 +210,10 @@
         type: 'power',
         target: $scope.recruits.indexOf(recruit)
       });
+    };
+
+    $scope.goHome = function() {
+      $location.path('/');
     };
 
     $scope.startAttack = function(recruit) {
@@ -306,7 +331,8 @@
       console.log('Game Over', reason);
       $scope.$evalAsync(() => {
         $scope.phase = 'end';
-        $location.path('/');
+        $rootScope.inBattle = false;
+        $scope.winnerText = reason;
       });
     });
 

@@ -114,6 +114,10 @@ h2 {
   text-align: center;
 }
 
+h2.winner {
+  font-size: 40px;
+}
+
 h3 {
   color: #757575;
   font-size: 30px;
