@@ -19,6 +19,9 @@
       templateUrl: "views/battle.html",
       controller: "BattleCtrl"
     })
+    .when("/howto", {
+      templateUrl: "views/howto.html",
+    })
     .when("/404", {
       templateUrl: "views/404.html"
     })
@@ -109,6 +112,10 @@
     $rootScope.startBattle = function() {
       $location.path('/battle');
     };
+
+    $rootScope.gotoHowto = function() {
+      $location.path('/howto');
+    };    
 
     $scope.forfeit = function() {
       $rootScope.inBattle = false;
