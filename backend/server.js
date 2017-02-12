@@ -9,6 +9,7 @@ var io = require('socket.io')(http);
 const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
 const mysql = require('mysql');
+var connect = require('connect');
 const fs = require('fs');
 const crypto = require('crypto');
 const redis = require('redis');
