@@ -201,9 +201,15 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('ready', (bool, classes) => {
-    if(player.game != -1)
-      games[player.game].ready(player, bool, classes);
+  socket.on('ready', (bool, options) => {
+    if(player.game != -1) {
+      var game = games[player.game];
+      if(game.state == 'setup')
+        game.readySetup(player, bool, options);
+      if(game.state == 'round')
+        game.readyRound(player, bool, options);
+
+    }
   });
 
   // player disconnects

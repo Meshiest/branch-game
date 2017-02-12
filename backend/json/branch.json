@@ -1,0 +1,740 @@
+{
+  "icons": {
+    "future":  {
+      "class": [0, 62, 31, 31],
+      "atk": [31, 62, 31, 31],
+      "def": [62, 62, 31, 31],
+      "ability": [93, 62, 31, 31]
+    },
+    "feudal": {
+      "class": [0, 31, 31, 31],
+      "atk": [31, 31, 31, 31],
+      "def": [62, 31, 31, 31],
+      "ability": [93, 31, 31, 31]
+    },
+    "fantasy": {
+      "class": [0, 0, 31, 31],
+      "atk": [31, 0, 31, 31],
+      "def": [62, 0, 31, 31],
+      "ability": [93, 0, 31, 31]
+    }
+  },
+  "types": {
+    "100": {
+      "id": "100",
+      "tier": 1,
+      "prereq": ["000"],
+      "class": "future",
+      "displayName": "Citizen",
+      "buffs": [
+        "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
+        "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
+        "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
+        "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
+        "Nullify Buffs for Enemy Units"
+      ],
+      "meta": {
+        "hp": 35,
+        "atk": 10,
+        "spd": 10,
+        "buffs": {
+          "ownSpd": 0,
+          "offSpd": 0,
+          "ownAtk": 0,
+          "offAtk": 0,
+          "ownHp": 0,
+          "offHp": 0,
+          "provoke": false,
+          "priority": false,
+          "debuffNull": false,
+          "buffNull": false
+        },
+        "damageMultipliers": {
+          "weak": 0.666,
+          "normal": 1.0,
+          "strong": 1.5
+        },
+        "abilityActivated": false
+      },
+      "sprite": 0
+    },
+
+    "110": 
+    {
+      "id": "110",
+      "tier": 2,
+      "prereq": ["100"],
+      "class": "future",
+      "displayName": "Watcher",
+      "buffs": [
+        "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
+        "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
+        "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
+        "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
+        "Nullify Buffs for Enemy Units"
+      ],
+      "meta": {
+        "hp": 60,
+        "atk": 15,
+        "spd": 15,
+        "buffs": {
+          "ownSpd": 0,
+          "offSpd": 0,
+          "ownAtk": 0,
+          "offAtk": 0,
+          "ownHp": 0,
+          "offHp": 0,
+          "provoke": false,
+          "priority": false,
+          "debuffNull": false,
+          "buffNull": false
+        },
+        "damageMultipliers": {
+          "weak": 0.666,
+          "normal": 1.0,
+          "strong": 1.5
+        },
+        "abilityActivated": false
+      },
+      "sprite": 1
+    },
+
+    "111":
+    {
+      "id": "111",
+      "tier": 2,
+      "prereq": ["100"],
+      "class": "future",
+      "displayName": "Gunner",
+      "buffs": [
+        "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
+        "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
+        "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
+        "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
+        "Nullify Buffs for Enemy Units"
+      ],
+      "meta": {
+        "hp": 50,
+        "atk": 20,
+        "spd": 20,
+        "buffs": {
+          "ownSpd": 0,
+          "offSpd": 0,
+          "ownAtk": 0,
+          "offAtk": 0,
+          "ownHp": 0,
+          "offHp": 0,
+          "provoke": false,
+          "priority": false,
+          "debuffNull": false,
+          "buffNull": false
+        },
+        "damageMultipliers": {
+          "weak": 0.666,
+          "normal": 1.0,
+          "strong": 1.5
+        },
+        "abilityActivated": false
+      },
+      "sprite": 2
+    },
+
+    "120":
+    {
+      "id": "120",
+      "tier": 3,
+      "prereq": ["110"],
+      "class": "future",
+      "displayName": "Sniper",
+      "buffs": [
+        "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
+        "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
+        "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
+        "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
+        "Nullify Buffs for Enemy Units"
+      ],
+      "meta": {
+        "hp": 100,
+        "atk": 20,
+        "spd": 20,
+        "buffs": {
+          "ownSpd": 0,
+          "offSpd": -10,
+          "ownAtk": 0,
+          "offAtk": 0,
+          "ownHp": 0,
+          "offHp": 0,
+          "provoke": false,
+          "priority": false,
+          "debuffNull": false,
+          "buffNull": false
+        },
+        "damageMultipliers": {
+          "weak": 0.666,
+          "normal": 1.0,
+          "strong": 1.5
+        },
+        "abilityActivated": false
+      },
+      "sprite": 3
+    },
+
+    "121":
+    {
+      "id": "121",
+      "tier": 3,
+      "prereq": ["110", "111"],
+      "class": "future",
+      "displayName": "Ranger",
+      "buffs": [
+        "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
+        "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
+        "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
+        "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
+        "Nullify Buffs for Enemy Units"
+      ],
+      "meta": {
+        "hp": 85,
+        "atk": 25,
+        "spd": 25,
+        "buffs": {
+          "ownSpd": 0,
+          "offSpd": 0,
+          "ownAtk": 0,
+          "offAtk": 0,
+          "ownHp": 0,
+          "offHp": 0,
+          "provoke": false,
+          "priority": true,
+          "debuffNull": false,
+          "buffNull": false
+        },
+        "damageMultipliers": {
+          "weak": 0.666,
+          "normal": 1.0,
+          "strong": 1.5
+        },
+        "abilityActivated": false
+      },
+      "sprite": 4
+    },
+
+    "122":
+    {
+      "id": "122",
+      "tier": 3,
+      "prereq": ["111"],
+      "class": "future",
+      "displayName": "Striker",
+      "buffs": [
+        "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
+        "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
+        "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
+        "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
+        "Nullify Buffs for Enemy Units"
+      ],
+      "meta": {
+        "hp": 75,
+        "atk": 30,
+        "spd": 30,
+        "buffs": {
+          "ownSpd": 0,
+          "offSpd": 0,
+          "ownAtk": 0,
+          "offAtk": 0,
+          "ownHp": 0,
+          "offHp": -10,
+          "provoke": false,
+          "priority": false,
+          "debuffNull": false,
+          "buffNull": false
+        },
+        "damageMultipliers": {
+          "weak": 0.666,
+          "normal": 1.0,
+          "strong": 1.5
+        },
+        "abilityActivated": false
+      },
+      "sprite": 5
+    },
+    "200":
+    {
+      "id": "200",
+      "tier": 1,
+      "prereq": ["000"],
+      "class": "feudal",
+      "displayName": "Commoner",
+      "buffs": [
+        "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
+        "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
+        "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
+        "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
+        "Nullify Buffs for Enemy Units"
+      ],
+      "meta": {
+        "hp": 35,
+        "atk": 10,
+        "spd": 10,
+        "buffs": {
+          "ownSpd": 0,
+          "offSpd": 0,
+          "ownAtk": 0,
+          "offAtk": 0,
+          "ownHp": 0,
+          "offHp": 0,
+          "provoke": false,
+          "priority": false,
+          "debuffNull": false,
+          "buffNull": false
+        },
+        "damageMultipliers": {
+          "weak": 0.666,
+          "normal": 1.0,
+          "strong": 1.5
+        },
+        "abilityActivated": false
+      },
+      "sprite": 0
+    },
+
+    "210":
+    {
+      "id": "210",
+      "tier": 2,
+      "prereq": ["200"],
+      "class": "feudal",
+      "displayName": "Knight",
+      "buffs": [
+        "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
+        "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
+        "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
+        "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
+        "Nullify Buffs for Enemy Units"
+      ],
+      "meta": {
+        "hp": 60,
+        "atk": 15,
+        "spd": 15,
+        "buffs": {
+          "ownSpd": 0,
+          "offSpd": 0,
+          "ownAtk": 0,
+          "offAtk": 0,
+          "ownHp": 0,
+          "offHp": 0,
+          "provoke": false,
+          "priority": false,
+          "debuffNull": false,
+          "buffNull": false
+        },
+        "damageMultipliers": {
+          "weak": 0.666,
+          "normal": 1.0,
+          "strong": 1.5
+        },
+        "abilityActivated": false
+      },
+      "sprite": 1
+    },
+
+    "211":
+    {
+      "id": "211",
+      "tier": 2,
+      "prereq": ["200"],
+      "class": "feudal",
+      "displayName": "Thief",
+      "buffs": [
+        "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
+        "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
+        "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
+        "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
+        "Nullify Buffs for Enemy Units"
+      ],
+      "meta": {
+        "hp": 50,
+        "atk": 20,
+        "spd": 20,
+        "buffs": {
+          "ownSpd": 0,
+          "offSpd": 0,
+          "ownAtk": 0,
+          "offAtk": 0,
+          "ownHp": 0,
+          "offHp": 0,
+          "provoke": false,
+          "priority": false,
+          "debuffNull": false,
+          "buffNull": false
+        },
+        "damageMultipliers": {
+          "weak": 0.666,
+          "normal": 1.0,
+          "strong": 1.5
+        },
+        "abilityActivated": false
+      },
+      "sprite": 2
+    },
+
+    "220":
+    {
+      "id": "220",
+      "tier": 3,
+      "prereq": ["210"],
+      "class": "feudal",
+      "displayName": "Great Knight",
+      "buffs": [
+        "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
+        "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
+        "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
+        "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
+        "Nullify Buffs for Enemy Units"
+      ],
+      "meta": {
+        "hp": 100,
+        "atk": 20,
+        "spd": 20,
+        "buffs": {
+          "ownSpd": 0,
+          "offSpd": 0,
+          "ownAtk": 0,
+          "offAtk": 0,
+          "ownHp": 0,
+          "offHp": 0,
+          "provoke": true,
+          "priority": false,
+          "debuffNull": false,
+          "buffNull": false
+        },
+        "damageMultipliers": {
+          "weak": 0.666,
+          "normal": 1.0,
+          "strong": 1.5
+        },
+        "abilityActivated": false
+      },
+      "sprite": 3
+    },
+
+    "222":
+    {
+      "id": "222",
+      "tier": 3,
+      "prereq": ["211"],
+      "class": "feudal",
+      "displayName": "Assassin",
+      "buffs": [
+        "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
+        "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
+        "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
+        "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
+        "Nullify Buffs for Enemy Units"
+      ],
+      "meta": {
+        "hp": 75,
+        "atk": 30,
+        "spd": 30,
+        "buffs": {
+          "ownSpd": 10,
+          "offSpd": 0,
+          "ownAtk": 0,
+          "offAtk": 0,
+          "ownHp": 0,
+          "offHp": 0,
+          "provoke": false,
+          "priority": false,
+          "debuffNull": false,
+          "buffNull": false
+        },
+        "damageMultipliers": {
+          "weak": 0.666,
+          "normal": 1.0,
+          "strong": 1.5
+        },
+        "abilityActivated": false
+      },
+      "sprite": 4
+    },
+
+    "221":
+    {
+      "id": "221",
+      "tier": 3,
+      "prereq": ["210", "211"],
+      "class": "feudal",
+      "displayName": "Royal Knight",
+      "buffs": [
+        "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
+        "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
+        "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
+        "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
+        "Nullify Buffs for Enemy Units"
+      ],
+      "meta": {
+        "hp": 85,
+        "atk": 25,
+        "spd": 25,
+        "buffs": {
+          "ownSpd": 5,
+          "offSpd": 0,
+          "ownAtk": 5,
+          "offAtk": 0,
+          "ownHp": 0,
+          "offHp": 0,
+          "provoke": false,
+          "priority": false,
+          "debuffNull": false,
+          "buffNull": false
+        },
+        "damageMultipliers": {
+          "weak": 0.666,
+          "normal": 1.0,
+          "strong": 1.5
+        },
+        "abilityActivated": false
+      },
+      "sprite": 5
+    },
+    "300":
+    {
+      "id": "300",
+      "tier": 1,
+      "prereq": ["000"],
+      "class": "fantasy",
+      "displayName": "Student",
+      "buffs": [
+        "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
+        "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
+        "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
+        "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
+        "Nullify Buffs for Enemy Units"
+      ],
+      "meta": {
+        "hp": 35,
+        "atk": 10,
+        "spd": 10,
+        "buffs": {
+          "ownSpd": 0,
+          "offSpd": 0,
+          "ownAtk": 0,
+          "offAtk": 0,
+          "ownHp": 0,
+          "offHp": 0,
+          "provoke": false,
+          "priority": false,
+          "debuffNull": false,
+          "buffNull": false
+        },
+        "damageMultipliers": {
+          "weak": 0.666,
+          "normal": 1.0,
+          "strong": 1.5
+        },
+        "abilityActivated": false
+      },
+      "sprite": 0
+    },
+
+    "311":
+    {
+      "id": "311",
+      "tier": 2,
+      "prereq": ["300"],
+      "class": "fantasy",
+      "displayName": "Spell Caster",
+      "buffs": [
+        "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
+        "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
+        "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
+        "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
+        "Nullify Buffs for Enemy Units"
+      ],
+      "meta": {
+        "hp": 50,
+        "atk": 20,
+        "spd": 20,
+        "buffs": {
+          "ownSpd": 0,
+          "offSpd": 0,
+          "ownAtk": 0,
+          "offAtk": 0,
+          "ownHp": 0,
+          "offHp": 0,
+          "provoke": false,
+          "priority": false,
+          "debuffNull": false,
+          "buffNull": false
+        },
+        "damageMultipliers": {
+          "weak": 0.666,
+          "normal": 1.0,
+          "strong": 1.5
+        },
+        "abilityActivated": false
+      },
+      "sprite": 1
+    },
+
+    "310":
+    {
+      "id": "310",
+      "tier": 2,
+      "prereq": ["300"],
+      "class": "fantasy",
+      "displayName": "Beast Tamer",
+      "buffs": [
+        "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
+        "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
+        "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
+        "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
+        "Nullify Buffs for Enemy Units"
+      ],
+      "meta": {
+        "hp": 60,
+        "atk": 15,
+        "spd": 15,
+        "buffs": {
+          "ownSpd": 0,
+          "offSpd": 0,
+          "ownAtk": 0,
+          "offAtk": 0,
+          "ownHp": 0,
+          "offHp": 0,
+          "provoke": false,
+          "priority": false,
+          "debuffNull": false,
+          "buffNull": false
+        },
+        "damageMultipliers": {
+          "weak": 0.666,
+          "normal": 1.0,
+          "strong": 1.5
+        },
+        "abilityActivated": false
+      },
+      "sprite": 2
+    },
+
+    "320":
+    {
+      "id": "320",
+      "tier": 3,
+      "prereq": ["310"],
+      "class": "fantasy",
+      "displayName": "Dragon Master",
+      "buffs": [
+        "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
+        "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
+        "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
+        "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
+        "Nullify Buffs for Enemy Units"
+      ],
+      "meta": {
+        "hp": 100,
+        "atk": 20,
+        "spd": 20,
+        "buffs": {
+          "ownSpd": 0,
+          "offSpd": 0,
+          "ownAtk": 0,
+          "offAtk": 0,
+          "ownHp": 20,
+          "offHp": 0,
+          "provoke": false,
+          "priority": false,
+          "debuffNull": false,
+          "buffNull": false
+        },
+        "damageMultipliers": {
+          "weak": 0.666,
+          "normal": 1.0,
+          "strong": 1.5
+        },
+        "abilityActivated": false
+      },
+      "sprite": 3
+    },
+
+    "321":
+    {
+      "id": "321",
+      "tier": 3,
+      "prereq": ["310", "311"],
+      "class": "fantasy",
+      "displayName": "Summoner",
+      "buffs": [
+        "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
+        "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
+        "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
+        "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
+        "Nullify Buffs for Enemy Units"
+      ],
+      "meta": {
+        "hp": 85,
+        "atk": 25,
+        "spd": 25,
+        "buffs": {
+          "ownSpd": 0,
+          "offSpd": 0,
+          "ownAtk": 0,
+          "offAtk": 0,
+          "ownHp": 0,
+          "offHp": 0,
+          "provoke": false,
+          "priority": false,
+          "debuffNull": true,
+          "buffNull": false
+        },
+        "damageMultipliers": {
+          "weak": 0.666,
+          "normal": 1.0,
+          "strong": 1.5
+        },
+        "abilityActivated": false
+      },
+      "sprite": 4
+    },
+
+    "322":
+    {
+      "id": "322",
+      "tier": 3,
+      "prereq": ["311"],
+      "class": "fantasy",
+      "displayName": "Arch Mage",
+      "buffs": [
+        "- 10 Speed to Enemy Units", "Ranger gets Action Priority",
+        "+ 10 Attack to Team Units", "Great Knight Provoke Activated",
+        "+ 5 Attack and Speed to Team Units", "+ 10 Speed to Team Units",
+        "+ 10 HP for Team Units (per turn)", "Nullify Debuffs for Enemy Units",
+        "Nullify Buffs for Enemy Units"
+      ],
+      "meta": {
+        "hp": 75,
+        "atk": 30,
+        "spd": 30,
+        "buffs": {
+          "ownSpd": 0,
+          "offSpd": 0,
+          "ownAtk": 0,
+          "offAtk": 0,
+          "ownHp": 0,
+          "offHp": 0,
+          "provoke": false,
+          "priority": false,
+          "debuffNull": false,
+          "buffNull": true
+        },
+        "damageMultipliers": {
+          "weak": 0.666,
+          "normal": 1.0,
+          "strong": 1.5
+        },
+        "abilityActivated": false
+      },
+      "sprite": 5
+    }
+  }
+}
