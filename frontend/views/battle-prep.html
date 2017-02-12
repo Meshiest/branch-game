@@ -10,6 +10,13 @@
       </div>
       <div class="avatar {{recruit.class}} sprite-{{recruit.sprite}}"></div>
       <h2 class="name">{{recruit.name}}</h2>
+      <div class="attack-speed">
+        <span>A: {{recruit.attack}}</span>
+        <span>S: {{recruit.speed}}</span>
+      </div>
+      <div class="show-ability" ng-if="recruit.ability">
+        <i class="material-icons">add</i>
+      </div>
     </div>
   </div>
   <div class="message">
@@ -23,28 +30,27 @@
         </div>
         <div class="avatar {{recruit.class}} sprite-{{recruit.sprite}}"></div>
         <h2 class="name">{{recruit.name}}</h2>
-      </div>
-      <div class="class-info">
-        <table>
-          <tr><td>Attack</td><td>{{recruit.attack}}</td></tr>
-          <tr><td>Speed</td><td>{{recruit.speed}}</td></tr>
-          <tr><td>Ability</td><td>
-            <i class="material-icons" ng-show="recruit.ability">check</i>
-            <i class="material-icons" ng-hide="recruit.ability">close</i>
-          </td></tr>
-        </table>
+        <div class="attack-speed">
+          <span>A: {{recruit.attack}}</span>
+          <span>S: {{recruit.speed}}</span>
+        </div>
+        <div class="show-ability" ng-if="recruit.ability">
+          <i class="material-icons">add</i>
+        </div>
       </div>
       <span class="flex-grow"></span>
       <div class="class-card {{types[type].class}}" ng-class="{active: selectingRecruit == recruit, dead: !ip}" ng-repeat="type in recruit.evolutions"  ng-click="upgrade(recruit, type)">
         <div class="status-bar">
-          <span class="stats">
-            <span>ATK: {{types[type].meta.atk}}</span>
-            <span>SPD: {{types[type].meta.spd}}</span>
-            <span>HP: +{{types[type].meta.hp-recruit.maxHealth}}</span>
+          <span class="health">
+            <span>+{{types[type].meta.hp-recruit.maxHealth}}</span>
           </span>
         </div>
         <div class="avatar {{recruit.class}} sprite-{{types[type].sprite}}"></div>
         <h2 class="name">{{types[type].displayName}}</h2>
+        <div class="attack-speed">
+          <span>A: {{types[type].meta.atk}}</span>
+          <span>S: {{types[type].meta.spd}}</span>
+        </div>
         <div class="hidden-buff" ng-if="types[type].buffs.length">
           <div ng-repeat="buff in types[type].buffs">
             {{buff}}

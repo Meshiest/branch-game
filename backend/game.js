@@ -40,6 +40,7 @@ class Recruit {
     }
     this.attack = base.meta.atk;
     this.class = base.class;
+    this.type = base.id;
     this.maxHealth = base.meta.hp;
     this.name = base.displayName;
     this.speed = base.meta.spd;
@@ -85,10 +86,14 @@ module.exports = class {
     player2.game = id;
     player2.ready = false;
     player2.ip = 0;
-    this.log = [];
+    this.logs = [];
     this.id = id;
     this.rounds = 0;
     this.state = 'setup';
+  }
+
+  log(msg) {
+    logs[logs.length-1][0].push(msg);
   }
 
   // sorry guy :(
@@ -139,16 +144,13 @@ module.exports = class {
     player.ready = false;
     console.log("round 2 lol");
     if(action.target < 0 || action.target > 2) return;
-    console.log('upgrading1');
     var target = player.classes[action.target];
     if(!target.living()) return;
 
-    console.log('upgrading2');
     if(action.type == 'upgrade') {
       // we can't go there
       if(!target.evolutions.includes(action.next))
         return;
-      console.log('upgrading3');
       target.applySpecs(types[action.next]);
       player.ip --;
     } else if(action.type == 'power' && !target.ability) {
@@ -168,8 +170,12 @@ module.exports = class {
     var team1Health = 0;
     for(var i = 0; i < this.player1.classes.length; i++) {
       var recruit = this.player1.classes[i];
-      if(recruit.living() && recruit.ability)
+      console.log('ability1',i, recruit.ability,recruit.living() && recruit.ability);
+      if(recruit.living() && recruit.ability) {
+        console.log('has ability hp:', types[recruit.type].displayName, types[recruit.type].meta.buffs.ownHp);
         team1Health += types[recruit.type].meta.buffs.ownHp;
+        console.log("health1 is now", team1Health);
+      }
     }
     console.log("adding", team1Health, "team1");
     for(var i = 0; i < this.player1.classes.length; i++) {
@@ -183,8 +189,12 @@ module.exports = class {
     var team2Health = 0;
     for(var i = 0; i < this.player2.classes.length; i++) {
       var recruit = this.player2.classes[i];
-      if(recruit.living() && recruit.ability)
-        team1Health += types[recruit.type].meta.buffs.ownHp;
+      console.log('ability2',i, recruit.ability,recruit.living() && recruit.ability);
+      if(recruit.living() && recruit.ability) {        
+        console.log('has ability hp:', types[recruit.type].displayName, types[recruit.type].meta.buffs.ownHp);
+        team2Health += types[recruit.type].meta.buffs.ownHp;
+        console.log("health2 is now", team2Health);
+      }
     }
     console.log("adding", team2Health, "team2");
     for(var i = 0; i < this.player2.classes.length; i++) {
@@ -231,16 +241,18 @@ module.exports = class {
           team2bonus.debuffNull = true;
         if(types[recruit.type].meta.buffs.buffNull)
           team2bonus.buffNull = true;
+        console.log("debuff checking team1", team2bonus);
       }
     }
     for(var i = 0; i < this.player2.classes.length; i++) {
       var recruit = this.player2.classes[i];
       if(!recruit.living()) continue;
       if(recruit.ability) {
-        if(types[recruit.type].meta.buffs.debuffNull)
+        if(types[recruit.type].meta.buffs.debuffNull) 
           team1bonus.debuffNull = true;
         if(types[recruit.type].meta.buffs.buffNull)
           team1bonus.buffNull = true;
+        console.log("debuff checking team1", team1bonus);
       }
     }
 
@@ -330,6 +342,8 @@ module.exports = class {
         }
       }
     }
+    console.log("team1 bonuses", team1bonus);
+    console.log("team2 bonuses", team2bonus);
 
     // handle defending
     for(var i = 0; i < recruits.length; i++) {
@@ -337,6 +351,7 @@ module.exports = class {
       if(!recruit.rec.living() || recruit.moveType != 'defend' ) continue;
       // provoking and using ability
       if(recruit.rec.ability && types[recruit.rec.type].meta.buffs.provoke) {
+        console.log('applying provoke');
         for(var j = 0; j < recruits.length; j++) {
           var other = recruits[j];
           // same team only
@@ -344,12 +359,14 @@ module.exports = class {
             continue;
           // effect self
           if(other.id == recruit.id) {
+            console.log("provoke on self");
             recruit.mods.feudal = 1;
             recruit.mods.future = 1;
             recruit.mods.fantasy = 1;
           } else {
             // don't effect other provoked great knights that are defending and provoking
             if(!(other.rec.ability && types[other.rec.type].meta.buffs.provoke && recruit.moveType == 'defend')) {
+              console.log("provoke on team", other.id);
               recruit.mods.feudal = 0.666;
               recruit.mods.future = 0.666;
               recruit.mods.fantasy = 0.666;
@@ -452,7 +469,6 @@ module.exports = class {
         if(other.team == recruit.team || !other.rec.living()) continue;
         console.log("striker?", recruit.rec.type == "111");
         if(other.id == recruit.moveTarget) {
-          console.log('targeting',other.id,'(',recruit.moveTarget,')','from',recruit.id);
           var baseDamage = recruit.attack; // base attack
           // add team based attack damage
           baseDamage += recruit.team == 1 ? team1bonus.attack : team2bonus.attack;
@@ -461,6 +477,7 @@ module.exports = class {
           baseDamage = Math.ceil(baseDamage);
           damage += baseDamage;
           other.rec.health -= baseDamage;
+          console.log('targeting',other.id,'(',recruit.moveTarget,')','from',recruit.id, "damage: ", baseDamage);
         } else if(recruit.rec.type == "111") { // striker does splash damage
           console.log("splash damage");
           damage += 10;

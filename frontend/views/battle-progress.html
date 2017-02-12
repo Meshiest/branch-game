@@ -7,6 +7,13 @@
       </div>
       <div class="avatar {{recruit.class}} sprite-{{recruit.sprite}}"></div>
       <h2 class="name">{{recruit.name}}</h2>
+      <div class="attack-speed">
+        <span>A: {{recruit.attack}}</span>
+        <span>S: {{recruit.speed}}</span>
+      </div>
+      <div class="show-ability" ng-if="recruit.ability">
+        <i class="material-icons">add</i>
+      </div>
     </div>
   </div>
   <div class="message">
@@ -20,6 +27,13 @@
       </div>
       <div class="avatar {{recruit.class}} sprite-{{recruit.sprite}}"></div>
       <h2 class="name">{{recruit.name}}</h2>
+      <div class="attack-speed">
+        <span>A: {{recruit.attack}}</span>
+        <span>S: {{recruit.speed}}</span>
+      </div>
+      <div class="show-ability" ng-if="recruit.ability">
+        <i class="material-icons">add</i>
+      </div>
       <div class="commands" ng-class="{active: recruit.moveType}">
         <div class="action-button" ng-class="{active: recruit.moveType == 'attack'}" ng-click="startAttack(recruit)">
           <div class="class-icon {{recruit.class}} attack"></div>

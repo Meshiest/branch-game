@@ -645,3 +645,17 @@ h3 {
 .power-up .class-icon {
   transform: scale(3);
 }
+
+.show-ability {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+}
+
+.attack-speed {
+  display: flex;
+  flex-direction: column;
+  left: 5px;
+  position: absolute;
+  top: 5px; 
+}
