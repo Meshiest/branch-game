@@ -83,6 +83,7 @@ module.exports = class {
     player1.ip = 0;
     this.player2 = player2;
     player2.game = id;
+    player2.ready = false;
     player2.ip = 0;
     this.log = [];
     this.id = id;
@@ -107,10 +108,14 @@ module.exports = class {
   // ready up a player
   readySetup(player, isReady, classes) {
     player.ready = isReady;
-    var num = player == this.player1 ? "1" : "2";
+
+    var num = (player == this.player1) ? "1" : "2";
+    console.log('player ',num,'is readying up',player.ready);
     player.classes = classes.map((type, i)=>{return new Recruit(type, i, num);});
 
     if(this.player1.ready && this.player2.ready) {
+      this.player1.ready = false;
+      this.player2.ready = false;
       this.nextRound();
     }
   }
@@ -119,7 +124,7 @@ module.exports = class {
     player.ready = isReady;
     player.options = options;
 
-    console.log('player is ready');
+    console.log('player',player == this.player1 ? "1" : "2",'is ready');
     if(this.player1.ready && this.player2.ready) {
       console.log('running round');
       this.runRound();
@@ -152,17 +157,45 @@ module.exports = class {
     player.socket.emit('update', {
       classes: player.classes.map((a)=>{return a.blob();}),
       ip: player.ip,
-      round: this.round,
+      round: this.rounds,
     });
   }
 
   addBuffs() {
     // add health from dragon tamers lol
+    var team1Health = 0;
+    for(var i = 0; i < this.player1.classes.length; i++) {
+      var recruit = this.player1.classes[i];
+      if(recruit.living() && recruit.ability)
+        team1Health += types[recruit.type].meta.buffs.ownHp;
+    }
+    for(var i = 0; i < this.player1.classes.length; i++) {
+      var recruit = this.player1.classes[i];
+      if(recruit.living()) {
+        recruit.health += team1Health;
+        recruit.health = Math.min(recruit.maxHealth, recruit.health);
+      }
+    }
+    
+    var team2Health = 0;
+    for(var i = 0; i < this.player2.classes.length; i++) {
+      var recruit = this.player2.classes[i];
+      if(recruit.living() && recruit.ability)
+        team1Health += types[recruit.type].meta.buffs.ownHp;
+    }
+    for(var i = 0; i < this.player2.classes.length; i++) {
+      var recruit = this.player2.classes[i];
+      if(recruit.living()) {
+        recruit.health += team2Health;
+        recruit.health = Math.min(recruit.maxHealth, recruit.health);
+      }
+    }
+
   }
 
   readyPrep(player, isReady) {
     player.ready = isReady;
-
+    console.log('player is ', player == this.player1 ? "1" : "2");
     console.log('player is ready', this.player1.ready, this.player2.ready);
     if(this.player1.ready && this.player2.ready) {
       console.log('running round');
@@ -242,12 +275,12 @@ module.exports = class {
       if(!recruit.living()) continue;
       if(recruit.ability) {
         if(!team1bonus.buffNull) {
-          team1bonus.speed += recruit.ownSpd;
-          team1bonus.attack += recruit.ownAtk;
+          team1bonus.speed += recruit.ownSpd || 0;
+          team1bonus.attack += recruit.ownAtk || 0;
         }
         if(!team1bonus.debuffNull) {
-          team2bonus.speed += recruit.offSpd;
-          team2bonus.attack += recruit.offAtk;
+          team2bonus.speed += recruit.offSpd || 0;
+          team2bonus.attack += recruit.offAtk || 0;
         }
       }
     }
@@ -284,12 +317,12 @@ module.exports = class {
       if(!recruit.living()) continue;
       if(recruit.ability) {
         if(!team2bonus.buffNull) {
-          team2bonus.speed += recruit.ownSpd;
-          team2bonus.attack += recruit.ownAtk;
+          team2bonus.speed += recruit.ownSpd || 0;
+          team2bonus.attack += recruit.ownAtk || 0;
         }
         if(!team2bonus.debuffNull) {
-          team1bonus.speed += recruit.offSpd;
-          team1bonus.attack += recruit.offAtk;
+          team1bonus.speed += recruit.offSpd || 0;
+          team1bonus.attack += recruit.offAtk || 0;
         }
       }
     }
@@ -299,7 +332,7 @@ module.exports = class {
       var recruit = recruits[i];
       if(!recruit.rec.living() || recruit.moveType != 'defend' ) continue;
       // provoking and using ability
-      if(recruit.rec.ability && types[recruit.type].meta.buffs.provoke) {
+      if(recruit.rec.ability && types[recruit.rec.type].meta.buffs.provoke) {
         for(var j = 0; j < recruits.length; j++) {
           var other = recruits[j];
           // same team only
@@ -347,12 +380,13 @@ module.exports = class {
 
       // apply bonuses
       if(recruit.team == 1) {
-        recruit.speed += team1bonus.speed;
-        recruit.attack += team1bonus.attack;
+        console.log(recruit.speed,"bonus",team1bonus.speed);
+        recruit.speed += team1bonus.speed || 0;
+        recruit.attack += team1bonus.attack || 0;
       }
       if(recruit.team == 2) {
-        recruit.speed += team2bonus.speed;
-        recruit.attack += team2bonus.attack;
+        recruit.speed += team2bonus.speed || 0;
+        recruit.attack += team2bonus.attack || 0;
       }
 
       // remove and append first in queue
@@ -373,6 +407,10 @@ module.exports = class {
         var recruit = queueLineup[i];
         if(recruit.speed > max)
           max = recruit.speed;
+      }
+      if(max === 0) {
+        console.log('GLITCH WTF', queueLineup, team1bonus, team2bonus);
+        break;
       }
       queue.push([]);
       console.log('max is ', max);
@@ -469,18 +507,19 @@ module.exports = class {
   }
 
   startPrep() {
+    console.log('readys', this.player1.ready, this.player2.ready);
     this.player1.ready = false;
     this.player2.ready = false;
     this.state = 'prep';
     var player1State = {
       classes: this.player1.classes.map((a)=>{return a.blob();}),
       ip: this.player1.ip,
-      round: this.round,
+      round: this.rounds,
     };
     var player2State = {
       classes: this.player2.classes.map((a)=>{return a.blob();}),
       ip: this.player2.ip,
-      round: this.round,
+      round: this.rounds,
     };
     this.player1.socket.emit('prep', player1State, player2State);
     this.player2.socket.emit('prep', player2State, player1State);
@@ -488,6 +527,7 @@ module.exports = class {
 
   // tell the players what comes next
   nextRound() {
+    console.log('readys round', this.player1.ready, this.player2.ready);
     this.player1.ready = false;
     this.player1.ip = 0;
     this.player2.ready = false;
@@ -497,12 +537,12 @@ module.exports = class {
     var player1State = {
       classes: this.player1.classes.map((a)=>{return a.blob();}),
       ip: this.player1.ip,
-      round: this.round,
+      round: this.rounds,
     };
     var player2State = {
       classes: this.player2.classes.map((a)=>{return a.blob();}),
       ip: this.player2.ip,
-      round: this.round,
+      round: this.rounds,
     };
     this.player1.socket.emit('round', player1State, player2State);
     this.player2.socket.emit('round', player2State, player1State);

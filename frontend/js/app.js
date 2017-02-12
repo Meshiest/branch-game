@@ -257,7 +257,7 @@
           moves.push(move);
         }
       }
-
+      console.log('emitting READY', $scope.ready);
       socket.emit('ready', $scope.ready, moves);
     };
 
@@ -265,12 +265,14 @@
     $scope.toggleReady = function() {
       $scope.ready = !$scope.ready;
       var classes = $scope.slots.map((e) => {return Object.keys(e)[0];});
+      console.log('emitting READY setup', $scope.ready);
       socket.emit('ready', $scope.ready, $scope.ready ? classes : []);
     };
 
     // for prep phase
     $scope.togglePrepReady = function() {
       $scope.ready = !$scope.ready;
+      console.log('emitting READY prep', $scope.ready);
       socket.emit('ready', $scope.ready);
     };
 
@@ -296,6 +298,7 @@
       console.log('Starting Setup');
       $scope.$evalAsync(() => {
         $scope.phase = 'setup';
+        socket.emit('ready', false, []);
       });
     });
 
@@ -317,6 +320,7 @@
         $scope.round = selfState.round;
         console.log('PROGRESS');
         $scope.phase = 'progress';
+        socket.emit('ready', false, {});
       });
     });
 
@@ -329,6 +333,7 @@
         $scope.opponentRecruits = opponentState.classes;
         $scope.round = selfState.round;
         $scope.phase = 'prep';
+        socket.emit('ready', false);
       });
     });
 

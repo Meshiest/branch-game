@@ -20,7 +20,7 @@ const types = JSON.parse(fs.readFileSync("json/branch.json"));
 
 const SECRET = process.env.HASH_SECRET;
 const port = 8080;
-const version = "1.0.0";
+const version = "1.0.5";
  
 app.set('trust proxy', 1);
 app.use(bodyParser.json());
