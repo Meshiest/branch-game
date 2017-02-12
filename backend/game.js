@@ -142,10 +142,10 @@ module.exports = class {
   upgradePrep(player, action) {
     if(player.ip === 0) return;
     player.ready = false;
-    console.log("round 2 lol");
     if(action.target < 0 || action.target > 2) return;
     var target = player.classes[action.target];
     if(!target.living()) return;
+    console.log("upgrading", player == this.player1 ? "1" : "2");
 
     if(action.type == 'upgrade') {
       // we can't go there
@@ -170,14 +170,13 @@ module.exports = class {
     var team1Health = 0;
     for(var i = 0; i < this.player1.classes.length; i++) {
       var recruit = this.player1.classes[i];
-      console.log('ability1',i, recruit.ability,recruit.living() && recruit.ability);
       if(recruit.living() && recruit.ability) {
-        console.log('has ability hp:', types[recruit.type].displayName, types[recruit.type].meta.buffs.ownHp);
         team1Health += types[recruit.type].meta.buffs.ownHp;
-        console.log("health1 is now", team1Health);
       }
     }
-    console.log("adding", team1Health, "team1");
+    if(team1Health) {
+      log({team: 1, heal: team1Health});
+    }
     for(var i = 0; i < this.player1.classes.length; i++) {
       var recruit = this.player1.classes[i];
       if(recruit.living()) {
@@ -189,14 +188,13 @@ module.exports = class {
     var team2Health = 0;
     for(var i = 0; i < this.player2.classes.length; i++) {
       var recruit = this.player2.classes[i];
-      console.log('ability2',i, recruit.ability,recruit.living() && recruit.ability);
       if(recruit.living() && recruit.ability) {        
-        console.log('has ability hp:', types[recruit.type].displayName, types[recruit.type].meta.buffs.ownHp);
         team2Health += types[recruit.type].meta.buffs.ownHp;
-        console.log("health2 is now", team2Health);
       }
     }
-    console.log("adding", team2Health, "team2");
+    if(team2Health) {
+      log({team: 2, heal: team2Health});
+    }
     for(var i = 0; i < this.player2.classes.length; i++) {
       var recruit = this.player2.classes[i];
       if(recruit.living()) {
@@ -290,13 +288,19 @@ module.exports = class {
 
       if(!recruit.living()) continue;
       if(recruit.ability) {
+        console.log('has ability');
         if(!team1bonus.buffNull) {
-          team1bonus.speed += recruit.ownSpd || 0;
-          team1bonus.attack += recruit.ownAtk || 0;
+          
+          team1bonus.speed += types[recruit.type].meta.buffs.ownSpd || 0;
+          team1bonus.attack += types[recruit.type].meta.buffs.ownAtk || 0;
+          console.log('has ability own spd:', types[recruit.type].displayName, types[recruit.type].meta.buffs.ownSpd);
+          console.log('has ability own atk:', types[recruit.type].displayName, types[recruit.type].meta.buffs.ownAtk);
         }
         if(!team1bonus.debuffNull) {
-          team2bonus.speed += recruit.offSpd || 0;
-          team2bonus.attack += recruit.offAtk || 0;
+          team2bonus.speed += types[recruit.type].meta.buffs.offSpd || 0;
+          team2bonus.attack += types[recruit.type].meta.buffs.offAtk || 0;
+          console.log('has ability off spd:', types[recruit.type].displayName, types[recruit.type].meta.buffs.offSpd);
+          console.log('has ability off atk:', types[recruit.type].displayName, types[recruit.type].meta.buffs.offAtk);
         }
       }
     }
@@ -332,13 +336,18 @@ module.exports = class {
 
       if(!recruit.living()) continue;
       if(recruit.ability) {
+        console.log('has ability');
         if(!team2bonus.buffNull) {
-          team2bonus.speed += recruit.ownSpd || 0;
-          team2bonus.attack += recruit.ownAtk || 0;
+          team2bonus.speed += types[recruit.type].meta.buffs.ownSpd || 0;
+          team2bonus.attack += types[recruit.type].meta.buffs.ownAtk || 0;
+          console.log('has ability own spd:', types[recruit.type].displayName, types[recruit.type].meta.buffs.ownSpd);
+          console.log('has ability own atk:', types[recruit.type].displayName, types[recruit.type].meta.buffs.ownAtk);
         }
         if(!team2bonus.debuffNull) {
-          team1bonus.speed += recruit.offSpd || 0;
-          team1bonus.attack += recruit.offAtk || 0;
+          team2bonus.speed += types[recruit.type].meta.buffs.offSpd || 0;
+          team2bonus.attack += types[recruit.type].meta.buffs.offAtk || 0;
+          console.log('has ability off spd:', types[recruit.type].displayName, types[recruit.type].meta.buffs.offSpd);
+          console.log('has ability off atk:', types[recruit.type].displayName, types[recruit.type].meta.buffs.offAtk);
         }
       }
     }
@@ -403,11 +412,9 @@ module.exports = class {
       if(recruit.team == 1) {
         console.log(recruit.speed,"bonus",team1bonus.speed);
         recruit.speed += team1bonus.speed || 0;
-        recruit.attack += team1bonus.attack || 0;
       }
       if(recruit.team == 2) {
         recruit.speed += team2bonus.speed || 0;
-        recruit.attack += team2bonus.attack || 0;
       }
 
       // remove and append first in queue
@@ -421,17 +428,13 @@ module.exports = class {
 
     // until we have recruits left
     while(queueLineup.length) {
-      console.log(queueLineup.length,'lineup vs recruits', livingRecruits.length)
+      console.log(queueLineup.length,'lineup vs recruits', livingRecruits.length);
       // find max recruit speed
       var max = 0;
       for(var i = 0; i < queueLineup.length; i++) {
         var recruit = queueLineup[i];
         if(recruit.speed > max)
           max = recruit.speed;
-      }
-      if(max === 0) {
-        console.log('GLITCH WTF', queueLineup, team1bonus, team2bonus);
-        break;
       }
       queue.push([]);
       console.log('max is ', max);
@@ -471,9 +474,12 @@ module.exports = class {
         if(other.id == recruit.moveTarget) {
           var baseDamage = recruit.attack; // base attack
           // add team based attack damage
+          console.log("base attack", baseDamage);
           baseDamage += recruit.team == 1 ? team1bonus.attack : team2bonus.attack;
+          console.log("attack mods",recruit.team == 1 ? team1bonus.attack : team2bonus.attack);
           // add multiplers for defense
           baseDamage *= other.mods[recruit.rec.class];
+          console.log("mods",other.mods[recruit.rec.class]);
           baseDamage = Math.ceil(baseDamage);
           damage += baseDamage;
           other.rec.health -= baseDamage;
