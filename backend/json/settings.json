@@ -7,17 +7,17 @@
   "mods": {
     "future": {
       "future": 1.0,
-      "feudal": 1.5,
-      "fantasy": 0.666
-    },
-    "feudal": {
-      "future": 0.666,
-      "feudal": 1.0,
+      "feudal": 0.666,
       "fantasy": 1.5
     },
-    "fantasy": {
+    "feudal": {
       "future": 1.5,
-      "feudal": 0.666,
+      "feudal": 1.0,
+      "fantasy": 0.666
+    },
+    "fantasy": {
+      "future": 0.666,
+      "feudal": 1.5,
       "fantasy": 1.0
     }
   }
