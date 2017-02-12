@@ -18,10 +18,10 @@
   </div>
   <div class="message">
     <span class="instruction" ng-show="selectingRecruit">Select a Target</span>
-      <button class="button" ng-click="toggleRoundReady()" ng-show="roundReady()" ng-class="{red: ready}">{{ready ? "Not " : ""}}Ready</button>
+    <button class="button" ng-click="toggleRoundReady()" ng-show="roundReady()" ng-class="{red: ready}">{{ready ? "Not " : ""}}Ready</button>
   </div>
   <div class="classes team">
-    <div class="class-card {{recruit.class}}" ng-class="{active: selectingRecruit == recruit, dead: (recruit.health <= 0)}" ng-repeat="recruit in recruits">
+    <div class="class-card {{recruit.class}}" ng-class="{selecting: selectingRecruit == recruit, dead: (recruit.health <= 0)}" ng-repeat="recruit in recruits">
       <div class="status-bar">
         <span class="health">{{recruit.health}} / {{recruit.maxHealth}}</span>
       </div>
@@ -35,7 +35,7 @@
         <i class="material-icons">add</i>
       </div>
       <div class="commands" ng-class="{active: recruit.moveType}">
-        <div class="action-button" ng-class="{active: recruit.moveType == 'attack'}" ng-click="startAttack(recruit)">
+        <div class="action-button" ng-class="{active: recruit.moveType == 'attack' || selectingRecruit == recruit}" ng-click="startAttack(recruit)">
           <div class="class-icon {{recruit.class}} attack"></div>
         </div>
         <div class="action-button" ng-class="{active: recruit.moveType == 'defend'}" ng-click="defend(recruit);">
