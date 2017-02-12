@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<div class="battle-container" ng-switch="phase">
+  <battle-setup class="battle-container" ng-switch-when="setup"></battle-setup>
+  <battle-lobby class="battle-container" ng-switch-when="lobby"></battle-lobby>
+  <battle-progress class="battle-container" ng-switch-when="progress"></battle-progress>
+  <battle-end class="battle-container" ng-switch-when="end"></battle-end>
+</div>

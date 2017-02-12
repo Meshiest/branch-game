@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<div class="centered">
+  <h3>Recruit Three</h3>
+  <div class="classes">
+    <div class="class-container">
+      <div class="class-card future">
+        <span></span>
+        <div class="avatar future"></div>
+        <h2 class="name">Future</h2>
+      </div>
+      <button class="button round" ng-click="addSlot('future')">
+        <i class="material-icons">add</i>
+      </button>
+    </div>
+    <div class="class-container">
+      <div class="class-card feudal">
+        <span></span>
+        <div class="avatar feudal"></div>
+        <h2 class="name">Feudal</h2>
+      </div>
+      <button class="button round" ng-click="addSlot('feudal')">
+        <i class="material-icons">add</i>
+      </button>
+    </div>
+    <div class="class-container">
+      <div class="class-card fantasy">
+        <span></span>
+        <div class="avatar fantasy"></div>
+        <h2 class="name">Fantasy</h2>
+      </div>
+      <button class="button round" ng-click="addSlot('fantasy')">
+        <i class="material-icons">add</i>
+      </button>
+    </div>
+  </div>
+  <div class="lineup">
+    <div class="card" ng-repeat="i in [0,1,2]" ng-click="removeSlot(i)">
+      <div class="class-icon" ng-if="slots[i]" ng-class="slots[i]"></div>
+    </div>
+  </div>
+  <button class="button" ng-click="toggleReady()" ng-disabled="slots.length != 3" ng-class="{red: ready}">{{ready ? "Not " : ""}}Ready</button>
+</div>

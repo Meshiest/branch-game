@@ -13,10 +13,13 @@
     <script src="/js/app.js"></script>
     
     <header>
-      <span class="title">Branch</span>
+      <span class="title"><a ng-href="#!/">Branch</a></span>
+      <span class="flex-grow"></span>
+      <button class="button" ng-click="startBattle()" ng-hide="inBattle">Battle</button>
+      <button class="button" ng-click="forfeit()" ng-show="inBattle">Forfeit</button>
       <span class="flex-grow"></span>
       <span class="login-info logged-in" ng-show="loggedIn">
-        Logged In
+        <span class="username">{{username}}</span> <a href="" ng-click="logOut()">Log Out</a>
       </span>
       <span class="login-info logged-out" ng-hide="loggedIn">
         <a ng-href="#!/login">Log In</a> or
@@ -25,5 +28,8 @@
     </header>
     <content ng-view>
     </content>
+    <footer ng-if="offline">
+      <span>GAME SERVER OFFLINE</span>
+    </footer>
   </body>
 </html>
