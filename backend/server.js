@@ -9,7 +9,6 @@ var io = require('socket.io')(http);
 const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
 const mysql = require('mysql');
-var connect = require('connect');
 const fs = require('fs');
 const crypto = require('crypto');
 const redis = require('redis');
@@ -22,7 +21,7 @@ const types = JSON.parse(fs.readFileSync("json/branch.json"));
 const SECRET = process.env.HASH_SECRET;
 const port = 8080;
 const version = "1.0.5";
- 
+
 app.set('trust proxy', 1);
 app.use(bodyParser.json());
 app.use(session({
@@ -173,6 +172,7 @@ io.on('connection', (socket) => {
     socket: socket,
     id: id++,
     game: -1,
+    name: "Guest",
   };
   players[player.id] = player;
 

@@ -575,7 +575,8 @@ module.exports = class {
 
   // starting a new game
   start() {
-    this.emit('setup');
+    this.player1.socket.emit('setup', this.player2.name);
+    this.player2.socket.emit('setup', this.player1.name);
     console.log('Starting for', this.player1.id, this.player2.id);
   }
 };

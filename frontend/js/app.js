@@ -177,22 +177,11 @@
     $scope.round = 0;
     $scope.opponentRecruits = [];
     $rootScope.inBattle = true;
+    $scope.enemyName = "Guest";
 
     $scope.selectingRecruit = undefined;
     var socket = $scope.socket = io.connect(location.origin, {path: '/api/socket.io/'});
     console.log('Opening Socket');
-
-    $scope.newBattle = function() {
-      $scope.phase = 'lobby';
-      $scope.slots = [];
-      $scope.ready = false;
-      $scope.recruits = [];
-      $scope.ip = 0;
-      $scope.round = 0;
-      $scope.opponentRecruits = [];
-      $rootScope.inBattle = true;
-      socket.emit('lobby', true);
-    };
 
     $scope.upgrade = function(recruit, evolution) {
       console.log('upgrading');
@@ -319,8 +308,9 @@
       $scope.slots.push(t);
     };
 
-    socket.on('setup', () => {
+    socket.on('setup', (name) => {
       console.log('Starting Setup');
+      $scope.enemyName = name;
       $scope.$evalAsync(() => {
         $scope.phase = 'setup';
         socket.emit('ready', false, []);
