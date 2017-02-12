@@ -13,11 +13,11 @@ const fs = require('fs');
 const crypto = require('crypto');
 const redis = require('redis');
 const base64url = require('base64url');
+const Game = require('./game.js');
 
 const SECRET = process.env.HASH_SECRET;
 const port = 8080;
 const version = "1.0.0";
-
  
 app.set('trust proxy', 1);
 app.use(bodyParser.json());
@@ -145,9 +145,76 @@ app.post('/login', (req, res) => {
   });
 });
 
-io.on('connection', (socket) => {
-  socket.on('disconnect', () => {
+var players = {};
+var lobby = {};
+var id = 0;
+var games = {};
+var gameId = 0;
 
+function randomOpponent(id) {
+  var keys = Object.keys(lobby);
+  keys.splice(keys.indexOf(id), 1);
+
+  if(!keys.length)
+    return -1;
+  return keys[Math.floor(Math.random() * keys.length)];
+}
+
+io.on('connection', (socket) => {
+  var player = {
+    socket: socket,
+    id: id++,
+    game: -1,
+  };
+  players[player.id] = player;
+
+  // lobby callback
+  socket.on('lobby', (join) => {
+    if(join) {
+      if(player.game < 0 && !lobby[player.id]) {
+        player.game = -1;
+        lobby[player.id] = player;
+        var opponent = randomOpponent(player.id);
+        console.log("Opponent",opponent, player.id);
+
+        // there is an opponent for this player
+        if(opponent >= 0) {
+          var id = gameId++;
+          var game = games[id] = new Game(id, player, players[opponent]);
+          delete lobby[player.id];
+          delete lobby[opponent];
+          game.start();
+        }
+      }
+    } else {
+      // player isn't in a game but is waiting
+      if(player.game < 0 && typeof lobby[player.id] === 'undefined') {
+        console.log('stop waiting', player.id);
+        player.game = -1;
+        delete lobby[player.id];
+
+        // player is leaving a game
+      } else if(player.game >= 0) {
+        console.log('forfeit', player.id);
+        games[player.game].end('forfeit');
+      }
+    }
+  });
+
+  socket.on('ready', (bool, classes) => {
+    if(player.game != -1)
+      games[player.game].ready(player, bool, classes);
+  });
+
+  // player disconnects
+  socket.on('disconnect', () => {
+    if(player.game >= 0) {
+      console.log('disconnect in game', player.id);
+      games[player.game].end('quit');
+      delete games[player.game];
+    }
+    delete lobby[player.id];
+    delete players[player.id];
   });
 });
 
