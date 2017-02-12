@@ -372,13 +372,16 @@ module.exports = class {
             recruit.mods.feudal = 1;
             recruit.mods.future = 1;
             recruit.mods.fantasy = 1;
+            recruit.mods.provoke = true;
           } else {
+            if(other.mods.provoke || other.mods.provoked) continue;
             // don't effect other provoked great knights that are defending and provoking
             if(!(other.rec.ability && types[other.rec.type].meta.buffs.provoke && recruit.moveType == 'defend')) {
               console.log("provoke on team", other.id);
-              recruit.mods.feudal = 0.666;
-              recruit.mods.future = 0.666;
-              recruit.mods.fantasy = 0.666;
+              other.mods.feudal = 0.666;
+              other.mods.future = 0.666;
+              other.mods.fantasy = 0.666;
+              other.mods.provoked = true;
             }
           }
         }
@@ -386,6 +389,7 @@ module.exports = class {
         recruit.mods.feudal = 0.666;
         recruit.mods.future = 0.666;
         recruit.mods.fantasy = 0.666;
+        recruit.mods.defend = true;
       } 
     }
 
@@ -414,11 +418,13 @@ module.exports = class {
         recruit.speed += team1bonus.speed || 0;
       }
       if(recruit.team == 2) {
+        console.log(recruit.speed,"bonus",team1bonus.speed);
         recruit.speed += team2bonus.speed || 0;
       }
 
       // remove and append first in queue
       if(recruit.priority) {
+        console.log('priority',recruit.id);
         queue[queue.length-1].push(queueLineup.splice(i--, 1)[0]);
         console.log(queueLineup.length, "vs" + livingRecruits.length);
       }
@@ -478,12 +484,13 @@ module.exports = class {
           baseDamage += recruit.team == 1 ? team1bonus.attack : team2bonus.attack;
           console.log("attack mods",recruit.team == 1 ? team1bonus.attack : team2bonus.attack);
           // add multiplers for defense
+          console.log("target mods",other.mods);
           baseDamage *= other.mods[recruit.rec.class];
           console.log("mods",other.mods[recruit.rec.class]);
           baseDamage = Math.ceil(baseDamage);
           damage += baseDamage;
           other.rec.health -= baseDamage;
-          console.log('targeting',other.id,'(',recruit.moveTarget,')','from',recruit.id, "damage: ", baseDamage);
+          console.log(recruit.id,'(',types[recruit.rec.type].displayName,')','=>',other.id, "(",types[other.rec.type].displayName,") == ", baseDamage);
         } else if(recruit.rec.type == "111") { // striker does splash damage
           console.log("splash damage");
           damage += 10;
@@ -526,7 +533,7 @@ module.exports = class {
       return;
     }
 
-    var ip = Math.floor(damage * settings.ipModifier);
+    var ip = Math.floor(damage * settings.ipModifier) + 10;
     console.log("IP is ", ip, "from", damage ,"damage");
     this.player1.ip = ip;
     this.player1.ready = false;
