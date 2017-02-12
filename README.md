@@ -6,11 +6,11 @@ Branch is a competitive dueling game where players' armies fight and level up *i
 
 ### Authors
 
-* Katie - Art
-* Noah - Core Mechanics, Balancing
-* Jake - Core Mechanics, Balancing
-* David - Core Mechanics, Softcoding
-* Isaac - Application
+* Katie - All of the Art
+* Noah - Design, Core Mechanics, Balancing
+* Jake - Design, Core Mechanics, Balancing,
+* David - Design, Softcoding
+* Isaac - Design, Application
 
 ### Special Thanks
 
