@@ -293,14 +293,10 @@ module.exports = class {
           
           team1bonus.speed += types[recruit.type].meta.buffs.ownSpd || 0;
           team1bonus.attack += types[recruit.type].meta.buffs.ownAtk || 0;
-          console.log('has ability own spd:', types[recruit.type].displayName, types[recruit.type].meta.buffs.ownSpd);
-          console.log('has ability own atk:', types[recruit.type].displayName, types[recruit.type].meta.buffs.ownAtk);
         }
         if(!team1bonus.debuffNull) {
           team2bonus.speed += types[recruit.type].meta.buffs.offSpd || 0;
           team2bonus.attack += types[recruit.type].meta.buffs.offAtk || 0;
-          console.log('has ability off spd:', types[recruit.type].displayName, types[recruit.type].meta.buffs.offSpd);
-          console.log('has ability off atk:', types[recruit.type].displayName, types[recruit.type].meta.buffs.offAtk);
         }
       }
     }
@@ -340,14 +336,10 @@ module.exports = class {
         if(!team2bonus.buffNull) {
           team2bonus.speed += types[recruit.type].meta.buffs.ownSpd || 0;
           team2bonus.attack += types[recruit.type].meta.buffs.ownAtk || 0;
-          console.log('has ability own spd:', types[recruit.type].displayName, types[recruit.type].meta.buffs.ownSpd);
-          console.log('has ability own atk:', types[recruit.type].displayName, types[recruit.type].meta.buffs.ownAtk);
         }
         if(!team2bonus.debuffNull) {
-          team2bonus.speed += types[recruit.type].meta.buffs.offSpd || 0;
-          team2bonus.attack += types[recruit.type].meta.buffs.offAtk || 0;
-          console.log('has ability off spd:', types[recruit.type].displayName, types[recruit.type].meta.buffs.offSpd);
-          console.log('has ability off atk:', types[recruit.type].displayName, types[recruit.type].meta.buffs.offAtk);
+          team1bonus.speed += types[recruit.type].meta.buffs.offSpd || 0;
+          team1bonus.attack += types[recruit.type].meta.buffs.offAtk || 0;
         }
       }
     }
@@ -360,7 +352,6 @@ module.exports = class {
       if(!recruit.rec.living() || recruit.moveType != 'defend' ) continue;
       // provoking and using ability
       if(recruit.rec.ability && types[recruit.rec.type].meta.buffs.provoke) {
-        console.log('applying provoke');
         for(var j = 0; j < recruits.length; j++) {
           var other = recruits[j];
           // same team only
@@ -368,7 +359,6 @@ module.exports = class {
             continue;
           // effect self
           if(other.id == recruit.id) {
-            console.log("provoke on self");
             recruit.mods.feudal = 1;
             recruit.mods.future = 1;
             recruit.mods.fantasy = 1;
@@ -377,7 +367,6 @@ module.exports = class {
             if(other.mods.provoke || other.mods.provoked) continue;
             // don't effect other provoked great knights that are defending and provoking
             if(!(other.rec.ability && types[other.rec.type].meta.buffs.provoke && recruit.moveType == 'defend')) {
-              console.log("provoke on team", other.id);
               other.mods.feudal = 0.666;
               other.mods.future = 0.666;
               other.mods.fantasy = 0.666;
@@ -404,7 +393,6 @@ module.exports = class {
       }
     }
     var queueLineup = [].concat(livingRecruits);
-    console.log(queueLineup.length, "vs" + livingRecruits.length);
     for(var i = 0; i < queueLineup.length; i++) {
       var recruit = queueLineup[i];
       if(recruit.moveType == 'defend') {
@@ -424,7 +412,7 @@ module.exports = class {
 
       // remove and append first in queue
       if(recruit.priority) {
-        console.log('priority',recruit.id);
+        console.log(recruit.id,'(',types[recruit.rec.type].displayName,')',' priority');
         queue[queue.length-1].push(queueLineup.splice(i--, 1)[0]);
         console.log(queueLineup.length, "vs" + livingRecruits.length);
       }
@@ -448,7 +436,7 @@ module.exports = class {
       for(var i = 0; i < queueLineup.length; i++) {
         var recruit = queueLineup[i];
         if(recruit.speed == max) {
-          console.log('found', recruit.id, 'targeting', recruit.moveTarget);
+          console.log(recruit.id,'(',types[recruit.rec.type].displayName,')',' speed = ',max);
           queue[queue.length-1].push(queueLineup.splice(i--, 1)[0]);
         }
       }
@@ -476,7 +464,7 @@ module.exports = class {
       for(var j = 0; j < livingRecruits.length; j++) {
         var other = livingRecruits[j];
         if(other.team == recruit.team || !other.rec.living()) continue;
-        console.log("striker?", recruit.rec.type == "111");
+        console.log("striker?", recruit.rec.type, types[recruit.rec.type].displayName, recruit.rec.type == "122");
         if(other.id == recruit.moveTarget) {
           var baseDamage = recruit.attack; // base attack
           // add team based attack damage
@@ -491,7 +479,7 @@ module.exports = class {
           damage += baseDamage;
           other.rec.health -= baseDamage;
           console.log(recruit.id,'(',types[recruit.rec.type].displayName,')','=>',other.id, "(",types[other.rec.type].displayName,") == ", baseDamage);
-        } else if(recruit.rec.type == "111") { // striker does splash damage
+        } else if(recruit.rec.type == "122") { // striker does splash damage
           console.log("splash damage");
           damage += 10;
           other.rec.health -= 10;
@@ -533,7 +521,7 @@ module.exports = class {
       return;
     }
 
-    var ip = Math.floor(damage * settings.ipModifier) + 10;
+    var ip = Math.floor(damage * settings.ipModifier);
     console.log("IP is ", ip, "from", damage ,"damage");
     this.player1.ip = ip;
     this.player1.ready = false;

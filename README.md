@@ -14,10 +14,10 @@ Branch is a competitive dueling game where players' armies fight and level up *i
 
 ### Special Thanks
 
+* Burns - Playtesting, QA
 * Adam - Playtesting
 * Alex - Playtesting
 * Avneet - Playtesting
-* Burns - Playtesting
 * Jamie - Playtesting
 * Jared - Playtesting
 * PJ - Playtesting
