@@ -570,15 +570,30 @@ h3 {
 }
 
 .round-counter {
-  align-items: center;
+  align-items: flex-start;
   display: flex;
   flex-direction: column;
   font-size: 30px;
-  justify-content: center;
-  left: 50%;
+  justify-content: flex-start;
+  left: 30px;
   position: absolute;
-  top: 60px;
-  transform: translateX(-50%);
+  top: 80px;
+}
+
+.prep-ready-button {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  font-size: 30px;
+  justify-content: flex-start;
+  left: 30px;
+  padding: 30px;
+  position: absolute;
+  top: 140px;
+}
+
+.prep-ready-button .button {
+  font-size: 30px;
 }
 
 .class-info-container {
@@ -599,6 +614,7 @@ h3 {
   background-color: #F5F5F5;
   display: flex;
   flex-direction: row;
+  width: 200px;
   height: 250px;
   justify-content: flex-start;
 }
@@ -617,4 +633,15 @@ h3 {
   min-width: 100px;
   padding-right: 5px;
   text-align: right;
+}
+
+.power-up {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.power-up .class-icon {
+  transform: scale(3);
 }

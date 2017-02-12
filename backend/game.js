@@ -171,6 +171,7 @@ module.exports = class {
       if(recruit.living() && recruit.ability)
         team1Health += types[recruit.type].meta.buffs.ownHp;
     }
+    console.log("adding", team1Health, "team1");
     for(var i = 0; i < this.player1.classes.length; i++) {
       var recruit = this.player1.classes[i];
       if(recruit.living()) {
@@ -185,6 +186,7 @@ module.exports = class {
       if(recruit.living() && recruit.ability)
         team1Health += types[recruit.type].meta.buffs.ownHp;
     }
+    console.log("adding", team2Health, "team2");
     for(var i = 0; i < this.player2.classes.length; i++) {
       var recruit = this.player2.classes[i];
       if(recruit.living()) {

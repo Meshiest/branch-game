@@ -190,8 +190,13 @@ io.on('connection', (socket) => {
           var game = games[id] = new Game(id, player, players[opponent]);
 
           game.onDone = function() {
+            console.log('Game ending', this.id);
             this.player1.game = -1;
+            this.player1.ip = 0;
+            this.player1.classes = [];
             this.player2.game = -1;
+            this.player2.ip = 0;
+            this.player2.classes = [];
             delete games[id];
           }.bind(game);
 

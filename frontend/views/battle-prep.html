@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<div>
+<div class="prep-ready-button">
   <button class="button" ng-click="togglePrepReady()" ng-class="{red: ready}">{{ready ? "Not " : ""}}Ready</button>
 </div>
 <div class="battle-pane">
@@ -28,7 +28,10 @@
         <table>
           <tr><td>Attack</td><td>{{recruit.attack}}</td></tr>
           <tr><td>Speed</td><td>{{recruit.speed}}</td></tr>
-          <tr><td>Ability</td><td>{{recruit.ability ? "Activated" : "Not Activated"}}</td></tr>
+          <tr><td>Ability</td><td>
+            <i class="material-icons" ng-show="recruit.ability">check</i>
+            <i class="material-icons" ng-hide="recruit.ability">close</i>
+          </td></tr>
         </table>
       </div>
       <span class="flex-grow"></span>
@@ -48,8 +51,10 @@
           </div>
         </div>
       </div>
-      <div class="power-up" ng-hide="recruit.ability" ng-click="power(recruit)">
+      <div class="power-up class-card {{recruit.class}}" ng-hide="recruit.ability" ng-click="power(recruit)" ng-class="{dead: !ip}">
+        <span></span>
         <div class="class-icon {{recruit.class}} power"></div>
+        <h2 class="name">Power Up</h2>
       </div>
     </div>
   </div>
