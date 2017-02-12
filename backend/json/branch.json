@@ -323,7 +323,7 @@
     "class": "feudal",
     "displayName": "Great Knight",
     "buffs": [
-      "Great Knight Provoke Activated",
+      "Great Knight Provoke:",
       "When Defending, 1 Defense Mod on Self",
       "When Defending, 2/3 Defense Mod on Allies"
     ],

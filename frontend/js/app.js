@@ -174,7 +174,7 @@
     console.log('Opening Socket');
 
     $scope.upgrade = function(recruit, evolution) {
-      console.log('upgrading')
+      console.log('upgrading');
       $scope.ready = false;
       socket.emit('upgrade', {
         type: 'upgrade',

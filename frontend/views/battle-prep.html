@@ -29,22 +29,28 @@
         <table>
           <tr><td>Attack</td><td>{{recruit.attack}}</td></tr>
           <tr><td>Speed</td><td>{{recruit.speed}}</td></tr>
+          <tr><td>Ability</td><td>{{recruit.ability ? "Activated" : "Not Activated"}}</td></tr>
         </table>
-        <span class="flex-grow"></span>
-        <div class="class-card {{types[type].class}}" ng-class="{active: selectingRecruit == recruit, dead: !ip}" ng-repeat="type in recruit.evolutions"  ng-click="upgrade(recruit, type)">
-          <div class="status-bar">
-            <span class="stats">
-              <span>ATK: {{types[type].meta.atk}}</span>
-              <span>SPD: {{types[type].meta.spd}}</span>
-              <span>HP: +{{types[type].meta.hp-recruit.maxHealth}}</span>
-            </span>
+      </div>
+      <span class="flex-grow"></span>
+      <div class="class-card {{types[type].class}}" ng-class="{active: selectingRecruit == recruit, dead: !ip}" ng-repeat="type in recruit.evolutions"  ng-click="upgrade(recruit, type)">
+        <div class="status-bar">
+          <span class="stats">
+            <span>ATK: {{types[type].meta.atk}}</span>
+            <span>SPD: {{types[type].meta.spd}}</span>
+            <span>HP: +{{types[type].meta.hp-recruit.maxHealth}}</span>
+          </span>
+        </div>
+        <div class="avatar {{recruit.class}} sprite-{{types[type].sprite}}"></div>
+        <h2 class="name">{{types[type].displayName}}</h2>
+        <div class="hidden-buff" ng-if="types[type].buffs.length">
+          <div ng-repeat="buff in types[type].buffs">
+            {{buff}}
           </div>
-          <div class="avatar {{recruit.class}} sprite-{{types[type].sprite}}"></div>
-          <h2 class="name">{{types[type].displayName}}</h2>
         </div>
-        <div class="power-up" ng-hide="recruit.ability" ng-click="power(recruit)">
-          <div class="class-icon {{recruit.class}} power"></div>
-        </div>
+      </div>
+      <div class="power-up" ng-hide="recruit.ability" ng-click="power(recruit)">
+        <div class="class-icon {{recruit.class}} power"></div>
       </div>
     </div>
   </div>
