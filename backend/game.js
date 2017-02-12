@@ -93,7 +93,7 @@ module.exports = class {
   }
 
   log(msg) {
-    logs[logs.length-1][0].push(msg);
+    this.logs[this.logs.length-1][0].push(msg);
   }
 
   // sorry guy :(
@@ -175,7 +175,7 @@ module.exports = class {
       }
     }
     if(team1Health) {
-      log({team: 1, heal: team1Health});
+      this.log({team: 1, heal: team1Health});
     }
     for(var i = 0; i < this.player1.classes.length; i++) {
       var recruit = this.player1.classes[i];
