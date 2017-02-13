@@ -185,6 +185,7 @@
     $scope.opponentRecruits = [];
     $rootScope.inBattle = true;
     $scope.enemyName = "Guest";
+    $scope.onlineCount = 0;
 
     $scope.selectingRecruit = undefined;
     var socket = $scope.socket = io.connect(location.origin, {path: '/api/socket.io/'});
@@ -314,6 +315,13 @@
       t[type] = true;
       $scope.slots.push(t);
     };
+
+    socket.on('online', (count) => {
+      console.log('online count', count);
+      $scope.$evalAsync(() => {
+        $scope.onlineCount = count;
+      });
+    });
 
     socket.on('setup', (name) => {
       console.log('Starting Setup');

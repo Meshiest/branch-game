@@ -114,6 +114,12 @@ h2 {
   text-align: center;
 }
 
+.subhead {
+  color: #757575;
+  padding-bottom: 5px;
+  text-align: center;
+}
+
 h2.winner {
   font-size: 40px;
 }

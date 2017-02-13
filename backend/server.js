@@ -175,6 +175,7 @@ io.on('connection', (socket) => {
     name: "Guest",
   };
   players[player.id] = player;
+  io.emit('online', Object.keys(players).length);
 
   // lobby callback
   socket.on('lobby', (join) => {
@@ -249,6 +250,7 @@ io.on('connection', (socket) => {
     }
     delete lobby[player.id];
     delete players[player.id];
+    io.emit('online', Object.keys(players).length);
   });
 });
 
