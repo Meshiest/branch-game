@@ -98,12 +98,12 @@ module.exports = class {
 
   // sorry guy :(
   // game has ended or someone has left
-  end(reason1, reason2) {
+  end(winner, reason1, reason2) {
     this.player1.game = -1;
     this.player2.game = -1;
     this.player1.socket.emit('done', reason1);
     this.player2.socket.emit('done', reason2);
-    this.onDone();
+    this.onDone(winner);
   }
 
   // emit to messages
@@ -501,7 +501,7 @@ module.exports = class {
     }
     if(!alive) {
       console.log('no player1 alive')
-      this.end("You're Bad", "Good Job");
+      this.end(2, "You're Bad", "Good Job");
       return;
     }
     var alive = false;
@@ -517,7 +517,7 @@ module.exports = class {
     }
     if(!alive) {
       console.log('no player2 alive')
-      this.end("Good Job", "You're Bad");
+      this.end(1, "Good Job", "You're Bad");
       return;
     }
 

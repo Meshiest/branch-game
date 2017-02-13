@@ -688,3 +688,79 @@ td:first-child {
 .how-to img {
   object-fit: contain;
 }
+
+.versus-dialog {
+  align-items: center;
+  animation: 4s fadeinout 1 ease-in-out;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  justify-content: center;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 3;
+}
+
+.versus-dialog .vs {
+  color: #fff;
+  font-size: 40px;
+  padding: 10px;
+}
+
+.versus-dialog .player-name {
+  color: #81D4FA;
+  font-size: 40px;
+  font-style: italic;
+}
+
+.slide-left {
+  animation: slide-left 1 1s ease-in;
+}
+
+.slide-right {
+  animation: slide-right 1 1s ease-in;
+}
+
+@keyframes slide-left {
+  0%, 50% {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-right {
+  0%, 50% {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeinout {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+

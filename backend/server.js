@@ -5,15 +5,15 @@ const bodyParser = require('body-parser');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-
-const session = require('express-session');
-const RedisStore = require('connect-redis')(session);
+const expressSession = require('express-session');
+const RedisStore = require('connect-redis')(expressSession);
 const mysql = require('mysql');
 const fs = require('fs');
 const crypto = require('crypto');
 const redis = require('redis');
 const base64url = require('base64url');
 const Game = require('./game.js');
+const sharedsession = require("express-socket.io-session");
 
 const types = JSON.parse(fs.readFileSync("json/branch.json"));
 
@@ -22,16 +22,22 @@ const SECRET = process.env.HASH_SECRET;
 const port = 8080;
 const version = "1.0.5";
 
-app.set('trust proxy', 1);
-app.use(bodyParser.json());
-app.use(session({
+var session = expressSession({
   secret: SECRET,
   saveUninitialized: true,
   resave: false,
   store: new RedisStore({
     host: 'redis',
   }),
-}));
+});
+
+io.use(sharedsession(session, {
+    autoSave:true
+})); 
+
+app.set('trust proxy', 1);
+app.use(bodyParser.json());
+app.use(session);
 
 const MYSQL_CONF = {
   host: "mysql",
@@ -172,7 +178,7 @@ io.on('connection', (socket) => {
     socket: socket,
     id: id++,
     game: -1,
-    name: "Guest",
+    name: socket.handshake.session.name || "Guest",
   };
   players[player.id] = player;
   io.emit('online', Object.keys(players).length);
@@ -191,7 +197,7 @@ io.on('connection', (socket) => {
           var id = gameId++;
           var game = games[id] = new Game(id, player, players[opponent]);
 
-          game.onDone = function() {
+          game.onDone = function(winner) {
             console.log('Game ending', this.id);
             this.player1.game = -1;
             this.player1.ip = 0;
@@ -217,7 +223,8 @@ io.on('connection', (socket) => {
         // player is leaving a game
       } else if(player.game >= 0) {
         console.log('forfeit', player.id);
-        games[player.game].end('Opponent Forfeit', 'Opponent Forfeit');
+        games[player.game].end(player == games[player.game].player1 ? 1 : 2, 'Opponent Forfeit', 'Opponent Forfeit');
+        delete games[player.game];
       }
     }
   });
@@ -245,7 +252,7 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     if(player.game >= 0) {
       console.log('disconnect in game', player.id);
-      games[player.game].end('Opponent Disconnected', 'Opponent Disconnected');
+      games[player.game].end(player == games[player.game].player1 ? 1 : 2, 'Opponent Disconnected', 'Opponent Disconnected');
       delete games[player.game];
     }
     delete lobby[player.id];

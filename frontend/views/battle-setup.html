@@ -40,3 +40,8 @@
   </div>
   <button class="button" ng-click="toggleReady()" ng-disabled="slots.length != 3" ng-class="{red: ready}">{{ready ? "Not " : ""}}Ready</button>
 </div>
+<div class="versus-dialog">
+  <span class="player-name slide-left">{{username}}</span>
+  <span class="vs">vs</span>
+  <span class="player-name slide-right">{{enemyName}}</span>
+</div>
