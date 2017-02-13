@@ -269,8 +269,9 @@ function init() {
   CREATE TABLE IF NOT EXISTS users (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(48) UNIQUE,
-    losses INT,
-    wins INT,
+    losses INT NOT NULL,
+    wins INT NOT NULL,
+    elo INT NOT NULL,
     token VARCHAR(5)
   );`, (error, results, fields) => {
       if(error) {
