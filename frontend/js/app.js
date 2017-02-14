@@ -84,7 +84,7 @@
   app.controller('AppCtrl', function($rootScope, $scope, $location, $http, $timeout){
     $rootScope.inBattle = false;
     $rootScope.loggedIn = false;
-    $rootScope.username = "";
+    $rootScope.username = "Guest";
     $rootScope.offline = false;
     $rootScope.types = {};
 
@@ -101,7 +101,7 @@
     // log out button on top right
     $scope.logOut = function() {
       $rootScope.loggedIn = false;
-      $rootScope.username = "";
+      $rootScope.username = "Guest";
       $http.post("/api/logout").then(() => {
         console.log("Logged out!");
       }, () => {
