@@ -20,7 +20,7 @@ const types = JSON.parse(fs.readFileSync("json/branch.json"));
 
 const SECRET = process.env.HASH_SECRET;
 const port = 8080;
-const version = "1.0.5";
+const version = "1.1.0";
 
 var session = expressSession({
   secret: SECRET,
@@ -79,6 +79,35 @@ app.get('/user', (req, res) => {
   } else {
     res.status(403).json({message: "Not Authorized"});
   }
+});
+
+
+app.post('/challenge', (req, res) => {
+  var name = req.body.name;
+  if(typeof name === 'undefined') {
+    res.status(400).json({message: 'Bad Request'});
+    return;
+  }
+
+  name = name.toLowerCase();
+
+  if(!name.match(/^[a-z0-9\d]{3,20}$/g)) {
+    res.status(400).json({message: 'Invalid Name'});
+    return;
+  } 
+  
+  dbQuery((db) => {
+    db.query("SELECT * from users WHERE name='"+name+"';", 
+    (error, results, fields) => {
+      if(error || !results.length) { 
+        res.status(404).json({message: 'Not Found'});
+      } else {
+        res.json({
+          name: results[0].name
+        });
+      }
+    });
+  });
 });
 
 app.post('/logout', (req, res) => {
@@ -164,13 +193,33 @@ var id = 0;
 var games = {};
 var gameId = 0;
 
-function randomOpponent(id) {
+function findOpponent(id) {
   var keys = Object.keys(lobby);
-  keys.splice(keys.indexOf(id), 1);
+  var myLobby = lobby[id];
+  keys.splice(keys.indexOf(id), 1); // remove player searching
 
   if(!keys.length)
     return -1;
-  return keys[Math.floor(Math.random() * keys.length)];
+
+  for(var i = 0; i < keys.length; i++) {
+    var otherLobby = lobby[keys[i]];
+
+    if(myLobby.challenge != otherLobby.challenge) // clearly not doing the same thing
+      continue;
+
+    // both are challenging
+    if(myLobby.challenge && otherLobby.challenge &&  // both are challenging
+        myLobby.player.name === otherLobby.challenge.target && 
+        otherLobby.player.name === myLobby.challenge.target) { // have eachother as target
+      return keys[i];
+    } else {
+
+      // first partner I can find
+      return keys[i];
+    }
+  }
+
+  return -1;
 }
 
 io.on('connection', (socket) => {
@@ -184,12 +233,17 @@ io.on('connection', (socket) => {
   io.emit('online', Object.keys(players).length);
 
   // lobby callback
-  socket.on('lobby', (join) => {
-    if(join) {
+  socket.on('lobby', (blob) => {
+    if(blob.join) {
       if(player.game < 0 && !lobby[player.id]) {
         player.game = -1;
-        lobby[player.id] = player;
-        var opponent = randomOpponent(player.id);
+        if(blob.challenge === true && 
+            (blob.target == "Guest" || blob.name == "Guest" || blob.name === player.name)) { // don't challenge yourself or a guest
+          blob.challenge = false;
+          blob.target = "";
+        }
+        lobby[player.id] = {player: player, challenge: blob.challenge === true, target: blob.target};
+        var opponent = findOpponent(player.id);
         console.log("Opponent",opponent, player.id);
 
         // there is an opponent for this player

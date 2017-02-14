@@ -577,6 +577,6 @@ module.exports = class {
   start() {
     this.player1.socket.emit('setup', this.player2.name);
     this.player2.socket.emit('setup', this.player1.name);
-    console.log('Starting for', this.player1.id, this.player2.id);
+    console.log('Starting for', this.player1.name, this.player1.id, ",", this.player2.id, this.player2.name);
   }
 };

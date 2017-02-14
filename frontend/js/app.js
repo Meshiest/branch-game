@@ -15,6 +15,10 @@
       templateUrl: "views/create.html",
       controller: "LoginCtrl"
     })
+    .when("/challenge", {
+      templateUrl: "views/challenge.html",
+      controller: "LoginCtrl"
+    })
     .when("/battle", {
       templateUrl: "views/battle.html",
       controller: "BattleCtrl"
@@ -79,6 +83,21 @@
         $scope.doneVerifying();
       });
     };
+
+    // challenge another
+    $rootScope.startChallenge = function() {
+      $scope.verifying = true;
+      $scope.fail = true;
+      $http.post("/api/challenge", {
+        name: $scope.name,
+      }).then((resp) => {
+        $rootScope.challengeTarget = resp.data.name;
+        $location.path('/battle');
+      }, (err) => {
+        $scope.fail = true;
+        $scope.doneVerifying();
+      });
+    };
   });
 
   app.controller('AppCtrl', function($rootScope, $scope, $location, $http, $timeout){
@@ -86,6 +105,7 @@
     $rootScope.loggedIn = false;
     $rootScope.username = "Guest";
     $rootScope.offline = false;
+    $rootScope.challengeTarget = "";
     $rootScope.types = {};
 
     $scope.getTypes = function() {
@@ -103,13 +123,19 @@
       $rootScope.loggedIn = false;
       $rootScope.username = "Guest";
       $http.post("/api/logout").then(() => {
-        console.log("Logged out!");
+        $rootScope.loggedIn = false;
       }, () => {
         // wat
       });
     };
 
-    $rootScope.startBattle = function() {
+    $rootScope.challenge = function() {
+      if(!$rootScope.loggedIn)
+        return;
+      $location.path('/challenge');
+    };
+
+    $rootScope.startBattle = function(name) {
       $location.path('/battle');
     };
 
@@ -126,7 +152,6 @@
       $rootScope.loggedIn = true;
       $rootScope.username = resp.data.name;
     }, (err) => {
-      console.log(err);
       if(err.status == 502) {
         $rootScope.offline = true;
       }
@@ -189,10 +214,8 @@
 
     $scope.selectingRecruit = undefined;
     var socket = $scope.socket = io.connect(location.origin, {path: '/api/socket.io/'});
-    console.log('Opening Socket');
 
     $scope.upgrade = function(recruit, evolution) {
-      console.log('upgrading');
       $scope.ready = false;
       socket.emit('upgrade', {
         type: 'upgrade',
@@ -279,7 +302,6 @@
           moves.push(move);
         }
       }
-      console.log('emitting READY', $scope.ready);
       socket.emit('ready', $scope.ready, moves);
     };
 
@@ -287,14 +309,12 @@
     $scope.toggleReady = function() {
       $scope.ready = !$scope.ready;
       var classes = $scope.slots.map((e) => {return Object.keys(e)[0];});
-      console.log('emitting READY setup', $scope.ready);
       socket.emit('ready', $scope.ready, $scope.ready ? classes : []);
     };
 
     // for prep phase
     $scope.togglePrepReady = function() {
       $scope.ready = !$scope.ready;
-      console.log('emitting READY prep', $scope.ready);
       socket.emit('ready', $scope.ready);
     };
 
@@ -317,15 +337,14 @@
     };
 
     socket.on('online', (count) => {
-      console.log('online count', count);
       $scope.$evalAsync(() => {
         $scope.onlineCount = count;
       });
     });
 
     socket.on('setup', (name) => {
-      console.log('Starting Setup');
       $scope.enemyName = name;
+      $scope.winnerText = "";
       $scope.$evalAsync(() => {
         $scope.phase = 'setup';
         socket.emit('ready', false, []);
@@ -333,30 +352,28 @@
     });
 
     socket.on('done', (reason) => {
-      console.log('Game Over', reason);
       $scope.$evalAsync(() => {
         $scope.phase = 'end';
         $rootScope.inBattle = false;
+        $rootScope.challengeTarget = "";
         $scope.winnerText = reason;
+        socket.disconnect();
       });
     });
 
     socket.on('round', (selfState, opponentState) => {
-      console.log('Starting Rounds', selfState, opponentState);
       $scope.$evalAsync(() => {
         $scope.ready = false;
         $scope.ip = selfState.ip;
         $scope.recruits = selfState.classes;
         $scope.opponentRecruits = opponentState.classes;
         $scope.round = selfState.round;
-        console.log('PROGRESS');
         $scope.phase = 'progress';
         socket.emit('ready', false, {});
       });
     });
 
     socket.on('prep', (selfState, opponentState) => {
-      console.log('prepping for next Round', selfState, opponentState);
       $scope.$evalAsync(() => {
         $scope.ready = false;
         $scope.ip = selfState.ip;
@@ -369,7 +386,6 @@
     });
 
     socket.on('update', (selfState) => {
-      console.log('updating unit', selfState);
       $scope.$evalAsync(() => {
         $scope.ready = false;
         $scope.ip = selfState.ip;
@@ -379,16 +395,22 @@
     });
 
     socket.on('disconnect', () => {
-      console.log('lost connection');
-      $location.path('/');
+      $scope.phase = 'end';
+      $rootScope.inBattle = false;
+      $rootScope.challengeTarget = "";
+      if(!$scope.winnerText)
+        $scope.winnerText = "Lost Connection";
     });
 
     // start waiting to join game
-    socket.emit('lobby', true);
+    if($rootScope.challengeTarget)
+      socket.emit('lobby', {join: true, challenge: true, target: $rootScope.challengeTarget});
+    else
+      socket.emit('lobby', {join: true, challenge: false});
 
     $scope.$on('$routeChangeStart', function () {
       $rootScope.inBattle = false;
-      console.log('Closing Socket');
+      $rootScope.challengeTarget = "";
       socket.emit('lobby', false);
       socket.disconnect();
     });
