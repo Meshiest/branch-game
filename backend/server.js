@@ -81,13 +81,17 @@ app.get('/user', (req, res) => {
   }
 });
 
-
+// to see if you can challenge someone
 app.post('/challenge', (req, res) => {
   var name = req.body.name;
   if(typeof name === 'undefined') {
     res.status(400).json({message: 'Bad Request'});
     return;
   }
+
+  // need to be a user
+  if(typeof req.session.name === 'undefined')
+    return;
 
   name = name.toLowerCase();
 
@@ -102,9 +106,13 @@ app.post('/challenge', (req, res) => {
       if(error || !results.length) { 
         res.status(404).json({message: 'Not Found'});
       } else {
-        res.json({
-          name: results[0].name
-        });
+        if(results[0].name === req.session.name) {
+          res.status(403).json({message: "Can't Challenge Yourself"});
+        } else {
+          res.json({
+            name: results[0].name
+          });
+        }
       }
     });
   });

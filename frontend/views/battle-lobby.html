@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <div class="centered">
-  <h2 ng-if="challengeTarget">Waiting {{challengeTarget}}</h2>
+  <h2 ng-if="challengeTarget">Waiting For <i>{{challengeTarget}}</i></h2>
   <h2 ng-if="!challengeTarget">Waiting For Game...</h2>
   <span class="subhead">{{onlineCount}} players online</span>
   <button class="button" ng-click="forfeit()">Back</button>
