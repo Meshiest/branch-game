@@ -1,3 +1,4 @@
+'use-strict';
 const fs = require("fs");
 
 const types = JSON.parse(fs.readFileSync("json/branch.json"));
@@ -590,7 +591,8 @@ module.exports = class {
     }
 
     var alive = false;
-    // remove negative health and remove it from damage
+    // remove negative health and remove it from damage for team 1
+    // also check for any living recruits
     for(var i = 0; i < this.player1.classes.length; i++) {
       var recruit = this.player1.classes[i];
       if(!recruit.living()) {
@@ -599,13 +601,16 @@ module.exports = class {
       } else {
         alive = true;
       }
-      console.log(recruit.id+": "+recruit.health+" ("+recruit.class+")");
     }
+    // player 2 won
     if(!alive) {
       this.end(2, "You're Bad", "Good Job");
       return;
     }
-    var alive = false;
+
+    // remove negative health and remove it from damage for team 2
+    // also check for living recruits
+    alive = false;
     for(var i = 0; i < this.player2.classes.length; i++) {
       var recruit = this.player2.classes[i];
       if(!recruit.living()) {
@@ -614,8 +619,9 @@ module.exports = class {
       } else {
         alive = true;
       }
-      console.log(recruit.id+": "+recruit.health+" ("+recruit.class+")");
     }
+
+    // player 1 won
     if(!alive) {
       this.end(1, "Good Job", "You're Bad");
       return;
@@ -631,7 +637,6 @@ module.exports = class {
   }
 
   startPrep() {
-    console.log('readys', this.player1.ready, this.player2.ready);
     this.player1.ready = false;
     this.player2.ready = false;
     this.state = 'prep';
@@ -683,6 +688,5 @@ module.exports = class {
   start() {
     this.player1.socket.emit('setup', this.player2.name);
     this.player2.socket.emit('setup', this.player1.name);
-    console.log('Starting for', this.player1.name, this.player1.id, ",", this.player2.id, this.player2.name);
   }
 };
