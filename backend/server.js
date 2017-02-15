@@ -226,7 +226,7 @@ var gameId = 0;
 function findOpponent(id) {
   var keys = Object.keys(lobby);
   var myLobby = lobby[id];
-  keys.splice(keys.indexOf(id), 1); // remove player searching
+  keys.splice(keys.indexOf(id+""), 1); // remove player searching
 
   if(!keys.length)
     return -1;
@@ -343,7 +343,7 @@ io.on('connection', (socket) => {
       if(player.game < 0 && typeof lobby[player.id] !== 'undefined') {
         player.game = -1;
         delete lobby[player.id];
-
+      
         emitOnline();
 
         // player is leaving a game
@@ -377,11 +377,8 @@ io.on('connection', (socket) => {
   // player disconnects
   socket.on('disconnect', () => {
     if(player.game >= 0) {
-      console.log('disconnect in game', player.id);
       games[player.game].end(player == games[player.game].player1 ? 1 : 2, 'Opponent Disconnected', 'Opponent Disconnected');
-      delete games[player.game];
     }
-    delete lobby[player.id];
     delete players[player.id];
     emitOnline();
   });

@@ -210,8 +210,6 @@
 
 
   app.controller('BattleCtrl', function($scope, $rootScope, $http, $location){
-    if(!$rootScope.socket)
-      console.log('new socket');
     var socket = $rootScope.socket = ($rootScope.socket || io.connect(location.origin, {path: '/api/socket.io/'}));
 
     $scope.battleInit = function(inBattle) {
@@ -226,8 +224,6 @@
       $scope.selectingRecruit = undefined;
       $scope.enemyName = "Guest";
     };
-
-    $scope.battleInit(false);
 
     $scope.upgrade = function(recruit, evolution) {
       $scope.ready = false;
@@ -415,26 +411,38 @@
         $scope.winnerText = "Lost Connection";
     });
 
+    function handleBattleStart() {
+      // start waiting to join game
+      if($rootScope.challengeTarget)
+        socket.emit('lobby', {join: true, challenge: true, target: $rootScope.challengeTarget});
+      else
+        socket.emit('lobby', {join: true, challenge: false});
+
+      // init base variables
+      $scope.battleInit(true);
+    }
+
+    if($location.path() == '/battle') {
+      handleBattleStart();
+    } else {
+      // we're not in batle
+      socket.emit('lobby', {join: false});
+      $scope.battleInit(false);
+
+      // remove our challenge target
+      $rootScope.challengeTarget = "";
+     }
+
     $scope.$on('$routeChangeStart', function (event, next, current) {
       if(next.templateUrl.indexOf("battle") > -1) {
-        console.log('starting battle');
-        // start waiting to join game
-        if($rootScope.challengeTarget)
-          socket.emit('lobby', {join: true, challenge: true, target: $rootScope.challengeTarget});
-        else
-          socket.emit('lobby', {join: true, challenge: false});
-
-        // init base variables
-        $scope.$evalAsync(() => {
-          $scope.battleInit(true);
-        });
+        handleBattleStart();
       } else {
-        socket.emit('lobby', false);
+        // forfeit just in case
+        socket.emit('lobby', {join: false});
         if(next.templateUrl.indexOf("home") > -1) {
-          console.log('back home');
+          $scope.battleInit(false);
 
         } else {
-          console.log('leaving');
           socket.disconnect();
           delete $rootScope.socket;
         }
