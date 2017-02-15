@@ -773,10 +773,6 @@ td:first-child {
   margin-top: 10px;
 }
 
-.how-to img {
-  object-fit: contain;
-}
-
 .versus-dialog {
   align-items: center;
   animation: 4s fadeinout 1 ease-in-out;

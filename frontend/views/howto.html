@@ -2,29 +2,36 @@
 <div class="how-to">
   <h2>Welcome to Branch</h2>
   <p>
-    Branch is an online multiplayer battle simulator, where commanders pit their recruits against other commanders. As the battle rages, commanders can use IP (Inversion Points) to evolve their units and unlock special abilities.
+    Branch is an online multiplayer battle simulator, where commanders pit their recruits against each other. As the battle rages on, commanders can use <b>Inversion Points (IP) to evolve their recruits and unlock special abilities</b>.
   </p>
-
   <p>
-    When entering a battle, you must choose any combination of the three types of class trees. Each tree's third-stage unit has a unique ability that can be unlocked.
+    To begin, click the “Battle” at the bottom of this page, or on the home screen to enter the lobby, where you will be matched with a random player.
   </p>
-  
+  <p>
+    <b>Note</b>: If you make an account, you can also challenge your friends by entering each other’s username on the challenge screen!
+  </p>
+  <p>
+    When entering a battle, you may choose any combination of the three types of class trees shown below. Each tree's third tier unit has a unique, <b>unlockable</b> ability. 
+  </p>
   <img src="/res/howto_tree.png">
- 
   <p>
-    After choosing your units, the battle begins. Hover over your recruits to make the choice as to either attack or defend.
+    After choosing your recruits, the battle begins. Note the A (Attack) and S (Speed) values on the top left of each recruit card. <b>Attack is the amount of base damage</b> each recruit will do and <b>speed is the order in which recruits will attack</b>. Ties in speed result in random ordering.
   </p>
- 
-  <img src="/res/howto_triangle.png" style="max-height: 200px;">
-
-  <p> 
-    Be sure to take into consideration that each type has a counter. Also note, every upgraded unit also has a counter.
   <p>
- 
+    <b>Hover over your recruits to choose its action.</b> The top button, attack, allows you to pick your target enemy. The bottom button, defend, applies a 2/3 damage modifier to any incoming damage regardless of type.
+  </p>
+  <p>
+    There are three types of recruits: Future (Blue), Feudal (Red), and Fantasy (Green). Red beats Green, Green beats Blue, and Blue beats Red.
+  </p>
+  <div class="centered">
+    <img src="/res/howto_triangle.png" style="max-height: 200px;">
+  </div>
+  <p>
+    Stronger types deal 1.5 times damage against a weaker type, matched types take and deal equal damage, and weaker types deal 2/3 damage.
+  </p>
   <p>
     Each tier 3 unit has a unique ability, listed here:
   </p>
-  
   <table>
     <tr><td>Sniper</td><td>-10 Enemy team Speed</td></tr>
     <tr><td>Ranger</td><td>Attack Priority</td></tr>
@@ -36,6 +43,9 @@
     <tr><td>Summoner</td><td>Nullifies hostile Debuffs</td></tr>
     <tr><td>Arch Mage</td><td>Nullifies Enemy Buffs</td></tr>
   </table>
+  <p>
+    <b>Note</b>: The abilities are only active once the <b>Power Up</b> upgrade is purchased.
+  </p>
   <span class="centered">
     <button class="button" ng-click="startBattle()">Battle!</button>
     <button class="button" ng-click="goHome()">Back</button>
