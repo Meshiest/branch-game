@@ -107,6 +107,13 @@ module.exports = class {
     this.logs.push([]);
   }
 
+  // emit the logs to the players
+  emitLogs() {
+    var log = this.logs[this.logs.length-1];
+    this.player1.socket.emit('logs', 1, log);
+    this.player2.socket.emit('logs', 2, log);
+  }
+
   // game has ended or someone has left
   end(winner, reason1, reason2) {
     this.player1.game = -1;
@@ -212,7 +219,7 @@ module.exports = class {
 
     // log healing done by team 1
     if(team1Health) { 
-      this.log({team: 1, type: "heal", heal: team1Health});
+      this.log({team: 1, type: "heal", value: team1Health});
     }
 
     // heal team 1
@@ -236,7 +243,7 @@ module.exports = class {
     
     // log healing done by team 2
     if(team2Health) {
-      this.log({team: 2, type: "heal", heal: team2Health});
+      this.log({team: 2, type: "heal", value: team2Health});
     }
 
     // heal team 2
@@ -404,8 +411,8 @@ module.exports = class {
     }
 
     // log the team bonuses
-    this.log({team: 1, type: "bonus", bonus: team1bonus});
-    this.log({team: 2, type: "bonus", bonus: team2bonus});
+    this.log({team: 1, type: "bonus", value: team1bonus});
+    this.log({team: 2, type: "bonus", value: team2bonus});
 
     var defenders = [];
     // handle defending
@@ -457,7 +464,7 @@ module.exports = class {
     }
 
     // log all the defending recruits
-    this.log({team: 0, type: "defend", defenders: defenders});
+    this.log({team: 0, type: "defend", value: defenders});
 
     // compute attack order
     var queue = [[]];
@@ -586,9 +593,11 @@ module.exports = class {
       }
 
       // log the attack
-      this.log({team: 0, type: "attack", attacker: recruit.id, attacks: attacks});
+      this.log({team: 0, type: "attack", value: {attacker: recruit.id, attacks: attacks}});
 
     }
+
+    this.emitLogs();
 
     var alive = false;
     // remove negative health and remove it from damage for team 1
@@ -666,7 +675,7 @@ module.exports = class {
 
     this.newLog();
     this.addBuffs();
-    
+
     var player1State = {
       classes: this.player1.classes.map((a)=>{return a.blob();}),
       ip: this.player1.ip,
@@ -678,8 +687,8 @@ module.exports = class {
       round: this.rounds,
     };
 
-    this.log({team: 1, type: "state", state: player1State.classes});
-    this.log({team: 2, type: "state", state: player2State.classes});
+    this.log({team: 1, type: "state", value: player1State.classes});
+    this.log({team: 2, type: "state", value: player2State.classes});
 
     this.player1.socket.emit('round', player1State, player2State);
     this.player2.socket.emit('round', player2State, player1State);

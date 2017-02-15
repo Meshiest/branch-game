@@ -5,7 +5,8 @@
   app.config(function($routeProvider) {
     $routeProvider
     .when("/", {
-      templateUrl: "views/home.html"
+      templateUrl: "views/home.html",
+      controller: "BattleCtrl"
     })
     .when("/login", {
       templateUrl: "views/login.html",
@@ -101,6 +102,7 @@
     $rootScope.offline = false;
     $rootScope.challengeTarget = "";
     $rootScope.types = {};
+    $rootScope.onlineCounts = {players: 0, games: 0, lobby: 0};
 
     $scope.getTypes = function() {
       $http.get('/api/types').then((resp) => {
@@ -116,6 +118,7 @@
     $scope.logOut = function() {
       $rootScope.loggedIn = false;
       $rootScope.username = "Guest";
+      $location.path('/');
       $http.post("/api/logout").then(() => {
         $rootScope.loggedIn = false;
       }, () => {
@@ -181,6 +184,14 @@
     };
   });
 
+  app.directive('battlePlayback', function($parse) {
+    return {
+      restrict: 'E',
+      scope: true,
+      templateUrl: "views/battle-playback.html"
+    };
+  });
+
   app.directive('battlePrep', function($parse) {
     return {
       restrict: 'E',
@@ -199,19 +210,24 @@
 
 
   app.controller('BattleCtrl', function($scope, $rootScope, $http, $location){
-    $scope.phase = 'lobby';
-    $scope.slots = [];
-    $scope.ready = false;
-    $scope.recruits = [];
-    $scope.ip = 0;
-    $scope.round = 0;
-    $scope.opponentRecruits = [];
-    $rootScope.inBattle = true;
-    $scope.enemyName = "Guest";
-    $scope.onlineCount = 0;
+    if(!$rootScope.socket)
+      console.log('new socket');
+    var socket = $rootScope.socket = ($rootScope.socket || io.connect(location.origin, {path: '/api/socket.io/'}));
 
-    $scope.selectingRecruit = undefined;
-    var socket = $scope.socket = io.connect(location.origin, {path: '/api/socket.io/'});
+    $scope.battleInit = function(inBattle) {
+      $scope.phase = 'lobby';
+      $scope.slots = [];
+      $scope.ready = false;
+      $scope.recruits = [];
+      $scope.ip = 0;
+      $scope.round = 0;
+      $scope.opponentRecruits = [];
+      $rootScope.inBattle = inBattle;
+      $scope.selectingRecruit = undefined;
+      $scope.enemyName = "Guest";
+    };
+
+    $scope.battleInit(false);
 
     $scope.upgrade = function(recruit, evolution) {
       $scope.ready = false;
@@ -336,7 +352,7 @@
 
     socket.on('online', (count) => {
       $scope.$evalAsync(() => {
-        $scope.onlineCount = count;
+        $rootScope.onlineCounts = count;
       });
     });
 
@@ -355,7 +371,6 @@
         $rootScope.inBattle = false;
         $rootScope.challengeTarget = "";
         $scope.winnerText = reason;
-        socket.disconnect();
       });
     });
 
@@ -400,17 +415,32 @@
         $scope.winnerText = "Lost Connection";
     });
 
-    // start waiting to join game
-    if($rootScope.challengeTarget)
-      socket.emit('lobby', {join: true, challenge: true, target: $rootScope.challengeTarget});
-    else
-      socket.emit('lobby', {join: true, challenge: false});
+    $scope.$on('$routeChangeStart', function (event, next, current) {
+      if(next.templateUrl.indexOf("battle") > -1) {
+        console.log('starting battle');
+        // start waiting to join game
+        if($rootScope.challengeTarget)
+          socket.emit('lobby', {join: true, challenge: true, target: $rootScope.challengeTarget});
+        else
+          socket.emit('lobby', {join: true, challenge: false});
 
-    $scope.$on('$routeChangeStart', function () {
-      $rootScope.inBattle = false;
-      $rootScope.challengeTarget = "";
-      socket.emit('lobby', false);
-      socket.disconnect();
+        // init base variables
+        $scope.$evalAsync(() => {
+          $scope.battleInit(true);
+        });
+      } else {
+        socket.emit('lobby', false);
+        if(next.templateUrl.indexOf("home") > -1) {
+          console.log('back home');
+
+        } else {
+          console.log('leaving');
+          socket.disconnect();
+          delete $rootScope.socket;
+        }
+        $rootScope.inBattle = false;
+        $rootScope.challengeTarget = "";
+      }
     });
   });
 

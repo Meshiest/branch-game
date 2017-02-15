@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <div class="centered">
   <h2>Welcome to Branch</h2>
+  <span class="subhead">{{onlineCounts.players}} online, {{onlineCounts.games}} games, {{onlineCounts.lobby}} waiting</span>
   <button class="button" ng-click="startBattle()">Battle</button>
   <button class="button" ng-click="challenge()" ng-if="loggedIn">Challenge</button>
   <button class="button" ng-click="gotoHowto()">How to Play</button>

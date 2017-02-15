@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<div class="battle-pane">
+  <div class="classes enemy">
+    <div class="class-card {{recruit.class}}" ng-repeat="recruit in playback.enemyRecruits" ng-click="selectTarget(recruit)" ng-class="dead:(recruit.health <= 0)}">
+      <div class="status-bar">
+        <span class="health">{{recruit.health}} / {{recruit.maxHealth}}</span>
+      </div>
+      <div class="avatar {{recruit.class}} sprite-{{recruit.sprite}}"></div>
+      <h2 class="name">{{recruit.name}}</h2>
+      <div class="attack-speed">
+        <span>A: {{recruit.attack}}</span>
+        <span>S: {{recruit.speed}}</span>
+      </div>
+      <div class="show-ability" ng-if="recruit.ability">
+        <i class="material-icons">add</i>
+      </div>
+      <div class="defend-overlay" ng-show="recruit.defending">
+        <div class="class-icon {{recruit.class}} defend"></div>
+      </div>
+    </div>
+  </div>
+  <div class="message">
+    
+  </div>
+  <div class="classes team">
+    <div class="class-card {{recruit.class}}" ng-class="{dead: (recruit.health <= 0)}" ng-repeat="recruit in playback.myRecruits">
+      <div class="status-bar">
+        <span class="health">{{recruit.health}} / {{recruit.maxHealth}}</span>
+      </div>
+      <div class="avatar {{recruit.class}} sprite-{{recruit.sprite}}"></div>
+      <h2 class="name">{{recruit.name}}</h2>
+      <div class="attack-speed">
+        <span>A: {{recruit.attack}}</span>
+        <span>S: {{recruit.speed}}</span>
+      </div>
+      <div class="show-ability" ng-if="recruit.ability">
+        <i class="material-icons">add</i>
+      </div>
+      <div class="defend-overlay" ng-show="recruit.defending">
+        <div class="class-icon {{recruit.class}} defend"></div>
+      </div>
+    </div>
+  </div>
+</div>

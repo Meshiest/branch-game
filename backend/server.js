@@ -14,6 +14,7 @@ const redis = require('redis');
 const base64url = require('base64url');
 const Game = require('./game.js');
 const sharedsession = require("express-socket.io-session");
+const _ = require("underscore");
 
 const types = JSON.parse(fs.readFileSync("json/branch.json"));
 
@@ -22,7 +23,7 @@ const SECRET = process.env.HASH_SECRET;
 const SALT_SIZE = 32; // salt is 32 bytes
 const MIN_PASSWORD_LENGTH = 6; // salt is 32 bytes
 const port = 8080;
-const version = "1.2.0";
+const version = "1.2.2";
 
 var session = expressSession({
   secret: SECRET,
@@ -251,6 +252,17 @@ function findOpponent(id) {
   return -1;
 }
 
+// emit the online status to all players but throttle it
+var emitOnline = function() {
+  io.emit('online', {
+    players: Object.keys(players).length,
+    games: Object.keys(games).length,
+    lobby: Object.keys(lobby).length
+  });
+};
+
+emitOnline = _.throttle(emitOnline, 1000);
+
 io.on('connection', (socket) => {
   var player = {
     socket: socket,
@@ -261,7 +273,7 @@ io.on('connection', (socket) => {
   players[player.id] = player;
 
   // tell everyone how many players there are
-  io.emit('online', Object.keys(players).length);
+  emitOnline();
 
   // lobby callback
   socket.on('lobby', (blob) => {
@@ -296,7 +308,6 @@ io.on('connection', (socket) => {
           var game = games[id] = new Game(id, player, players[opponent]);
 
           game.onDone = function(winner) {
-            console.log('Game ending', this.id);
             // reset player information
             this.player1.game = -1;
             this.player1.ip = 0;
@@ -310,38 +321,46 @@ io.on('connection', (socket) => {
 
             // remove the game
             delete games[id];
+            emitOnline();
           }.bind(game);
 
           // remove both players from the lobby
           delete lobby[player.id];
           delete lobby[opponent];
 
+          // tell everyone there's someone playing a game
+          emitOnline();
+
           // start the game
           game.start();
+        } else {
+          // let everyone know someone is waiting
+          emitOnline();
         }
       }
     } else {
-      // player isn't in a game but is waiting
-      if(player.game < 0 && typeof lobby[player.id] === 'undefined') {
-        console.log('stop waiting', player.id);
+      // player isn't in a game or in a lobby anymore
+      if(player.game < 0 && typeof lobby[player.id] !== 'undefined') {
         player.game = -1;
         delete lobby[player.id];
 
+        emitOnline();
+
         // player is leaving a game
       } else if(player.game >= 0) {
-        console.log('forfeit', player.id);
         games[player.game].end(player == games[player.game].player1 ? 1 : 2, 'Opponent Forfeit', 'Opponent Forfeit');
-        delete games[player.game];
       }
     }
   });
 
+  // player is upgrading a unit
   socket.on('upgrade', (action) => {
     if(player.game >= 0 && games[player.game].state === 'prep') {
       games[player.game].upgradePrep(player, action);
     }
   });
 
+  // player is clicking ready during a phase
   socket.on('ready', (bool, options) => {
     if(player.game != -1) {
       var game = games[player.game];
@@ -364,7 +383,7 @@ io.on('connection', (socket) => {
     }
     delete lobby[player.id];
     delete players[player.id];
-    io.emit('online', Object.keys(players).length);
+    emitOnline();
   });
 });
 
