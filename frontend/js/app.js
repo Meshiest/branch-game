@@ -35,8 +35,6 @@
   app.controller("LoginCtrl", function($scope, $rootScope, $timeout, $http, $location) {
     $scope.verifying = false;
     $scope.fail = false;
-    $scope.showToken = false;
-    $scope.token = "";
 
     // called after an api call to wiggle the ui
     $scope.doneVerifying = function() {
@@ -46,17 +44,13 @@
       }, 1000);
     };
 
-    // for redirecting after clicking the "done reading password" button
-    $scope.doneAuth = function() {
-      $location.path("/");
-    };
-
     // sign in button callback
     $scope.onLogin = function () {
       $scope.verifying = true;
+      $scope.fail = false;
       $http.post("/api/login", {
         name: $scope.name,
-        token: $scope.token
+        password: $scope.password
       }).then((resp) => {
         $rootScope.loggedIn = true;
         $rootScope.username = resp.data.name;
@@ -70,14 +64,14 @@
     // create user callback
     $scope.onCreate = function () {
       $scope.verifying = true;
-      $scope.fail = true;
+      $scope.fail = false;
       $http.post("/api/user", {
         name: $scope.name,
+        password: $scope.password,
       }).then((resp) => {
         $rootScope.loggedIn = true;
         $rootScope.username = resp.data.name;
-        $scope.showToken = true;
-        $scope.token = resp.data.token;
+        $location.path("/");
       }, (err) => {
         $scope.fail = true;
         $scope.doneVerifying();

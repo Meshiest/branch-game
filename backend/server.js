@@ -19,8 +19,10 @@ const types = JSON.parse(fs.readFileSync("json/branch.json"));
 
 
 const SECRET = process.env.HASH_SECRET;
+const SALT_SIZE = 32; // salt is 32 bytes
+const MIN_PASSWORD_LENGTH = 6; // salt is 32 bytes
 const port = 8080;
-const version = "1.1.0";
+const version = "1.2.0";
 
 var session = expressSession({
   secret: SECRET,
@@ -53,12 +55,18 @@ function dbQuery(callback) {
   connection.end();
 }
 
-// generates an auth token
-function createToken() {
-  // wow secure
-  return base64url(crypto.randomBytes(100))
-    .replace(/[^a-zA-Z0-9]/g,"")
-    .substr(0, 5);
+// creates salt for password hashing
+function createSalt() {
+  return crypto
+    .randomBytes(Math.ceil(SALT_SIZE/2))
+    .toString('hex');
+}
+
+// hashes the password with a salt
+function hashPassword(salt, password) {
+  var hash = crypto.createHmac('sha512', salt);
+  hash.update(password);
+  return hash.digest('hex');
 }
 
 // App
@@ -131,7 +139,8 @@ app.post('/logout', (req, res) => {
 app.post('/user', (req, res) => {
   
   var name = req.body.name;
-  if(typeof name === 'undefined') {
+  var password = req.body.password;
+  if(typeof name === 'undefined' || typeof password === 'undefined') {
     res.status(400).json({message: 'Bad Request'});
     return;
   }
@@ -143,21 +152,26 @@ app.post('/user', (req, res) => {
     return;
   }
 
-  var token = createToken();
+  if(password.length < 6) {
+    res.status(400).json({message: 'Make a Longer Password'});
+    return;
+  }
+
+  var salt = createSalt();
+  var hash = hashPassword(name+salt, password);
 
   dbQuery((db) => {
 
-    db.query("INSERT INTO users (name,token) VALUES ('"+name+"','"+token+"');",
+    db.query("INSERT INTO users (name,password,salt) VALUES ('"+name+"','"+hash+"','"+salt+"');",
     (error, results, fields) => {
       if(error) {
+        console.log(error);
         res.status(422).json({message: "User Already Exists"});
       } else {
         req.session.name = name;
         res.status(202).json({
-          name: name,
-          token: token
+          name: name
         });
-        console.log('create name',name);
       }
     });
 
@@ -166,30 +180,36 @@ app.post('/user', (req, res) => {
 
 app.post('/login', (req, res) => {
   var name = req.body.name;
-  var token = req.body.token;
-  if(typeof name === 'undefined' || typeof token === 'undefined') {
+  var password = req.body.password;
+  if(typeof name === 'undefined' || typeof password === 'undefined') {
     res.status(400).json({message: 'Bad Request'});
     return;
   }
 
   name = name.toLowerCase();
 
-  if(!name.match(/^[a-z0-9\d]{3,20}$/g) || !token.match(/^[a-zA-Z0-9]{5}$/g)) {
+  if(!name.match(/^[a-z0-9\d]{3,20}$/g) || password.length < 6) {
     res.status(400).json({message: 'Invalid Credentials'});
     return;
   } 
   
   dbQuery((db) => {
-    db.query("SELECT * from users WHERE name='"+name+"' AND token='"+token+"';", 
+    db.query("SELECT * from users WHERE name='"+name+"';", 
     (error, results, fields) => {
-
       if(error || !results.length) { 
-        res.status(403).json({message: 'Forbidden'});
+        res.status(404).json({message: 'Not Found'});
       } else {
-        req.session.name = results[0].name;
-        res.json({
-          name: results[0].name
-        });
+
+        var hashedPassword = hashPassword(results[0].name+results[0].salt, password);
+
+        if(hashedPassword === results[0].password) {
+          req.session.name = results[0].name;
+          res.json({
+            name: results[0].name
+          });
+        } else {
+          res.status(404).json({message: 'Not Found'});
+        }
       }
     });
   });
@@ -201,6 +221,7 @@ var id = 0;
 var games = {};
 var gameId = 0;
 
+// finds an opponent
 function findOpponent(id) {
   var keys = Object.keys(lobby);
   var myLobby = lobby[id];
@@ -238,40 +259,64 @@ io.on('connection', (socket) => {
     name: socket.handshake.session.name || "Guest",
   };
   players[player.id] = player;
+
+  // tell everyone how many players there are
   io.emit('online', Object.keys(players).length);
 
   // lobby callback
   socket.on('lobby', (blob) => {
+    // if the player wants to join a game
     if(blob.join) {
+      // if they're not in a game or a lobby
       if(player.game < 0 && !lobby[player.id]) {
         player.game = -1;
+
+        // if they're to challenge something they shouldn't be
         if(blob.challenge === true && 
             (blob.target == "Guest" || blob.name == "Guest" || blob.name === player.name)) { // don't challenge yourself or a guest
           blob.challenge = false;
           blob.target = "";
         }
-        lobby[player.id] = {player: player, challenge: blob.challenge === true, target: blob.target};
-        var opponent = findOpponent(player.id);
-        console.log("Opponent",opponent, player.id);
 
+        // create a lobby object for this player
+        // this helps in matchmaking
+        lobby[player.id] = {
+          player: player,
+          challenge: blob.challenge === true,
+          target: blob.target
+        };
+
+        // find the opponent
+        var opponent = findOpponent(player.id);
+        
         // there is an opponent for this player
         if(opponent >= 0) {
           var id = gameId++;
+          // create a new game for both players
           var game = games[id] = new Game(id, player, players[opponent]);
 
           game.onDone = function(winner) {
             console.log('Game ending', this.id);
+            // reset player information
             this.player1.game = -1;
             this.player1.ip = 0;
             this.player1.classes = [];
+
             this.player2.game = -1;
             this.player2.ip = 0;
             this.player2.classes = [];
+
+            // potentially update wins/losses/forfeits/elos
+
+            // remove the game
             delete games[id];
           }.bind(game);
 
+          // remove both players from the lobby
           delete lobby[player.id];
           delete lobby[opponent];
+
+          // start the game
           game.start();
         }
       }
@@ -331,10 +376,13 @@ function init() {
   CREATE TABLE IF NOT EXISTS users (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(48) UNIQUE,
-    losses INT NOT NULL,
-    wins INT NOT NULL,
-    elo INT NOT NULL,
-    token VARCHAR(5)
+    losses INT NOT NULL DEFAULT 0,
+    forfeits INT NOT NULL DEFAULT 0,
+    games INT NOT NULL DEFAULT 0,
+    wins INT NOT NULL DEFAULT 0,
+    elo INT NOT NULL DEFAULT 1500,
+    password VARCHAR(128),
+    salt VARCHAR(32)
   );`, (error, results, fields) => {
       if(error) {
         console.log("ERROR", error);

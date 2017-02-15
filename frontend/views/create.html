@@ -6,14 +6,15 @@
       <input type="text" ng-model="name" placeholder="Username">
       <label><i class="material-icons">person</i></label>
     </div>
-    <button class="button" type="submit" ng-click="onCreate()" ng-class="{'wiggle': fail}" ng-disabled="verifying">Create</button>
+    <div class="input-container">
+      <input type="password" ng-model="password" placeholder="Password">
+      <label><i class="material-icons">lock</i></label>
+    </div>
+    <div class="input-container">
+      <input type="password" ng-model="password2" placeholder="Password Again">
+      <label><i class="material-icons">security</i></label>
+    </div>
+    <button class="button" type="submit" ng-click="onCreate()" ng-class="{'wiggle': fail}" ng-disabled="verifying || password != password2 || password.length < 6">Create</button>
     <button class="button" ng-click="goHome()">Back</button>
   </form>
-</div>
-
-<div class="token-overlay centered" ng-show="showToken">
-  <h1>Write This Down</h1>
-  <h2>Your token is: <span class="token">{{token}}</span></h2>
-  <i>Your token cannot be changed</i>
-  <button class="button" ng-click="doneAuth()">Done!</button>
 </div>
