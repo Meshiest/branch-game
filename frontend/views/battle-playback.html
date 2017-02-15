@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <div class="battle-pane">
   <div class="classes enemy">
-    <div class="class-card {{recruit.class}}" ng-repeat="recruit in playback.enemyRecruits" ng-click="selectTarget(recruit)" ng-class="dead:(recruit.health <= 0)}">
+    <div class="class-card {{recruit.class}}" ng-repeat="recruit in playback.teams[(playback.team%2)+1]" ng-class="{dead: (recruit.health <= 0), attacking: recruit.attacking, attacked: recruit.attacked}">
       <div class="status-bar">
-        <span class="health">{{recruit.health}} / {{recruit.maxHealth}}</span>
+        <span class="health" ng-class="{animateText: recruit.animate_health}">{{recruit.health}} / {{recruit.maxHealth}}</span>
       </div>
       <div class="avatar {{recruit.class}} sprite-{{recruit.sprite}}"></div>
       <h2 class="name">{{recruit.name}}</h2>
       <div class="attack-speed">
-        <span>A: {{recruit.attack}}</span>
-        <span>S: {{recruit.speed}}</span>
+        <span>A: <span ng-class="{animateText: recruit.animate_attack}">{{recruit.attack}}</span></span>
+        <span>S: <span ng-class="{animateText: recruit.animate_speed}">{{recruit.speed}}</span></span>
       </div>
       <div class="show-ability" ng-if="recruit.ability">
         <i class="material-icons">add</i>
@@ -20,18 +20,17 @@
     </div>
   </div>
   <div class="message">
-    
   </div>
   <div class="classes team">
-    <div class="class-card {{recruit.class}}" ng-class="{dead: (recruit.health <= 0)}" ng-repeat="recruit in playback.myRecruits">
+    <div class="class-card {{recruit.class}}" ng-repeat="recruit in playback.teams[playback.team]" ng-class="{dead: (recruit.health <= 0), attacking: recruit.attacking, attacked: recruit.attacked}">
       <div class="status-bar">
-        <span class="health">{{recruit.health}} / {{recruit.maxHealth}}</span>
+        <span class="health" ng-class="{animateText: recruit.animate_health}">{{recruit.health}} / {{recruit.maxHealth}}</span>
       </div>
       <div class="avatar {{recruit.class}} sprite-{{recruit.sprite}}"></div>
       <h2 class="name">{{recruit.name}}</h2>
       <div class="attack-speed">
-        <span>A: {{recruit.attack}}</span>
-        <span>S: {{recruit.speed}}</span>
+        <span>A: <span ng-class="{animateText: recruit.animate_attack}">{{recruit.attack}}</span></span>
+        <span>S: <span ng-class="{animateText: recruit.animate_speed}">{{recruit.speed}}</span></span>
       </div>
       <div class="show-ability" ng-if="recruit.ability">
         <i class="material-icons">add</i>

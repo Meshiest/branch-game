@@ -1,7 +1,4 @@
 <!DOCTYPE html>
-<div class="prep-ready-button">
-  <button class="button" ng-click="togglePrepReady()" ng-class="{red: ready}">{{ready ? "Not " : ""}}Ready</button>
-</div>
 <div class="battle-pane">
   <div class="classes enemy center">
     <div class="class-card {{recruit.class}}" ng-repeat="recruit in opponentRecruits" ng-click="selectTarget(recruit)" ng-class="{selectingRecruit, dead:(recruit.health <= 0)}">
@@ -20,7 +17,8 @@
     </div>
   </div>
   <div class="message">
-    <span class="instruction" ng-show="selectingRecruit">Select a Target</span>
+    <span class="instruction">Upgrade your Recruits</span>
+    <button class="button" ng-click="togglePrepReady()" ng-class="{red: ready}">{{ready ? "Not " : ""}}Ready</button>
   </div>
   <div class="classes vert">
     <div class="class-info-container" ng-repeat="recruit in recruits" ng-if="recruit.health > 0">
@@ -61,6 +59,9 @@
         <span></span>
         <div class="class-icon {{recruit.class}} power"></div>
         <h2 class="name">Power Up</h2>
+        <div class="hidden-buff">
+          Unlocks the Power of a Top Tier Recruit
+        </div>
       </div>
     </div>
   </div>

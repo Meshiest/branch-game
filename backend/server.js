@@ -299,8 +299,15 @@ io.on('connection', (socket) => {
         };
 
         // find the opponent
-        var opponent = findOpponent(player.id);
+        var opponent = findOpponent(player.id);          
         
+        while(opponent != -1 && !players[opponent]) {
+          delete players[opponent];
+          delete lobby[opponent];
+          emitOnline();
+          opponent = findOpponent(player.id);
+        }
+
         // there is an opponent for this player
         if(opponent >= 0) {
           var id = gameId++;
@@ -348,7 +355,7 @@ io.on('connection', (socket) => {
 
         // player is leaving a game
       } else if(player.game >= 0) {
-        games[player.game].end(player == games[player.game].player1 ? 1 : 2, 'Opponent Forfeit', 'Opponent Forfeit');
+        games[player.game].end(player == games[player.game].player1 ? 1 : 2, 'Opponent Forfeit', 'Opponent Forfeit', true);
       }
     }
   });
@@ -377,7 +384,7 @@ io.on('connection', (socket) => {
   // player disconnects
   socket.on('disconnect', () => {
     if(player.game >= 0) {
-      games[player.game].end(player == games[player.game].player1 ? 1 : 2, 'Opponent Disconnected', 'Opponent Disconnected');
+      games[player.game].end(player == games[player.game].player1 ? 1 : 2, 'Opponent Disconnected', 'Opponent Disconnected', true);
     }
     delete players[player.id];
     emitOnline();

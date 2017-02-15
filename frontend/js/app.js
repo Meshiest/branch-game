@@ -1,5 +1,12 @@
 (function(){
 
+  function range(start, count) {
+    return Array.apply(0, Array(count))
+      .map(function (element, index) { 
+        return index + start;  
+    });
+  }
+
   var app = angular.module('app', ['ngRoute']);
 
   app.config(function($routeProvider) {
@@ -209,7 +216,7 @@
   });
 
 
-  app.controller('BattleCtrl', function($scope, $rootScope, $http, $location){
+  app.controller('BattleCtrl', function($scope, $rootScope, $http, $location, $timeout){
     var socket = $rootScope.socket = ($rootScope.socket || io.connect(location.origin, {path: '/api/socket.io/'}));
 
     $scope.battleInit = function(inBattle) {
@@ -220,11 +227,17 @@
       $scope.ip = 0;
       $scope.round = 0;
       $scope.opponentRecruits = [];
+      $scope.playback = {
+        log: [],
+        team: 0,
+        teams: {1: {}, 2: {}}
+      };
       $rootScope.inBattle = inBattle;
       $scope.selectingRecruit = undefined;
       $scope.enemyName = "Guest";
     };
 
+    // upgrades a recruit in the upgrade menu
     $scope.upgrade = function(recruit, evolution) {
       $scope.ready = false;
       socket.emit('upgrade', {
@@ -234,6 +247,7 @@
       });
     };
 
+    // activates a power in the upgrade menu
     $scope.power = function(recruit) {
       $scope.ready = false;
       socket.emit('upgrade', {
@@ -361,9 +375,15 @@
       });
     });
 
-    socket.on('done', (reason) => {
+    socket.on('done', (reason, now) => {
       $scope.$evalAsync(() => {
-        $scope.phase = 'end';
+        if(now) {
+          $scope.phase = 'end';
+          $timeout.cancel($scope.playback.timeout);
+        } else {
+          $scope.nextPhase = 'end';
+        }
+
         $rootScope.inBattle = false;
         $rootScope.challengeTarget = "";
         $scope.winnerText = reason;
@@ -389,7 +409,7 @@
         $scope.recruits = selfState.classes;
         $scope.opponentRecruits = opponentState.classes;
         $scope.round = selfState.round;
-        $scope.phase = 'prep';
+        $scope.nextPhase = 'prep';
         socket.emit('ready', false);
       });
     });
@@ -402,6 +422,129 @@
         $scope.recruits = selfState.classes;
       });
     });
+
+    socket.on('logs', (team, log) => {
+      $scope.phase = "playback";
+      $scope.playback.log = log;
+      $scope.playback.team = team;
+      if(log.length) {
+        $scope.playback.teams[1] = $scope.playback.log.splice(0, 1)[0].value;
+        $scope.playback.teams[2] = $scope.playback.log.splice(0, 1)[0].value;
+      } else {
+        $scope.playback.team[team] = $scope.recruit;
+        $scope.playback.team[team%2+1] = $scope.opponentRecruits;
+      }
+      $scope.runPlayback();
+    });
+
+    // animate moving an attribute
+    $scope.animateShift = function(obj, attr, goal, time) {
+      var start = obj[attr];
+      obj["animate_"+attr] = true;
+      var count = Math.min(10, Math.abs(goal - start));
+      var delta = Math.floor(time / count);
+      var step = Math.floor((goal - start) / count);
+
+      // run all the steps
+      range(0, count).forEach((i) => {
+        $timeout(() => {
+          obj[attr] = start + step * i;
+        }, delta * i);
+      });
+
+      // final step
+      $timeout(() => {
+        obj["animate_"+attr] = false;
+        obj[attr] = goal;
+      }, time);
+
+    };
+
+    $scope.runPlayback = function() {
+      var playback = $scope.playback;
+
+      if(!playback.log.length) {
+        $scope.phase = $scope.nextPhase;
+        return;
+      }
+      var action = playback.log.splice(0, 1)[0];
+      var value = action.value;
+      var ANIMATION_DURATION = 1500;
+
+      switch(action.type) {
+      case 'heal':
+        // animate healing for a specific team
+        for(var i = 0; i < playback.teams[action.team].length; i++) {
+          var recruit = playback.teams[action.team][i];
+
+          // only heal if recruit is living
+          if(recruit.health > 0) {
+            $scope.animateShift(recruit, 'health', Math.min(recruit.health + value, recruit.maxHealth), ANIMATION_DURATION);
+          }
+        }
+        break;
+
+      case 'defend':
+        // turn on defending icons
+        for(var i = 0; i < value.length; i++) {
+          var team = value[i][0];
+          var index = value[i][1];
+          playback.teams[team][index].defending = true;
+        }
+        break;
+        
+      case 'bonus':
+        // animate buffs for a specific team
+        for(var i = 0; i < playback.teams[action.team].length; i++) {
+          var recruit = playback.teams[action.team][i];
+
+          // only animate speed if we need to
+          if(value.speed)
+            $scope.animateShift(recruit, 'speed', recruit.speed + value.speed, ANIMATION_DURATION);
+
+          // only animate attack if we need to
+          if(value.attack)
+            $scope.animateShift(recruit, 'attack', recruit.attack + value.attack, ANIMATION_DURATION);
+        }
+        break;
+
+      case 'attack':
+        var attacker = playback.teams[value.attacker[0]][value.attacker[1]];
+        if(!attacker) {
+          break;
+        }
+        attacker.attacking = true;
+        // stop attacking animation
+        $timeout(() => {
+          attacker.attacking = false;
+        }, ANIMATION_DURATION);
+
+        for(var i = 0; i < value.attacks.length; i++) {
+          var attack = value.attacks[i];
+          var recruit = playback.teams[attack.target[0]][attack.target[1]];
+          var damage = attack.damage;
+
+          // only heal if recruit is living
+          if(recruit.health > 0) {
+            recruit.attacked = true;
+            $scope.animateShift(recruit, 'health', Math.max(recruit.health - damage, 0), ANIMATION_DURATION);
+
+            // stop attack animation
+            $timeout(() => {
+              recruit.attacked = false;
+            }, ANIMATION_DURATION);
+          }
+        }
+        break;
+
+      default:
+        console.log(action.type, action.value);
+        break;
+      }
+
+
+      $scope.playback.timeout = $timeout($scope.runPlayback, ANIMATION_DURATION + 500);
+    };
 
     socket.on('disconnect', () => {
       $scope.phase = 'end';

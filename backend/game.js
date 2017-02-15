@@ -115,11 +115,11 @@ module.exports = class {
   }
 
   // game has ended or someone has left
-  end(winner, reason1, reason2) {
+  end(winner, reason1, reason2, now) {
     this.player1.game = -1;
     this.player2.game = -1;
-    this.player1.socket.emit('done', reason1);
-    this.player2.socket.emit('done', reason2);
+    this.player1.socket.emit('done', reason1, now);
+    this.player2.socket.emit('done', reason2, now);
     this.onDone(winner);
   }
 
@@ -410,9 +410,11 @@ module.exports = class {
       }
     }
 
-    // log the team bonuses
-    this.log({team: 1, type: "bonus", value: team1bonus});
-    this.log({team: 2, type: "bonus", value: team2bonus});
+    // log the team bonuses if they are applicable
+    if(team1bonus.speed && team1bonus.attack)
+      this.log({team: 1, type: "bonus", value: team1bonus});
+    if(team2bonus.speed && team2bonus.attack)
+      this.log({team: 2, type: "bonus", value: team2bonus});
 
     var defenders = [];
     // handle defending
@@ -613,7 +615,7 @@ module.exports = class {
     }
     // player 2 won
     if(!alive) {
-      this.end(2, "You're Bad", "Good Job");
+      this.end(2, "You're Bad", "Good Job", false);
       return;
     }
 
@@ -632,7 +634,7 @@ module.exports = class {
 
     // player 1 won
     if(!alive) {
-      this.end(1, "Good Job", "You're Bad");
+      this.end(1, "Good Job", "You're Bad", false);
       return;
     }
 
@@ -674,6 +676,10 @@ module.exports = class {
     this.rounds++;
 
     this.newLog();
+
+    this.log({team: 1, type: "state", value: this.player1.classes.map((a)=>{return a.blob();})});
+    this.log({team: 2, type: "state", value: this.player2.classes.map((a)=>{return a.blob();})});
+
     this.addBuffs();
 
     var player1State = {
@@ -687,8 +693,6 @@ module.exports = class {
       round: this.rounds,
     };
 
-    this.log({team: 1, type: "state", value: player1State.classes});
-    this.log({team: 2, type: "state", value: player2State.classes});
 
     this.player1.socket.emit('round', player1State, player2State);
     this.player2.socket.emit('round', player2State, player1State);

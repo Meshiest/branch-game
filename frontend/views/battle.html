@@ -7,7 +7,7 @@
   <battle-prep class="battle-container" ng-switch-when="prep"></battle-prep>
   <battle-end class="battle-container" ng-switch-when="end"></battle-end>
 </div>
-<div class="round-counter" ng-if="phase=='progress'||phase=='prep'">
+<div class="round-counter" ng-if="['progress','prep','playback'].includes(phase)">
   <span>Round {{round}} vs {{enemyName}}</span>
   <span ng-if="phase=='prep'">IP {{ip}}</span>
 </div>

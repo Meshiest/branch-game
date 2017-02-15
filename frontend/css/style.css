@@ -291,7 +291,12 @@ h3 {
 }
 
 .battle-pane .message {
+  align-items: center;
   align-self: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 50px;
 }
 
 .battle-pane .message .instruction {
@@ -310,6 +315,7 @@ h3 {
   color: #fff;
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
   height: 250px;
   justify-content: space-between;
   margin: 10px;
@@ -429,7 +435,27 @@ h3 {
   height: 192px;
   background-position-x: 0;
   -webkit-font-smoothing: subpixel-antialiased;
-  width: 192px; 
+  width: 192px;
+}
+
+.class-card.attacked {
+  animation: 0.5s pulse infinite linear;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.class-card.attacking .avatar {
+  background-image: url('/res/sprites_attack.png');
 }
 
 .class-card .avatar.future {
@@ -515,6 +541,27 @@ h3 {
 .status-bar .health {
   color: #fff;
   font-size: 20px;
+  transition: all 0.2s ease;
+}
+
+.animateText.health {
+  font-size: 30px;
+  animation: 0.2s bobbleText infinite;
+}
+
+@keyframes bobbleText {
+  0% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-5deg);
+  } 
+  75% {
+    transform: rotate(5deg);
+  }
+  75% {
+    transform: rotate(0);
+  }
 }
 
 .status-bar .stats {
@@ -529,21 +576,25 @@ h3 {
   text-align: center;
 }
 
-.commands {
+
+.commands,
+.defend-overlay {
   align-items: center;
-  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
   height: 100%;
   justify-content: center;
   left: 0;
-  opacity: 0;
   position: absolute;
   top: 0;
   transition: all 0.2s;
   width: 100%;
 }
 
+.commands {
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+}
 
 .commands.active, .commands:hover, .class-card.selecting .commands {
   opacity: 1;
@@ -566,6 +617,25 @@ h3 {
   zoom: 2;
 }
 
+.defend-overlay .class-icon {
+  transform: scale(3);
+  animation: bumpZoom 1 0.5s ease-in-out;
+}
+
+@keyframes bumpZoom {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  80% {
+    transform: scale(4);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(3);
+  }
+}
+
 .commands .action-button:hover,
 .commands .action-button.active {
   border: 2px solid white;
@@ -586,22 +656,6 @@ h3 {
   top: 80px;
 }
 
-.prep-ready-button {
-  align-items: flex-start;
-  display: flex;
-  flex-direction: column;
-  font-size: 30px;
-  justify-content: flex-start;
-  left: 30px;
-  padding: 30px;
-  position: absolute;
-  top: 140px;
-}
-
-.prep-ready-button .button {
-  font-size: 30px;
-}
-
 .class-info-container {
   align-items: center;
   align-self: stretch;
@@ -609,6 +663,7 @@ h3 {
   display: flex;
   flex-direction: row;
   margin: 10px;
+  overflow-x: auto;
   padding: 10px;
 }
 
@@ -664,6 +719,12 @@ td:first-child {
   left: 5px;
   position: absolute;
   top: 5px; 
+  font-size: 12px;
+}
+
+.attack-speed.stat.animateText {
+  font-size: 20px;
+  animation: 0.2s bobbleText infinite;
 }
 
 .how-to {
@@ -678,6 +739,16 @@ td:first-child {
   margin-top: 12px;
   max-width: 800px;
   padding: 10px;
+}
+
+@media screen and (max-width: 800px) {
+  .how-to {
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin: 0;
+    max-width: none;
+    width: 100%;
+  }
 }
 
 .how-to p {
@@ -763,4 +834,19 @@ td:first-child {
   }
 }
 
-
+#preload-sprites {
+  background: url(/res/sprites.png) no-repeat -9999px -9999px;
+}
+#preload-sprites-attack {
+  background: url(/res/sprites_attack.png) no-repeat -9999px -9999px;
+}
+#preload-icons {
+  background: url(/res/icons.png) no-repeat -9999px -9999px;
+}
+[id^="preload"] {
+  height: 0;
+  position: fixed;
+  top: -9999px;
+  left: -9999px;
+  width: 0;
+}
