@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <div class="battle-container" ng-switch="phase">
+  <header ng-if="['progress','prep','playback'].includes(phase)" class="battle-header">
+    <span>{{username}} vs {{enemyName}}</span>
+    <span>Round {{round}}</span>
+    <span>
+      <span ng-if="phase=='prep'">{{ip}} IP</span>
+    </span>
+  </header>
   <battle-setup class="battle-container" ng-switch-when="setup"></battle-setup>
   <battle-lobby class="battle-container" ng-switch-when="lobby"></battle-lobby>
   <battle-progress class="battle-container" ng-switch-when="progress"></battle-progress>
   <battle-playback class="battle-container" ng-switch-when="playback"></battle-playback>
   <battle-prep class="battle-container" ng-switch-when="prep"></battle-prep>
   <battle-end class="battle-container" ng-switch-when="end"></battle-end>
-</div>
-<div class="round-counter" ng-if="['progress','prep','playback'].includes(phase)">
-  <span>Round {{round}} vs {{enemyName}}</span>
-  <span ng-if="phase=='prep'">IP {{ip}}</span>
 </div>
