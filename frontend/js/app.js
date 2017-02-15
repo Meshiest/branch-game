@@ -129,6 +129,10 @@
       });
     };
 
+    $rootScope.goHome = function() {
+      $location.path("/");
+    };
+
     $rootScope.challenge = function() {
       if(!$rootScope.loggedIn)
         return;
