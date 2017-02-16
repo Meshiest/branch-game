@@ -544,7 +544,7 @@
           attacker.attacking = false;
         }, ANIMATION_DURATION);
 
-        for(var i = 0; i < value.attacks.length; i++) {
+        range(0, value.attacks.length).forEach((i) => {
           var attack = value.attacks[i];
           var recruit = playback.teams[attack.target[0]][attack.target[1]];
           var damage = attack.damage;
@@ -559,7 +559,7 @@
               recruit.attacked = false;
             }, ANIMATION_DURATION);
           }
-        }
+        });
         break;
 
       default:
