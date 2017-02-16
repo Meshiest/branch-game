@@ -219,9 +219,10 @@
   app.controller('BattleCtrl', function($scope, $rootScope, $http, $location, $timeout){
     var socket = $rootScope.socket = ($rootScope.socket || io.connect(location.origin, {path: '/api/socket.io/'}));
 
+
     $scope.battleInit = function(inBattle) {
-      $scope.phase = 'lobby';
       $scope.slots = [];
+      $scope.broken = false;
       $scope.ready = false;
       $scope.recruits = [];
       $scope.ip = 0;
@@ -232,6 +233,7 @@
         team: 0,
         teams: {1: {}, 2: {}}
       };
+      $scope.phase = 'lobby';
       $rootScope.inBattle = inBattle;
       $scope.selectingRecruit = undefined;
       $scope.enemyName = "Guest";
@@ -361,11 +363,12 @@
     };
 
     socket.on('online', (count) => {
-      $scope.$evalAsync(() => {
+      $rootScope.$evalAsync(() => {
         $rootScope.onlineCounts = count;
       });
     });
 
+    // called to tell client to enter a game
     socket.on('setup', (name) => {
       $scope.enemyName = name;
       $scope.winnerText = "";
@@ -375,9 +378,10 @@
       });
     });
 
+    // called to tell client the game is over
     socket.on('done', (reason, now) => {
       $scope.$evalAsync(() => {
-        if(now) {
+        if(now || $scope.broken) {
           $scope.phase = 'end';
           $timeout.cancel($scope.playback.timeout);
         } else {
@@ -390,6 +394,7 @@
       });
     });
 
+    // called to tell client to enter the combat phase
     socket.on('round', (selfState, opponentState) => {
       $scope.$evalAsync(() => {
         $scope.ready = false;
@@ -402,6 +407,7 @@
       });
     });
 
+    // called to tell client to enter prep/upgrade phase
     socket.on('prep', (selfState, opponentState) => {
       $scope.$evalAsync(() => {
         $scope.ready = false;
@@ -409,7 +415,13 @@
         $scope.recruits = selfState.classes;
         $scope.opponentRecruits = opponentState.classes;
         $scope.round = selfState.round;
-        $scope.nextPhase = 'prep';
+
+        // somehow animations broke
+        if($scope.broken)
+          $scope.phase = 'prep';
+        else
+          $scope.nextPhase = 'prep';
+
         socket.emit('ready', false);
       });
     });
@@ -424,17 +436,30 @@
     });
 
     socket.on('logs', (team, log) => {
-      $scope.phase = "playback";
-      $scope.playback.log = log;
-      $scope.playback.team = team;
-      if(log.length) {
-        $scope.playback.teams[1] = $scope.playback.log.splice(0, 1)[0].value;
-        $scope.playback.teams[2] = $scope.playback.log.splice(0, 1)[0].value;
-      } else {
-        $scope.playback.team[team] = $scope.recruit;
-        $scope.playback.team[team%2+1] = $scope.opponentRecruits;
-      }
-      $scope.runPlayback();
+      $scope.$evalAsync(() => {
+        $scope.phase = "playback";
+        $scope.playback.log = log;
+        $scope.playback.team = team;
+        if(log.length) {
+          $scope.playback.teams[1] = $scope.playback.log.splice(0, 1)[0].value;
+          $scope.playback.teams[2] = $scope.playback.log.splice(0, 1)[0].value;
+        } else {
+          $scope.broken = true; // ??
+          $scope.playback.team[team] = $scope.recruits;
+          $scope.playback.team[team%2+1] = $scope.opponentRecruits;
+        }
+        $scope.runPlayback();
+      });
+    });
+
+    socket.on('disconnect', () => {
+      $scope.$evalAsync(() => {
+        $scope.phase = 'end';
+        $rootScope.inBattle = false;
+        $rootScope.challengeTarget = "";
+        if(!$scope.winnerText)
+          $scope.winnerText = "Lost Connection";
+      });
     });
 
     // animate moving an attribute
@@ -442,13 +467,13 @@
       var start = obj[attr];
       obj["animate_"+attr] = true;
       var count = Math.min(10, Math.abs(goal - start));
-      var delta = Math.floor(time / count);
-      var step = Math.floor((goal - start) / count);
+      var delta = time / count;
+      var step = (goal - start) / count;
 
       // run all the steps
       range(0, count).forEach((i) => {
         $timeout(() => {
-          obj[attr] = start + step * i;
+          obj[attr] = Math.round(start + step * i);
         }, delta * i);
       });
 
@@ -546,14 +571,6 @@
       $scope.playback.timeout = $timeout($scope.runPlayback, ANIMATION_DURATION + 500);
     };
 
-    socket.on('disconnect', () => {
-      $scope.phase = 'end';
-      $rootScope.inBattle = false;
-      $rootScope.challengeTarget = "";
-      if(!$scope.winnerText)
-        $scope.winnerText = "Lost Connection";
-    });
-
     function handleBattleStart() {
       // start waiting to join game
       if($rootScope.challengeTarget)
@@ -582,6 +599,7 @@
       } else {
         // forfeit just in case
         socket.emit('lobby', {join: false});
+
         if(next.templateUrl.indexOf("home") > -1) {
           $scope.battleInit(false);
 

@@ -299,8 +299,7 @@ io.on('connection', (socket) => {
         };
 
         // find the opponent
-        var opponent = findOpponent(player.id);          
-        
+        var opponent = findOpponent(player.id);
         while(opponent != -1 && !players[opponent]) {
           delete players[opponent];
           delete lobby[opponent];
@@ -387,6 +386,7 @@ io.on('connection', (socket) => {
       games[player.game].end(player == games[player.game].player1 ? 1 : 2, 'Opponent Disconnected', 'Opponent Disconnected', true);
     }
     delete players[player.id];
+    delete lobby[player.id];
     emitOnline();
   });
 });

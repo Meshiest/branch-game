@@ -411,9 +411,9 @@ module.exports = class {
     }
 
     // log the team bonuses if they are applicable
-    if(team1bonus.speed && team1bonus.attack)
+    if(team1bonus.speed || team1bonus.attack)
       this.log({team: 1, type: "bonus", value: team1bonus});
-    if(team2bonus.speed && team2bonus.attack)
+    if(team2bonus.speed || team2bonus.attack)
       this.log({team: 2, type: "bonus", value: team2bonus});
 
     var defenders = [];
@@ -466,7 +466,8 @@ module.exports = class {
     }
 
     // log all the defending recruits
-    this.log({team: 0, type: "defend", value: defenders});
+    if(defenders.length)
+      this.log({team: 0, type: "defend", value: defenders});
 
     // compute attack order
     var queue = [[]];

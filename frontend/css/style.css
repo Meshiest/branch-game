@@ -739,7 +739,7 @@ td:first-child {
   font-size: 12px;
 }
 
-.attack-speed.stat.animateText {
+.attack-speed .animateText {
   font-size: 20px;
   animation: 0.2s bobbleText infinite;
 }
