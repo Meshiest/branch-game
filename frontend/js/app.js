@@ -220,7 +220,7 @@
     var socket = $rootScope.socket = ($rootScope.socket || io.connect(location.origin, {path: '/api/socket.io/'}));
 
 
-    $scope.battleInit = function(inBattle) {
+    $scope.battleInit = function() {
       $scope.slots = [];
       $scope.broken = false;
       $scope.ready = false;
@@ -234,7 +234,7 @@
         teams: {1: {}, 2: {}}
       };
       $scope.phase = 'lobby';
-      $rootScope.inBattle = inBattle;
+      $rootScope.inBattle = false;
       $scope.selectingRecruit = undefined;
       $scope.enemyName = "Guest";
     };
@@ -370,9 +370,10 @@
 
     // called to tell client to enter a game
     socket.on('setup', (name) => {
-      $scope.enemyName = name;
-      $scope.winnerText = "";
       $scope.$evalAsync(() => {
+        $scope.enemyName = name;
+        $scope.winnerText = "";
+        $rootScope.inBattle = true;
         $scope.phase = 'setup';
         socket.emit('ready', false, []);
       });
@@ -579,7 +580,7 @@
         socket.emit('lobby', {join: true, challenge: false});
 
       // init base variables
-      $scope.battleInit(true);
+      $scope.battleInit();
     }
 
     if($location.path() == '/battle') {
@@ -587,7 +588,7 @@
     } else {
       // we're not in batle
       socket.emit('lobby', {join: false});
-      $scope.battleInit(false);
+      $scope.battleInit();
 
       // remove our challenge target
       $rootScope.challengeTarget = "";
@@ -601,7 +602,7 @@
         socket.emit('lobby', {join: false});
 
         if(next.templateUrl.indexOf("home") > -1) {
-          $scope.battleInit(false);
+          $scope.battleInit();
 
         } else {
           socket.disconnect();
