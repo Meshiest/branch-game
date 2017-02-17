@@ -678,11 +678,6 @@ module.exports = class {
 
     this.newLog();
 
-    this.log({team: 1, type: "state", value: this.player1.classes.map((a)=>{return a.blob();})});
-    this.log({team: 2, type: "state", value: this.player2.classes.map((a)=>{return a.blob();})});
-
-    this.addBuffs();
-
     var player1State = {
       classes: this.player1.classes.map((a)=>{return a.blob();}),
       ip: this.player1.ip,
@@ -694,6 +689,10 @@ module.exports = class {
       round: this.rounds,
     };
 
+    this.log({team: 1, type: "state", value: player1State.classes});
+    this.log({team: 2, type: "state", value: player2State.classes});
+
+    this.addBuffs();
 
     this.player1.socket.emit('round', player1State, player2State);
     this.player2.socket.emit('round', player2State, player1State);

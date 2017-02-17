@@ -330,6 +330,7 @@ h3 {
 
 .class-card {
   color: #fff;
+  box-shadow: 0 0 0 #000;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -473,6 +474,15 @@ h3 {
 
 .class-card.attacking .avatar {
   background-image: url('/res/sprites_attack.png');
+}
+
+.class-card.attacked {
+  box-shadow: 0 0 30px #500;
+}
+
+.class-card.attacking {
+  box-shadow: 0 0 30px #000;
+  z-index: 10;
 }
 
 .class-card .avatar.future {
