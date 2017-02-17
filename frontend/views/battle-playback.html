@@ -20,6 +20,13 @@
     </div>
   </div>
   <div class="message">
+    <span></span>
+    <span></span>
+    <span class="chat-button">
+      <button class="button round chat" ng-click="showChat()" ng-if="canChat()">
+        <i class="material-icons">chat_bubble</i>
+      </button>
+    </span>
   </div>
   <div class="classes team">
     <div class="class-card {{recruit.class}}" ng-repeat="recruit in playback.teams[playback.team]" ng-class="{dead: (recruit.health <= 0), attacking: recruit.attacking, attacked: recruit.attacked}">

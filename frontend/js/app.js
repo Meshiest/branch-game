@@ -219,6 +219,11 @@
   app.controller('BattleCtrl', function($scope, $rootScope, $http, $location, $timeout){
     var socket = $rootScope.socket = ($rootScope.socket || io.connect(location.origin, {path: '/api/socket.io/'}));
 
+    // you can chat if neither of the players are guests
+    // this will probably need to be changed when spectating is implemented
+    $scope.canChat = function() {
+      return $scope.enemyName !== "Guest" && $rootScope.username !== "Guest";
+    };
 
     $scope.battleInit = function(inBattle) {
       $scope.slots = [];

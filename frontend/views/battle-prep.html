@@ -17,9 +17,17 @@
     </div>
   </div>
   <div class="message">
-    <span class="instruction">Upgrade your Recruits</span>
-    <span class="instruction" ng-if="ip">You Have {{ip}} More Upgrade{{ip != 1 ? "s" : ""}}</span>
-    <button class="button" ng-click="togglePrepReady()" ng-class="{red: ready}">{{ready ? "Not " : ""}}Ready</button>
+    <span></span>
+    <div class="message-column">
+      <span class="instruction">Upgrade your Recruits</span>
+      <span class="instruction" ng-if="ip">You Have {{ip}} More Upgrade{{ip != 1 ? "s" : ""}}</span>
+      <button class="button" ng-click="togglePrepReady()" ng-class="{red: ready}">{{ready ? "Not " : ""}}Ready</button>
+    </div>
+    <span class="chat-button">
+      <button class="button round chat" ng-click="showChat()" ng-if="canChat()">
+        <i class="material-icons">chat_bubble</i>
+      </button>
+    </span>
   </div>
   <div class="classes vert">
     <div class="class-info-container" ng-repeat="recruit in recruits" ng-if="recruit.health > 0">

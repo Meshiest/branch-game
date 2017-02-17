@@ -7,10 +7,48 @@
       <span ng-if="phase=='prep'">{{ip}} IP</span>
     </span>
   </header>
+  
   <battle-setup class="battle-container" ng-switch-when="setup"></battle-setup>
   <battle-lobby class="battle-container" ng-switch-when="lobby"></battle-lobby>
   <battle-progress class="battle-container" ng-switch-when="progress"></battle-progress>
   <battle-playback class="battle-container" ng-switch-when="playback"></battle-playback>
   <battle-prep class="battle-container" ng-switch-when="prep"></battle-prep>
   <battle-end class="battle-container" ng-switch-when="end"></battle-end>
+
+  <div class="chat-overlay" ng-click="toggleChatOverlay()" ng-if="!showChatOverlay">
+    <div class="centered">
+      <form class="form-container">
+        <h2>Send a Message</h2>
+        <div class="chat-row">
+          <div class="input-container">
+            <input type="text" ng-model="name" placeholder="Message">
+            <label><i class="material-icons">message</i></label>
+          </div>
+          <button class="button round" type="submit" ng-click="startChallenge()" ng-class="{'wiggle': fail}" ng-disabled="verifying">
+            <i class="material-icons">
+              send
+            </i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="chat-messages">
+    <span class="chat-message appear">
+      <span class="author">Noah</span>
+      <span class="body">Ur bad at this game uninstall</span>
+    </span>
+    <span class="chat-message appear">
+      <span class="author">Cake</span>
+      <span class="body">no i wanna keep playing bc im better than u</span>
+    </span>
+    <span class="chat-message appear">
+      <span class="author">David</span>
+      <span class="body">who is this mysterious penis player? he keeps beating me</span>
+    </span>
+    <span class="chat-message appear">
+      <span class="author">Katie</span>
+      <span class="body">alright im going to go all green next turn ;) im trustworthy</span>
+    </span>
+  </div>
 </div>
