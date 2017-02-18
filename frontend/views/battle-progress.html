@@ -17,8 +17,16 @@
     </div>
   </div>
   <div class="message">
-    <span class="instruction" ng-show="selectingRecruit">Select a Target</span>
-    <button class="button" ng-click="toggleRoundReady()" ng-show="roundReady()" ng-class="{red: ready}">{{ready ? "Not " : ""}}Ready</button>
+    <span></span>
+    <div class="message-column">
+      <span class="instruction" ng-show="selectingRecruit">Select a Target</span>
+      <button class="button" ng-click="toggleRoundReady()" ng-show="roundReady()" ng-class="{red: ready}">{{ready ? "Not " : ""}}Ready</button>
+    </div>
+    <span class="chat-button">
+      <button class="button round chat" ng-click="toggleChatOverlay()" ng-if="canChat()" ng-class="{notify: newMessages}">
+        <i class="material-icons">chat_bubble</i>
+      </button>
+    </span>
   </div>
   <div class="classes team">
     <div class="class-card {{recruit.class}}" ng-class="{selecting: selectingRecruit == recruit, dead: (recruit.health <= 0)}" ng-repeat="recruit in recruits">

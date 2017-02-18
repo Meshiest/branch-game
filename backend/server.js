@@ -23,7 +23,7 @@ const SECRET = process.env.HASH_SECRET;
 const SALT_SIZE = 32; // salt is 32 bytes
 const MIN_PASSWORD_LENGTH = 6; // salt is 32 bytes
 const port = 8080;
-const version = "1.3.2";
+const version = "1.3.3";
 
 var session = expressSession({
   secret: SECRET,
@@ -269,6 +269,7 @@ io.on('connection', (socket) => {
     id: id++,
     game: -1,
     name: socket.handshake.session.name || "Guest",
+    lastMessage: 0,
   };
   players[player.id] = player;
 
@@ -363,6 +364,39 @@ io.on('connection', (socket) => {
   socket.on('upgrade', (action) => {
     if(player.game >= 0 && games[player.game].state === 'prep') {
       games[player.game].upgradePrep(player, action);
+    }
+  });
+
+  // player is sending a chat message
+  socket.on('chatMessage', (message) => {
+    // can't send messages if you're a guest
+    if(player.name === "Guest")
+      return;
+
+    // player isn't in a game 
+    if(player.game < 0)
+      return;
+
+    var now = Date.now();
+    if(player.lastMessage + 1000 > now)
+      return;
+    player.lastMessage = now;
+
+    var msg = {
+      author: player.name,
+      body: message.trim()
+    };
+
+    // send the players the message
+    var game = games[player.game];
+    if(player == game.player1) {
+      game.player2.socket.emit('chatMessage', msg);
+      msg.own = true;
+      game.player1.socket.emit('chatMessage', msg);
+    } else {
+      game.player1.socket.emit('chatMessage', msg);
+      msg.own = true;
+      game.player2.socket.emit('chatMessage', msg);
     }
   });
 
