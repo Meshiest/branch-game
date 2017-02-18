@@ -219,6 +219,51 @@
   app.controller('BattleCtrl', function($scope, $rootScope, $http, $location, $timeout){
     var socket = $rootScope.socket = ($rootScope.socket || io.connect(location.origin, {path: '/api/socket.io/'}));
 
+    $scope.showChatOverlay = false;
+    $scope.disableMessage = false;
+    $scope.fail = false;
+    $scope.chatMessage = {msg: ''};
+    $scope.messages = [];
+    $scope.newMessages = false;
+
+    // display a message on the screen
+    $scope.addMessage = function(msg) {
+      var messages = $scope.messages;
+      messages.push(msg);
+
+      window.requestAnimationFrame(()=>{
+        messageContainer.scrollTop = messageContainer.scrollHeight - messageContainer.clientHeight;
+      });
+
+      if(!$scope.showChatOverlay)
+        $scope.newMessages = true;
+    };
+
+    // toggles the chat overlay
+    $scope.toggleChatOverlay = function() {
+      $scope.chatMessage = {msg: ''};
+      $scope.newMessages = false;
+      $scope.showChatOverlay = !$scope.showChatOverlay;
+    };
+
+    // try to send a chat message
+    $scope.sendMessage = function() {
+      var msg = $scope.chatMessage.msg.trim();
+      
+      // can't send an invalid message
+      if(msg.length === 0) {
+        $scope.disableMessage = true;
+        $scope.fail = true;
+        $timeout(() => {
+          $scope.disableMessage = false;
+          $scope.fail = false;
+        }, 500);
+      } else {
+        $scope.chatMessage = {msg: ''};
+        socket.emit('chatMessage', msg);
+      }
+    };
+
     // you can chat if neither of the players are guests
     // this will probably need to be changed when spectating is implemented
     $scope.canChat = function() {
@@ -242,6 +287,8 @@
       $rootScope.inBattle = inBattle;
       $scope.selectingRecruit = undefined;
       $scope.enemyName = "Guest";
+      $scope.messagingEnabled = true;
+      $scope.messages = [];
     };
 
     // upgrades a recruit in the upgrade menu
@@ -367,6 +414,12 @@
       $scope.slots.push(t);
     };
 
+    socket.on('chatMessage', (msg) => {
+      $rootScope.$evalAsync(() => {
+        $scope.addMessage(msg);
+      });
+    });
+
     socket.on('online', (count) => {
       $rootScope.$evalAsync(() => {
         $rootScope.onlineCounts = count;
@@ -388,6 +441,7 @@
       $scope.$evalAsync(() => {
         if(now || $scope.broken) {
           $scope.phase = 'end';
+          $scope.showChatOverlay = false;
           $timeout.cancel($scope.playback.timeout);
         } else {
           $scope.nextPhase = 'end';
@@ -495,6 +549,9 @@
 
       if(!playback.log.length) {
         $scope.phase = $scope.nextPhase;
+        if($scope.phase === 'end')
+          $scope.showChatOverlay = false;
+
         return;
       }
       var action = playback.log.splice(0, 1)[0];

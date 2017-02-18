@@ -23,7 +23,7 @@
       <button class="button" ng-click="toggleRoundReady()" ng-show="roundReady()" ng-class="{red: ready}">{{ready ? "Not " : ""}}Ready</button>
     </div>
     <span class="chat-button">
-      <button class="button round chat" ng-click="showChat()" ng-if="canChat()">
+      <button class="button round chat" ng-click="toggleChatOverlay()" ng-if="canChat()" ng-class="{notify: newMessages}">
         <i class="material-icons">chat_bubble</i>
       </button>
     </span>
