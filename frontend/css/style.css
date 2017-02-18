@@ -626,7 +626,6 @@ h3 {
 
 .class-card.attacking {
   box-shadow: 0 0 30px #000;
-  z-index: 10;
 }
 
 .class-card .avatar.future {
