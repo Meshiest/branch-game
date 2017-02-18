@@ -23,7 +23,7 @@ const SECRET = process.env.HASH_SECRET;
 const SALT_SIZE = 32; // salt is 32 bytes
 const MIN_PASSWORD_LENGTH = 6; // salt is 32 bytes
 const port = 8080;
-const version = "1.3.2";
+const version = "1.3.3";
 
 var session = expressSession({
   secret: SECRET,
