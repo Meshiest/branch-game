@@ -231,11 +231,15 @@
       var messages = $scope.messages;
       messages.push(msg);
 
-      window.requestAnimationFrame(()=>{
-        messageContainer.scrollTop = messageContainer.scrollHeight - messageContainer.clientHeight;
-      });
 
-      if(!$scope.showChatOverlay)
+      if(typeof messageContainer !== 'undefined') {
+        // if we can see the chat messages, scroll to the bottom
+        window.requestAnimationFrame(() => {
+          messageContainer.scrollTop = messageContainer.scrollHeight - messageContainer.clientHeight;
+        });
+      }
+
+      if(!$scope.showChatOverlay && !$scope.newMessages)
         $scope.newMessages = true;
     };
 
@@ -244,6 +248,13 @@
       $scope.chatMessage = {msg: ''};
       $scope.newMessages = false;
       $scope.showChatOverlay = !$scope.showChatOverlay;
+
+      if($scope.showChatOverlay) {
+        // try to scroll to the bottom
+        window.requestAnimationFrame(() => {
+          messageContainer.scrollTop = messageContainer.scrollHeight - messageContainer.clientHeight;
+        });
+      }
     };
 
     // try to send a chat message
@@ -261,6 +272,11 @@
       } else {
         $scope.chatMessage = {msg: ''};
         socket.emit('chatMessage', msg);
+        $scope.disableMessage = true;
+        // one second cooldown between messages
+        $timeout(() => {
+          $scope.disableMessage = false;
+        }, 1000);
       }
     };
 
