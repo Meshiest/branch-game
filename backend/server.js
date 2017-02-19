@@ -433,13 +433,9 @@ function init() {
   CREATE TABLE IF NOT EXISTS users (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(48) UNIQUE,
-    losses INT NOT NULL DEFAULT 0,
-    forfeits INT NOT NULL DEFAULT 0,
-    games INT NOT NULL DEFAULT 0,
-    wins INT NOT NULL DEFAULT 0,
-    elo INT NOT NULL DEFAULT 1500,
-    password VARCHAR(128),
-    salt VARCHAR(32)
+    password VARCHAR(128) NOT NULL,
+    salt VARCHAR(32) NOT NULL,
+    enc_type varchar(32) NOT NULL DEFAULT 'sha512'
   );`, (error, results, fields) => {
       if(error) {
         console.log("ERROR", error);
@@ -447,9 +443,28 @@ function init() {
         console.log("Database Connection Failed, Retrying In 1 Second");
         setTimeout(init, 1000);
       } else {
-        console.log("Result", results);
-        console.log('Running on http://localhost:' + port);
-        http.listen(port);
+        dbQuery((db) => {
+          db.query(`
+          CREATE TABLE IF NOT EXISTS gameData (
+            id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            losses INT NOT NULL DEFAULT 0,
+            games INT NOT NULL DEFAULT 0,
+            wins INT NOT NULL DEFAULT 0,
+            elo INT NOT NULL DEFAULT 1500
+          );`, (error, results, fields) => {
+            if(error) {
+              console.log("ERROR", error);
+              // throw error;
+              console.log("Database Query Failed, Retrying in 1 Second");
+              setTimeout(init, 1000);
+            } else {
+              console.log("Result", results);
+              console.log('Running on http://localhost:' + port);
+              http.listen(port);
+            }
+          });
+        });
       }
     });
   });
