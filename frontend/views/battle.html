@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 <div class="battle-container" ng-switch="phase">
-  <header ng-if="['progress','prep','playback'].includes(phase)" class="battle-header">
+  <header ng-if="['setup','progress','prep','playback'].includes(phase)" class="battle-header">
     <span>{{username}} vs {{enemyName}}</span>
-    <span>Round {{round}}</span>
+    <span>
+      <span ng-show="round">Round {{round}}</span>
+      <span ng-hide="round">Setup</span>
+    </span>
     <span>
       <span ng-if="phase=='prep'">{{ip}} IP</span>
+      <span ng-hide="phase=='playback'">
+        &nbsp;<span id="time">120</span>s left
+      </span>
     </span>
   </header>
   

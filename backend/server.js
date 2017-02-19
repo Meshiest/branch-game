@@ -23,7 +23,7 @@ const SECRET = process.env.HASH_SECRET;
 const SALT_SIZE = 32; // salt is 32 bytes
 const MIN_PASSWORD_LENGTH = 6; // salt is 32 bytes
 const port = 8080;
-const version = "1.3.4";
+const version = "1.3.5";
 
 var session = expressSession({
   secret: SECRET,
@@ -283,6 +283,22 @@ function findOpponent(id) {
 
   return -1;
 }
+
+// handles countdowns for games
+function countdownHandler() {
+  var gameIds = Object.keys(games);
+  for(var i = 0; i < gameIds.length; i++) {
+    var id = gameIds[i];
+    var game = games[id];
+
+    if(!game)
+      continue;
+
+    game.tickDown();
+  }
+}
+
+setInterval(countdownHandler, 1000);
 
 // emit the online status to all players but throttle it
 var emitOnline = function() {
