@@ -49,6 +49,9 @@
     .when("/howto", {
       templateUrl: "views/howto.html",
     })
+    .when("/changelog", {
+      templateUrl: "views/changelog.html",
+    })
     .when("/404", {
       templateUrl: "views/404.html"
     })
@@ -164,6 +167,10 @@
 
     $rootScope.gotoHowto = function() {
       $location.path('/howto');
+    };    
+
+    $rootScope.gotoChangelog = function() {
+      $location.path('/changelog');
     };    
 
     $scope.forfeit = function() {
