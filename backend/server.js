@@ -433,7 +433,7 @@ function init() {
   CREATE TABLE IF NOT EXISTS users (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(48) UNIQUE,
-    password VARCHAR(128) NOT NULL,
+    password VARCHAR(1024) NOT NULL,
     salt VARCHAR(32) NOT NULL,
     enc_type varchar(32) NOT NULL DEFAULT 'sha512'
   );`, (error, results, fields) => {
