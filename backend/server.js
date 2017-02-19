@@ -23,7 +23,7 @@ const SECRET = process.env.HASH_SECRET;
 const SALT_SIZE = 32; // salt is 32 bytes
 const MIN_PASSWORD_LENGTH = 6; // salt is 32 bytes
 const port = 8080;
-const version = "1.3.3";
+const version = "1.3.4";
 
 var session = expressSession({
   secret: SECRET,
@@ -63,12 +63,20 @@ function createSalt() {
     .toString('hex');
 }
 
-// hashes the password with a salt
-function hashPassword(salt, password) {
+// hashes the password with a salt using sha512
+function hashSha512Password(salt, password) {
   var hash = crypto.createHmac('sha512', salt);
   hash.update(password);
   return hash.digest('hex');
 }
+
+// hashes the password with a salt using pbkdf2
+function hashPbkdf2Password(salt, password) {
+  var hash = crypto.pbkdf2Sync(password, salt, 100000, 512, 'sha512');
+  return hash.toString('hex');
+}
+
+
 
 // App
 app.get('/', function (req, res) {
@@ -159,11 +167,12 @@ app.post('/user', (req, res) => {
   }
 
   var salt = createSalt();
-  var hash = hashPassword(name+salt, password);
+  // default is pbkdf2
+  var hash = hashPbkdf2Password(name+salt, password);
 
   dbQuery((db) => {
 
-    db.query("INSERT INTO users (name,password,salt) VALUES ('"+name+"','"+hash+"','"+salt+"');",
+    db.query("INSERT INTO users (name,password,salt,enc_type) VALUES ('"+name+"','"+hash+"','"+salt+"','pbkdf2');",
     (error, results, fields) => {
       if(error) {
         console.log(error);
@@ -200,10 +209,33 @@ app.post('/login', (req, res) => {
       if(error || !results.length) { 
         res.status(404).json({message: 'Not Found'});
       } else {
+        var hash, pbhash;
 
-        var hashedPassword = hashPassword(results[0].name+results[0].salt, password);
+        if(results[0].enc_type === 'sha512') {
+          hash = hashSha512Password(results[0].name+results[0].salt, password);
+          pbhash = hashPbkdf2Password(results[0].name+results[0].salt, password);
+        } else {
+          hash = hashPbkdf2Password(results[0].name+results[0].salt, password);
+        }
 
-        if(hashedPassword === results[0].password) {
+        if(hash === results[0].password) {
+
+          // the user is using an outdated hash
+          if(results[0].enc_type === 'sha512') {
+            
+            // update user's encrypted password with something stronger
+            dbQuery((db) => {
+              db.query(`
+                UPDATE users
+                SET enc_type='pbkdf2', password='` + pbhash + `'
+                WHERE name='` + name + `';
+              `, (error, results, fields) => {
+                if(error)
+                  console.log("ERROR", error);
+              });
+            });
+          }
+
           req.session.name = results[0].name;
           res.json({
             name: results[0].name
@@ -433,13 +465,9 @@ function init() {
   CREATE TABLE IF NOT EXISTS users (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(48) UNIQUE,
-    losses INT NOT NULL DEFAULT 0,
-    forfeits INT NOT NULL DEFAULT 0,
-    games INT NOT NULL DEFAULT 0,
-    wins INT NOT NULL DEFAULT 0,
-    elo INT NOT NULL DEFAULT 1500,
-    password VARCHAR(128),
-    salt VARCHAR(32)
+    password VARCHAR(1024) NOT NULL,
+    salt VARCHAR(32) NOT NULL,
+    enc_type varchar(32) NOT NULL DEFAULT 'sha512'
   );`, (error, results, fields) => {
       if(error) {
         console.log("ERROR", error);
@@ -447,9 +475,28 @@ function init() {
         console.log("Database Connection Failed, Retrying In 1 Second");
         setTimeout(init, 1000);
       } else {
-        console.log("Result", results);
-        console.log('Running on http://localhost:' + port);
-        http.listen(port);
+        dbQuery((db) => {
+          db.query(`
+          CREATE TABLE IF NOT EXISTS gameData (
+            id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            losses INT NOT NULL DEFAULT 0,
+            games INT NOT NULL DEFAULT 0,
+            wins INT NOT NULL DEFAULT 0,
+            elo INT NOT NULL DEFAULT 1500
+          );`, (error, results, fields) => {
+            if(error) {
+              console.log("ERROR", error);
+              // throw error;
+              console.log("Database Query Failed, Retrying in 1 Second");
+              setTimeout(init, 1000);
+            } else {
+              console.log("Result", results);
+              console.log('Running on http://localhost:' + port);
+              http.listen(port);
+            }
+          });
+        });
       }
     });
   });
