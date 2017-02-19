@@ -1,5 +1,20 @@
 (function(){
 
+  var timeLeft = 0;
+  var BASE_TIME = 120;
+  // subtract one from time
+  // this is separate from the angular app to avoid needlessly filling up the scope
+  setInterval(() => {
+    window.requestAnimationFrame(()=>{
+      if(timeLeft > 0)
+        timeLeft --;
+
+      if(typeof time !== 'undefined') {
+        time.innerHTML = timeLeft;
+      }
+    });
+  }, 1000);
+
   function range(start, count) {
     return Array.apply(0, Array(count))
       .map(function (element, index) { 
@@ -444,6 +459,7 @@
 
     // called to tell client to enter a game
     socket.on('setup', (name) => {
+      timeLeft = BASE_TIME;
       $scope.$evalAsync(() => {
         $scope.enemyName = name;
         $scope.winnerText = "";
@@ -472,6 +488,7 @@
 
     // called to tell client to enter the combat phase
     socket.on('round', (selfState, opponentState) => {
+      timeLeft = BASE_TIME;
       $scope.$evalAsync(() => {
         $scope.ready = false;
         $scope.ip = selfState.ip;
@@ -566,6 +583,7 @@
 
       if(!playback.log.length) {
         $scope.phase = $scope.nextPhase;
+        timeLeft = BASE_TIME;
         if($scope.phase === 'end')
           $scope.showChatOverlay = false;
 

@@ -1,19 +1,12 @@
 'use-strict';
 const fs = require("fs");
+const _ = require("underscore");
 
 const types = JSON.parse(fs.readFileSync("json/branch.json"));
 const settings = JSON.parse(fs.readFileSync("json/settings.json"));
 
-/**
- * Shuffles array in place. ES6 version
- * @param {Array} a items The array containing the items.
- */
-function shuffle(a) {
-  for (let i = a.length; i; i--) {
-    let j = Math.floor(Math.random() * i);
-    [a[i - 1], a[j]] = [a[j], a[i - 1]];
-  }
-}
+// give players 2 minutes
+const BASE_TIME = 125;
 
 const typeConv = {
   "future": "100",
@@ -93,6 +86,7 @@ module.exports = class {
 
     this.logs = [];
     this.id = id;
+    this.time = 0;
     this.rounds = 0;
     this.state = 'setup';
   }
@@ -110,6 +104,8 @@ module.exports = class {
   // emit the logs to the players
   emitLogs() {
     var log = this.logs[this.logs.length-1];
+    // give players time to view the animation
+    this.time += log.length;
     this.player1.socket.emit('logs', 1, log);
     this.player2.socket.emit('logs', 2, log);
   }
@@ -334,11 +330,30 @@ module.exports = class {
 
       // find if the recruit was defending or attacking and its target
       var opts = this.player1.options;
-      for(var j = 0; j < opts.length; j++) {
-        if(opts[i].id == recruit.id) {
-          blob.moveType = opts[i].moveType;
+      for(var j = 0; j < Math.min(opts.length, 3); j++) {
+        // not valid json
+        if(!opts[j].id || !opts[j].moveType)
+          continue;
+
+        if(opts[j].id !== recruit.id)
+          continue;
+
+        // wants to attack
+        if(opts[j].moveType == 'attack') {
+          // has no target
+          if(!opts[j].moveTarget)
+            continue;
+
+          // invalid attack
+          if(!opts[j].moveTarget.match(/^2[012]$/))
+            continue;
+        }
+        if(opts[j].id == recruit.id) {
+          blob.moveType = opts[j].moveType;
           if(blob.moveType == 'attack')
-            blob.moveTarget = opts[i].moveTarget;
+            blob.moveTarget = opts[j].moveTarget;
+          else
+            blob.moveType = 'defend';
           break;
         }
       }
@@ -383,11 +398,30 @@ module.exports = class {
 
       // find if the recruit was defending or attacking and its target
       var opts = this.player2.options;
-      for(var j = 0; j < opts.length; j++) {
-        if(opts[i].id == recruit.id) {
-          blob.moveType = opts[i].moveType;
+      for(var j = 0; j < Math.min(opts.length, 3); j++) {
+        // not valid json
+        if(!opts[j].id || !opts[j].moveType)
+          continue;
+
+        if(opts[j].id !== recruit.id)
+          continue;
+
+        // wants to attack
+        if(opts[j].moveType == 'attack') {
+          // has no target
+          if(!opts[j].moveTarget)
+            continue;
+
+          // invalid attack
+          if(!opts[j].moveTarget.match(/^1[012]$/))
+            continue;
+        }
+        if(opts[j].id == recruit.id) {
+          blob.moveType = opts[j].moveType;
           if(blob.moveType == 'attack')
-            blob.moveTarget = opts[i].moveTarget;
+            blob.moveTarget = opts[j].moveTarget;
+          else
+            blob.moveType = 'defend';
           break;
         }
       }
@@ -487,7 +521,7 @@ module.exports = class {
 
       // remove defending recruits from the queue
       // this queue will be used for attacking recruits only
-      if(recruit.moveType == 'defend') {
+      if(recruit.moveType != 'attack') {
         queueLineup.splice(i--, 1);
         continue;
       }
@@ -506,7 +540,7 @@ module.exports = class {
       }
     }
     // shuffle priority recruits
-    shuffle(queue[queue.length-1]);
+    queue[queue.length-1] = _.shuffle(queue[queue.length-1]);
 
     // until we have recruits left
     while(queueLineup.length) {
@@ -531,7 +565,7 @@ module.exports = class {
         }
       }
       // shuffle speed group
-      shuffle(queue[queue.length-1]);
+      queue[queue.length-1] = _.shuffle(queue[queue.length-1]);
     }
 
     // finalized queue of all 
@@ -599,7 +633,7 @@ module.exports = class {
       this.log({team: 0, type: "attack", value: {attacker: recruit.id, attacks: attacks}});
 
     }
-
+    this.time = BASE_TIME;
     this.emitLogs();
 
     var alive = false;
@@ -652,6 +686,7 @@ module.exports = class {
     this.player1.ready = false;
     this.player2.ready = false;
     this.state = 'prep';
+
     var player1State = {
       classes: this.player1.classes.map((a)=>{return a.blob();}),
       ip: this.player1.ip,
@@ -675,6 +710,8 @@ module.exports = class {
     this.player2.ip = 0;
     this.state = 'round';
     this.rounds++;
+
+    this.time = BASE_TIME;
 
     this.newLog();
 
@@ -700,7 +737,42 @@ module.exports = class {
 
   // starting a new game
   start() {
+    this.time = BASE_TIME;
     this.player1.socket.emit('setup', this.player2.name);
     this.player2.socket.emit('setup', this.player1.name);
+  }
+
+  tickDown() {
+    if(this.time > 0) {
+      this.time -= 1;
+
+      if(this.time <= 0) {
+        this.time = 0;
+        switch(this.state) {
+        case 'setup':
+          if(this.player1.ready && !this.player2.ready) {
+            this.end(1, "Opponent Took Too Long", "You Took Too Long", true);
+          } else if(this.player2.ready && !this.player1.ready) {
+            this.end(2, "You Took Too Long", "Opponent Took Too Long", true);
+          } else {
+            this.end(0, "You Took Too Long", "You Took Too Long", true);
+          }
+          break;
+        case 'round':
+          if(!this.player1.ready)
+            this.player1.options = [];
+
+          if(!this.player2.ready)
+            this.player2.options = [];
+
+          this.runRound();
+          break;
+        case 'prep':
+
+          this.nextRound();
+          break;
+        }
+      }
+    }
   }
 };
