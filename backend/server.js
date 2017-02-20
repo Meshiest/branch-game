@@ -115,6 +115,28 @@ app.get('/types', function(req, res) {
   res.json(types);
 });
 
+app.get('/leaderboard', function(req, res) {
+  dbQuery((db) => {
+    db.query(`
+      SELECT
+      (SELECT name FROM users WHERE id=user_id) AS name,
+      games,
+      wins,
+      losses
+      FROM gameData
+      WHERE games > 0
+      ORDER BY wins DESC
+      LIMIT 10;
+    `, (error, results, fields) => {
+      if(error) { 
+        res.status(500).json({message: 'Internal Server Error'});
+      } else {
+        res.json(results);
+      }
+    });
+  });
+});
+
 app.get('/user', (req, res) => {
   var name = req.session.name;
   if(typeof name !== 'undefined') {
@@ -446,7 +468,7 @@ io.on('connection', (socket) => {
 
         // player is leaving a game
       } else if(player.game >= 0) {
-        games[player.game].end(player == games[player.game].player1 ? 1 : 2, 'Opponent Forfeit', 'Opponent Forfeit', true);
+        games[player.game].end(player == games[player.game].player1 ? 2 : 1, 'Opponent Forfeit', 'Opponent Forfeit', true);
       }
     }
   });
@@ -508,7 +530,7 @@ io.on('connection', (socket) => {
   // player disconnects
   socket.on('disconnect', () => {
     if(player.game >= 0) {
-      games[player.game].end(player == games[player.game].player1 ? 1 : 2, 'Opponent Disconnected', 'Opponent Disconnected', true);
+      games[player.game].end(player == games[player.game].player1 ? 2 : 1, 'Opponent Disconnected', 'Opponent Disconnected', true);
     }
     delete players[player.id];
     delete lobby[player.id];
