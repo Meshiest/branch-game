@@ -23,7 +23,7 @@ const SECRET = process.env.HASH_SECRET;
 const SALT_SIZE = 32; // salt is 32 bytes
 const MIN_PASSWORD_LENGTH = 6; // salt is 32 bytes
 const port = 8080;
-const version = "1.3.5";
+const version = "1.3.6";
 
 var session = expressSession({
   secret: SECRET,
@@ -76,7 +76,33 @@ function hashPbkdf2Password(salt, password) {
   return hash.toString('hex');
 }
 
+// creates a game data entry for a user if it doesn't already exist
+function createUserGameData(name) {
+  dbQuery((db) => {
+    db.query(`
+      INSERT INTO gameData (user_id) SELECT id FROM users WHERE name='`+name+`';`,
+    (error, results, fields) => {
+      if(error)
+        console.log(error);
+    });
+  });
+}
 
+function updateUser(name, wins, losses, games) {
+  dbQuery((db) => {
+    db.query(`
+      UPDATE gameData
+      SET wins = wins + ` + wins + `,
+      losses = losses + ` + losses + `,
+      games = games + ` + games + `
+      WHERE user_id=(SELECT id FROM users WHERE name='`+name+`');
+    `, (error, results, fields) => {
+      if(error) {
+        console.log("ERROR", error);
+      }
+    });
+  });
+}
 
 // App
 app.get('/', function (req, res) {
@@ -87,6 +113,28 @@ app.get('/', function (req, res) {
 
 app.get('/types', function(req, res) {
   res.json(types);
+});
+
+app.get('/leaderboard', function(req, res) {
+  dbQuery((db) => {
+    db.query(`
+      SELECT
+      (SELECT name FROM users WHERE id=user_id) AS name,
+      games,
+      wins,
+      losses
+      FROM gameData
+      WHERE games > 0
+      ORDER BY wins DESC
+      LIMIT 10;
+    `, (error, results, fields) => {
+      if(error) { 
+        res.status(500).json({message: 'Internal Server Error'});
+      } else {
+        res.json(results);
+      }
+    });
+  });
 });
 
 app.get('/user', (req, res) => {
@@ -178,6 +226,7 @@ app.post('/user', (req, res) => {
         console.log(error);
         res.status(422).json({message: "User Already Exists"});
       } else {
+        createUserGameData(name);
         req.session.name = name;
         res.status(202).json({
           name: name
@@ -276,6 +325,10 @@ function findOpponent(id) {
       return keys[i];
     } else {
 
+      // don't match with yourself if you're not a guest
+      if(myLobby.player.name !== "Guest" && myLobby.player.name === otherLobby.player.name)
+        continue;
+
       // first partner I can find
       return keys[i];
     }
@@ -317,6 +370,7 @@ io.on('connection', (socket) => {
     id: id++,
     game: -1,
     name: socket.handshake.session.name || "Guest",
+    guest: !socket.handshake.session.name,
     lastMessage: 0,
   };
   players[player.id] = player;
@@ -372,7 +426,18 @@ io.on('connection', (socket) => {
             this.player2.ip = 0;
             this.player2.classes = [];
 
-            // potentially update wins/losses/forfeits/elos
+            // neither player is a guest
+            if(!(this.player1.guest || this.player2.guest)) {
+              updateUser(this.player1.name,
+                winner == 1 ? 1 : 0,
+                winner != 1 ? 1 : 0,
+              1);
+
+              updateUser(this.player2.name,
+                winner == 2 ? 1 : 0,
+                winner != 2 ? 1 : 0,
+              1);
+            }
 
             // remove the game
             delete games[id];
@@ -403,7 +468,7 @@ io.on('connection', (socket) => {
 
         // player is leaving a game
       } else if(player.game >= 0) {
-        games[player.game].end(player == games[player.game].player1 ? 1 : 2, 'Opponent Forfeit', 'Opponent Forfeit', true);
+        games[player.game].end(player == games[player.game].player1 ? 2 : 1, 'Opponent Forfeit', 'Opponent Forfeit', true);
       }
     }
   });
@@ -465,7 +530,7 @@ io.on('connection', (socket) => {
   // player disconnects
   socket.on('disconnect', () => {
     if(player.game >= 0) {
-      games[player.game].end(player == games[player.game].player1 ? 1 : 2, 'Opponent Disconnected', 'Opponent Disconnected', true);
+      games[player.game].end(player == games[player.game].player1 ? 2 : 1, 'Opponent Disconnected', 'Opponent Disconnected', true);
     }
     delete players[player.id];
     delete lobby[player.id];
@@ -495,7 +560,7 @@ function init() {
           db.query(`
           CREATE TABLE IF NOT EXISTS gameData (
             id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            user_id INT NOT NULL,
+            user_id INT NOT NULL UNIQUE,
             losses INT NOT NULL DEFAULT 0,
             games INT NOT NULL DEFAULT 0,
             wins INT NOT NULL DEFAULT 0,

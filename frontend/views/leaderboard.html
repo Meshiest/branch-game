@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<div class="leaderboard">
+  <h2>Leaderboard</h2>
+  <button class="button" ng-click="setPath('/')">Back</button>
+  <table>
+    <tr>
+      <th class="index">#</th>
+      <th>Name</th>
+      <th>Wins</th>
+      <th>Losses</th>
+      <th>Games</th>
+    </tr>
+    <tr ng-repeat="row in leaderboard">
+      <td class="index">{{$index+1}}</td>
+      <td class="name">{{row.name}}</td>
+      <td class="center">{{row.wins}}</td>
+      <td class="center">{{row.losses}}</td>
+      <td class="center">{{row.games}}</td>
+    </tr>
+  </table>
+</div>

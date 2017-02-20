@@ -46,6 +46,10 @@
       templateUrl: "views/battle.html",
       controller: "BattleCtrl"
     })
+    .when("/leaderboard", {
+      templateUrl: "views/leaderboard.html",
+      controller: "LeaderboardCtrl"
+    })
     .when("/howto", {
       templateUrl: "views/howto.html",
     })
@@ -151,10 +155,6 @@
       });
     };
 
-    $rootScope.goHome = function() {
-      $location.path("/");
-    };
-
     $rootScope.challenge = function() {
       if(!$rootScope.loggedIn)
         return;
@@ -165,12 +165,8 @@
       $location.path('/battle');
     };
 
-    $rootScope.gotoHowto = function() {
-      $location.path('/howto');
-    };    
-
-    $rootScope.gotoChangelog = function() {
-      $location.path('/changelog');
+    $rootScope.setPath = function(url) {
+      $location.path(url);
     };    
 
     $scope.forfeit = function() {
@@ -346,10 +342,6 @@
         type: 'power',
         target: $scope.recruits.indexOf(recruit)
       });
-    };
-
-    $scope.goHome = function() {
-      $location.path('/');
     };
 
     $scope.startAttack = function(recruit) {
@@ -715,6 +707,21 @@
         $rootScope.challengeTarget = "";
       }
     });
+  });
+
+  app.controller('LeaderboardCtrl', function($scope, $rootScope, $http, $location, $timeout) {
+    $scope.leaderboard = [];
+
+    $scope.fetchLeaderboard = function() {
+      $http.get('/api/leaderboard')
+      .then((resp) => {
+        $scope.leaderboard = resp.data;
+      }, (err) => {
+        // shet
+      });
+    };
+
+    $scope.fetchLeaderboard();
   });
 
 })();

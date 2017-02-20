@@ -4,6 +4,7 @@
   <span class="subhead">{{onlineCounts.players}} online, {{onlineCounts.games}} games, {{onlineCounts.lobby}} waiting</span>
   <button class="button" ng-click="startBattle()">Battle</button>
   <button class="button" ng-click="challenge()" ng-if="loggedIn">Challenge</button>
-  <button class="button" ng-click="gotoHowto()">How to Play</button>
-  <button class="button" ng-click="gotoChangelog()">What's New</button>
+  <button class="button" ng-click="setPath('/leaderboard')">Leaderboard</button>
+  <button class="button" ng-click="setPath('/howto')">How to Play</button>
+  <button class="button" ng-click="setPath('/changelog')">What's New</button>
 </div>
