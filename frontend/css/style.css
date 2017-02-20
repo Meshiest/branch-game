@@ -854,12 +854,12 @@ h3 {
   margin: 0 8px 0 0;
 }
 
-table {
+.stylish-table {
   font-size: 20px;
   padding: 10px;
 }
 
-td:first-child {
+.stylish-table td:first-child {
   font-weight: bold;
   min-width: 100px;
   padding-right: 5px;
@@ -1018,4 +1018,62 @@ td:first-child {
   top: -9999px;
   left: -9999px;
   width: 0;
+}
+
+.leaderboard {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin-top: 30px;
+}
+
+.leaderboard h2 {
+  font-size: 40px;
+}
+
+.leaderboard table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0 5px;
+  border-style: none;
+  box-sizing: border-box;
+  min-width: 600px;
+  margin: 20px;
+}
+
+.leaderboard tr {
+  background-color: #E0E0E0;
+}
+
+.leaderboard tr:nth-child(even) {
+  background-color: #BDBDBD;
+}
+
+
+.leaderboard td, .leaderboard th {
+  padding: 5px;
+}
+
+.leaderboard th {
+  background-color: #F5F5F5;
+  font-weight: bold;
+  text-align: center;
+}
+
+.leaderboard td.index {
+  color: #fff;
+  background-color: #616161;
+  font-weight: bold;
+  text-align: center;
+  width: 30px;
+}
+
+.leaderboard td.name {
+  font-style: italic;
+  width: 300px;
+}
+
+.leaderboard td.center {
+  text-align: center;
 }
