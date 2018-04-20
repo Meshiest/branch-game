@@ -750,7 +750,7 @@ module.exports = class {
     this.time = BASE_TIME;
     this.emitLogs();
 
-    let alive = false;
+    let alive1 = false;
     // remove negative health and remove it from damage for team 1
     // also check for any living recruits
     for(let i = 0; i < this.player1.classes.length; i++) {
@@ -759,32 +759,36 @@ module.exports = class {
         damage += recruit.health;
         recruit.health = 0;
       } else {
-        alive = true;
+        alive1 = true;
       }
-    }
-
-
-    // player 2 won
-    if(!alive) {
-      this.end(2, "You're Bad", "Good Job", false);
-      return;
     }
 
     // remove negative health and remove it from damage for team 2
     // also check for living recruits
-    alive = false;
+    let alive2 = false;
     for(let i = 0; i < this.player2.classes.length; i++) {
       let recruit = this.player2.classes[i];
       if(!recruit.living()) {
         damage += recruit.health;
         recruit.health = 0;
       } else {
-        alive = true;
+        alive2 = true;
       }
     }
 
+    if(!alive1 && !alive2) {
+      this.end(0, "You're Dead", "You're Dead", false);
+      return;
+    }
+    
+    // player 2 won
+    if(!alive1) {
+      this.end(2, "You're Bad", "Good Job", false);
+      return;
+    }
+
     // player 1 won
-    if(!alive) {
+    if(!alive2) {
       this.end(1, "Good Job", "You're Bad", false);
       return;
     }
