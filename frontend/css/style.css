@@ -286,7 +286,8 @@ h3 {
 .input-container {
   display: flex;
   flex-direction: row-reverse;
-  margin: 4px;
+  margin: 0 4px;
+  padding: 4px 0;
 }
 
 .input-container i {
@@ -1081,27 +1082,6 @@ h3 {
   margin-left: 30px;
 }
 
-@media screen and (max-width: 800px) {
-  .how-to {
-    flex-grow: 1;
-    flex-shrink: 1;
-    margin: 0;
-    max-width: none;
-    width: 100%;
-  }
-
-  .button {
-    font-size: 25px;
-    padding: 8px;
-    min-width: 200px;
-  }
-
-  .round {
-    min-width: 150px;
-    border-radius: 8px;
-  }
-}
-
 .how-to p {
   margin-bottom: 10px;
   margin-top: 10px;
@@ -1254,4 +1234,50 @@ h3 {
 
 .leaderboard td.center {
   text-align: center;
+}
+
+
+@media screen and (max-width: 800px) {
+  .how-to {
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin: 0;
+    max-width: none;
+    width: 100%;
+  }
+
+  .button {
+    font-size: 25px;
+    padding: 8px;
+    min-width: 200px;
+  }
+
+  .message-row, .message-header, .input-container {
+    height: 70px !important;
+  }
+
+  .input-container input {
+    font-size: 30px;
+  }
+
+  .round {
+    height: 70px;
+    min-width: 70px;
+    width: 70px;
+    border-radius: 50%;
+  }
+
+  .round.select {
+    height: 50px;
+    min-width: 150px;
+    border-radius: 8px;
+  }
+
+  .chat-message > .author {
+    font-size: 25px;
+  }
+
+  .chat-message > .body {
+    font-size: 25px;
+  }
 }
