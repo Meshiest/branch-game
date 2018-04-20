@@ -418,7 +418,7 @@ h3 {
 .classes {
   align-items: center;
   display: flex;
-  flex-direction: row;
+  flex-flow: row wrap;
   justify-content: center;
   margin: 0 16px;
 }

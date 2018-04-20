@@ -8,6 +8,7 @@ const settings = JSON.parse(fs.readFileSync('json/settings.json'));
 // give players 2 minutes
 const BASE_TIME = 125;
 const DEFAULT_IP = 0;
+const DEFEND_MOD = 0.5;
 
 const typeConv = {
   future: '100',
@@ -504,21 +505,21 @@ module.exports = class {
             // don't effect other provoked great knights that are defending and provoking
             // this will effect everyone else
             if(!(other.rec.ability && types[other.rec.type].meta.buffs.provoke && recruit.moveType == 'defend')) {
-              other.mods.feudal = 0.666;
-              other.mods.future = 0.666;
-              other.mods.fantasy = 0.666;
-              other.mods.feral = 0.666;
-              other.mods.fanatic = 0.666;
+              other.mods.feudal = DEFEND_MOD;
+              other.mods.future = DEFEND_MOD;
+              other.mods.fantasy = DEFEND_MOD;
+              other.mods.feral = DEFEND_MOD;
+              other.mods.fanatic = DEFEND_MOD;
               other.mods.provoked = true;
             }
           }
         }
       } else { // regular defending
-        recruit.mods.feudal = 0.666;
-        recruit.mods.future = 0.666;
-        recruit.mods.fantasy = 0.666;
-        recruit.mods.feral = 0.666;
-        recruit.mods.fanatic = 0.666;
+        recruit.mods.feudal = DEFEND_MOD;
+        recruit.mods.future = DEFEND_MOD;
+        recruit.mods.fantasy = DEFEND_MOD;
+        recruit.mods.feral = DEFEND_MOD;
+        recruit.mods.fanatic = DEFEND_MOD;
         recruit.mods.defend = true;
       } 
     }

@@ -439,7 +439,7 @@
     "class": "feral",
     "displayName": "Stelmaria",
     "buffs": [
-      "More damage to the enemy attacking your teammates"
+      "More damage to the enemy attacking an ally"
     ],
     "meta": {
       "hp": 85,

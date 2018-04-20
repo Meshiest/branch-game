@@ -2,49 +2,55 @@
 <div class="how-to">
   <h2>Welcome to Branch</h2>
   <p>
-    Branch is an online multiplayer battle simulator, where commanders pit their recruits against each other. As the battle rages on, commanders can use <b>Inversion Points (IP) to evolve their recruits and unlock special abilities</b>.
+    Branch is effectively rock paper scissors with more strategy. You can use <b><strike>Inversion Points (IP)</strike> Break Points (BP) to upgrade your recruits and unlock special abilities to make things more interesting</b>.
   </p>
   <p>
-    To begin, click the “Battle” at the bottom of this page, or on the home screen to enter the lobby, where you will be matched with a random player.
+    To begin, click the “Battle” button at the bottom of this page or on the home screen to enter the lobby where you will be matched with the next available player.
   </p>
   <p>
     <b>Note</b>: If you make an account, you can also challenge your friends by entering each other’s username on the challenge screen!
   </p>
   <p>
-    When entering a battle, you may choose any combination of the three types of class trees shown below. Each tree's third tier unit has a unique, <b>unlockable</b> ability. 
+    When entering a battle, you may choose any combination of three of the five types of classes shown below. Each class tree's third tier unit has a unique, <b>unlockable</b> ability.
   </p>
   <img src="/res/howto_tree.png">
   <p>
-    After choosing your recruits, the battle begins. Note the A (Attack) and S (Speed) values on the top left of each recruit card. <b>Attack is the amount of base damage</b> each recruit will do and <b>speed is the order in which recruits will attack</b>. Ties in speed result in random ordering.
+    After choosing your recruits, the battle begins. Note the Atk (Attack) and Spd (Speed) values on the bottom left of each recruit card. <b>Attack is the amount of base damage</b> each recruit will do and <b>speed controls the order in which recruits will attack</b>. Ties in speed result in random ordering.
   </p>
   <p>
-    <b>Hover over your recruits to choose its action.</b> The top button, attack, allows you to pick your target enemy. The bottom button, defend, applies a 2/3 damage modifier to any incoming damage regardless of type.
+    <b>Hover over your recruits to choose their actions.</b> The top button, attack, allows you to pick your target enemy. The bottom button, defend, applies a 1/2 damage modifier to any incoming damage regardless of type.
   </p>
   <p>
-    There are three types of recruits: Future (Blue), Feudal (Red), and Fantasy (Green). Red beats Green, Green beats Blue, and Blue beats Red.
+    There are five types of recruits: Future (Blue), Feudal (Red), Fantasy (Green), Fanatic (Purple), and Feral (Orange). Red beats Orange and Green, Green beats Blue and Purple, Purple beats Red and Orange, Orange beats Blue and Green, and Blue beats Purple and Red.
   </p>
   <div class="centered">
     <img src="/res/howto_triangle.png" style="max-height: 200px;">
   </div>
   <p>
-    Stronger types deal 1.5 times damage against a weaker type, matched types take and deal equal damage, and weaker types deal 2/3 damage.
+    Stronger types deal 150% times damage against a weaker type, matched types take and deal equal damage, and weaker types deal 2/3 damage.
   </p>
   <p>
     Each tier 3 unit has a unique ability, listed here:
   </p>
   <table class="stylish-table">
-    <tr><td>Sniper</td><td>-10 Enemy team Speed</td></tr>
-    <tr><td>Ranger</td><td>Attack Priority</td></tr>
-    <tr><td>Striker</td><td>Splash Damage when attacking</td></tr>
-    <tr><td>Great Knight</td><td>Protects Ally team from incoming damage</td></tr>
-    <tr><td>Royal Knight</td><td>Ally team +5 Attack and +5 Speed</td></tr>
-    <tr><td>Assassin</td><td>+10 Ally team Speed</td></tr>
-    <tr><td>Dragon Master</td><td>+13 HP to allies on each Round</td></tr>
-    <tr><td>Summoner</td><td>Nullifies hostile Debuffs</td></tr>
-    <tr><td>Arch Mage</td><td>Nullifies Enemy Buffs</td></tr>
+    <tr><td>(B) Sniper</td><td>-10 Enemy team Speed</td></tr>
+    <tr><td>(B) Ranger</td><td>Attack Priority</td></tr>
+    <tr><td>(B) Striker</td><td>Splash Damage when attacking</td></tr>
+    <tr><td>(R) Great Knight</td><td>Protects Ally team from incoming damage</td></tr>
+    <tr><td>(R) Royal Knight</td><td>Ally team +5 Attack and +5 Speed</td></tr>
+    <tr><td>(R) Assassin</td><td>+10 Ally team Speed</td></tr>
+    <tr><td>(G) Dragon Master</td><td>+13 HP to allies on each Round</td></tr>
+    <tr><td>(G) Summoner</td><td>Nullifies enemy attack abilities and debuffs</td></tr>
+    <tr><td>(G) Arch Mage</td><td>Nullifies enemy healing abilities and buffs</td></tr>
+    <tr><td>(P) Diviner</td><td>Heal allies upon death (2 x remaining health before last attack)</td></tr>
+    <tr><td>(P) Turncoat</td><td>Change color to match last attacker</td></tr>
+    <tr><td>(P) Tormented</td><td>Damage enemies upon death (2 x remaining health before last attack)</td></tr>
+    <tr><td>(O) Grograman</td><td>50% more damage done for every living ally</td></tr>
+    <tr><td>(O) Stelmaria</td><td>50% more damage to an enemy attacking an ally</td></tr>
+    <tr><td>(O) Guenhwyvar</td><td>50% more damage done for every dead ally</td></tr>
   </table>
   <p>
-    <b>Note</b>: The abilities are only active once the <b>Power Up</b> upgrade is purchased.
+    <b>Note</b>: The abilities are only active once the <b>Power Up</b> upgrade is purchased. This upgrade can be purchased at any time but is <b>not useful to anyone other than tier 3</b>.
   </p>
   <span class="centered">
     <button class="button" ng-click="startBattle()">Battle!</button>
