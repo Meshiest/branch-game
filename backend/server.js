@@ -122,10 +122,11 @@ app.get('/leaderboard', function(req, res) {
       (SELECT name FROM users WHERE id=user_id) AS name,
       games,
       wins,
-      losses
+      losses,
+      ((wins + 1.9208) / (wins + losses) - 1.96 * SQRT((wins*losses)/(wins+losses) + 0.9604)/(wins+losses))/(1+3.8416/(wins+losses)) as ci_lower_bound
       FROM gameData
       WHERE games > 0
-      ORDER BY wins DESC
+      ORDER BY ci_lower_bound DESC
       LIMIT 10;
     `, (error, results, fields) => {
       if(error) { 
