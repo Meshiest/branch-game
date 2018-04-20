@@ -2,3 +2,4 @@ mysql/*
 ssl/*
 backend/node_modules
 docker-compose.yml
+nginx.conf

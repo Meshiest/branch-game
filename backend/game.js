@@ -7,7 +7,7 @@ const settings = JSON.parse(fs.readFileSync('json/settings.json'));
 
 // give players 2 minutes
 const BASE_TIME = 125;
-const DEFAULT_IP = 0;
+const DEFAULT_IP = 50;
 const DEFEND_MOD = 0.5;
 
 const typeConv = {
