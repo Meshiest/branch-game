@@ -42,12 +42,12 @@
         </div>
         <div class="class-card recruit {{class}}">
           <span></span>
-          <div class="avatar {{class}} sprite-4"></div>
+          <div class="avatar {{class}} sprite-{{class=='feudal' ? '5' : '4'}}"></div>
           <h2 class="name">{{types[($index+1) + '21'].displayName}}</h2>
         </div>
         <div class="class-card recruit {{class}}">
           <span></span>
-          <div class="avatar {{class}} sprite-5"></div>
+          <div class="avatar {{class}} sprite-{{class=='feudal' ? '4' : '5'}}"></div>
           <h2 class="name">{{types[($index+1) + '22'].displayName}}</h2>
         </div>
       </div>
