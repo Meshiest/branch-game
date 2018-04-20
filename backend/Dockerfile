@@ -1,4 +1,4 @@
-FROM node:7
+FROM node:9
 EXPOSE 8080
 ADD . /usr/src/app
 WORKDIR /usr/src/app
