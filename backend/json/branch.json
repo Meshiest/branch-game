@@ -182,8 +182,7 @@
     "displayName": "Great Knight",
     "buffs": [
       "Great Knight Provoke:",
-      "When Defending, 1 Defense Mod on Self",
-      "When Defending, 2/3 Defense Mod on Allies"
+      "When Defending, Entire team gets defense"
     ],
     "meta": {
       "hp": 100,

@@ -491,11 +491,11 @@ module.exports = class {
 
           // great knight effect self
           if(other.id == recruit.id) {
-            recruit.mods.feudal = 1;
-            recruit.mods.future = 1;
-            recruit.mods.fantasy = 1;
-            recruit.mods.feral = 1;
-            recruit.mods.fanatic = 1;
+            recruit.mods.feudal = DEFEND_MOD;
+            recruit.mods.future = DEFEND_MOD;
+            recruit.mods.fantasy = DEFEND_MOD;
+            recruit.mods.feral = DEFEND_MOD;
+            recruit.mods.fanatic = DEFEND_MOD;
             recruit.mods.provoke = true;
           } else {
             // this player already has the bonus on them
