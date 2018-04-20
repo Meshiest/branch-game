@@ -1104,6 +1104,12 @@ h3 {
   z-index: 3;
 }
 
+label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .versus-dialog .vs {
   color: #fff;
   font-size: 40px;

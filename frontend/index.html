@@ -24,7 +24,7 @@
       </span>
       <span>
         <span class="login-info logged-in" ng-show="loggedIn">
-          <span class="username">{{username}}</span> <a href="" ng-click="logOut()">Log Out</a>
+          <span class="username">{{username}} {{elo ? '(' + elo+ ')' : ''}}</span> <a href="" ng-click="logOut()">Log Out</a>
         </span>
         <span class="login-info logged-out" ng-hide="loggedIn">
           <a ng-href="#!/login">Log In</a> or

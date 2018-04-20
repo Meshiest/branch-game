@@ -889,9 +889,9 @@ module.exports = class {
         switch(this.state) {
         case 'setup':
           if(this.player1.ready && !this.player2.ready) {
-            this.end(1, 'Opponent Took Too Long', 'You Took Too Long', true);
+            this.end(0, 'Opponent Took Too Long', 'You Took Too Long', true);
           } else if(this.player2.ready && !this.player1.ready) {
-            this.end(2, 'You Took Too Long', 'Opponent Took Too Long', true);
+            this.end(0, 'You Took Too Long', 'Opponent Took Too Long', true);
           } else {
             this.end(0, 'You Took Too Long', 'You Took Too Long', true);
           }

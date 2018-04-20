@@ -9,6 +9,7 @@
       <th>Wins</th>
       <th>Losses</th>
       <th>Games</th>
+      <th>ELO</th>
     </tr>
     <tr ng-repeat="row in leaderboard">
       <td class="index">{{$index+1}}</td>
@@ -16,6 +17,7 @@
       <td class="center">{{row.wins}}</td>
       <td class="center">{{row.losses}}</td>
       <td class="center">{{row.games}}</td>
+      <td class="center">{{row.elo}}</td>
     </tr>
   </table>
 </div>

@@ -83,6 +83,7 @@
       }).then((resp) => {
         $rootScope.loggedIn = true;
         $rootScope.username = resp.data.name;
+        $rootScope.elo = resp.data.elo;
         $location.path("/");
       }, (err) => {
         $scope.fail = true;
@@ -100,6 +101,7 @@
       }).then((resp) => {
         $rootScope.loggedIn = true;
         $rootScope.username = resp.data.name;
+        $rootScope.elo = resp.data.elo;
         $location.path("/");
       }, (err) => {
         $scope.fail = true;
@@ -127,6 +129,7 @@
     $rootScope.inBattle = false;
     $rootScope.loggedIn = false;
     $rootScope.username = "Guest";
+    $rootScope.elo = '';
     $rootScope.offline = false;
     $rootScope.challengeTarget = "";
     $rootScope.types = {};
@@ -146,6 +149,7 @@
     $scope.logOut = function() {
       $rootScope.loggedIn = false;
       $rootScope.username = "Guest";
+      $rootScope.elo = '';
       $location.path('/');
       $http.post("/api/logout").then(() => {
         $rootScope.loggedIn = false;
@@ -176,6 +180,7 @@
     $http.get('/api/user').then((resp) => {
       $rootScope.loggedIn = true;
       $rootScope.username = resp.data.name;
+      $rootScope.elo = resp.data.elo;
     }, (err) => {
       if(err.status == 502) {
         $rootScope.offline = true;
@@ -234,6 +239,11 @@
 
 
   app.controller('BattleCtrl', function($scope, $rootScope, $http, $location, $timeout){
+    if(typeof io === 'undefined') {
+      $location.path('/');
+      location.reload();
+      return;
+    }
     var socket = $rootScope.socket = ($rootScope.socket || io.connect(location.origin, {path: '/api/socket.io/'}));
 
     $scope.typeToClass = type => ['future', 'feudal', 'fantasy', 'feral', 'fanatic'][type[0]-1];

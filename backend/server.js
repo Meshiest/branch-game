@@ -49,6 +49,15 @@ const MYSQL_CONF = {
   database: process.env.MYSQL_DATABASE
 };
 
+// Calculate elo delta
+function getRatingDelta(player, opponent, isWin) {
+  if ([0, 0.5, 1].indexOf(isWin) === -1) {
+    return null;
+  }
+  
+  return Math.round(32 * (isWin - 1 / ( 1 + Math.pow(10, (opponent - player) / 400))));
+}
+
 // Database query
 function dbQuery(callback) {
   var connection = mysql.createConnection(MYSQL_CONF);
@@ -80,7 +89,7 @@ function hashPbkdf2Password(salt, password) {
 function createUserGameData(name) {
   dbQuery((db) => {
     db.query(`
-      INSERT INTO gameData (user_id) SELECT id FROM users WHERE name='`+name+`';`,
+      INSERT INTO gameData (user_id) SELECT id FROM users WHERE name='${name}';`,
     (error, results, fields) => {
       if(error)
         console.log(error);
@@ -88,19 +97,29 @@ function createUserGameData(name) {
   });
 }
 
-function updateUser(name, wins, losses, games) {
+function updateUser(name, wins, losses, elo, games) {
   dbQuery((db) => {
     db.query(`
       UPDATE gameData
-      SET wins = wins + ` + wins + `,
-      losses = losses + ` + losses + `,
-      games = games + ` + games + `
-      WHERE user_id=(SELECT id FROM users WHERE name='`+name+`');
+      SET wins = wins + ${wins},
+      losses = losses + ${losses},
+      elo = elo + ${elo},
+      games = games + ${games}
+      WHERE user_id=(SELECT id FROM users WHERE name='${name}');
     `, (error, results, fields) => {
       if(error) {
         console.log("ERROR", error);
       }
     });
+  });
+}
+
+function getElo(name) {
+  return new Promise(resolve => {
+    dbQuery(db => {
+      db.query(`SELECT elo FROM gameData WHERE user_id=(SELECT id FROM users WHERE name='${name}');`,
+        (err, res) => resolve(res))
+    })
   });
 }
 
@@ -123,6 +142,7 @@ app.get('/leaderboard', function(req, res) {
       games,
       wins,
       losses,
+      elo,
       ((wins + 1.9208) / (wins + losses) - 1.96 * SQRT((wins*losses)/(wins+losses) + 0.9604)/(wins+losses))/(1+3.8416/(wins+losses)) as ci_lower_bound
       FROM gameData
       WHERE games > 0
@@ -138,10 +158,16 @@ app.get('/leaderboard', function(req, res) {
   });
 });
 
-app.get('/user', (req, res) => {
+app.get('/user', async (req, res) => {
   var name = req.session.name;
   if(typeof name !== 'undefined') {
-    res.json({name: name});
+    let elo = await getElo(name);
+    if(elo.length > 0)
+      elo = elo[0].elo;
+    else
+      elo = 0;
+
+    res.json({name: name, elo});
   } else {
     res.status(403).json({message: "Not Authorized"});
   }
@@ -417,7 +443,7 @@ io.on('connection', (socket) => {
           // create a new game for both players
           var game = games[id] = new Game(id, player, players[opponent]);
 
-          game.onDone = function(winner) {
+          game.onDone = async function (winner) {
             // reset player information
             this.player1.game = -1;
             this.player1.ip = 0;
@@ -428,15 +454,21 @@ io.on('connection', (socket) => {
             this.player2.classes = [];
 
             // neither player is a guest
-            if(!(this.player1.guest || this.player2.guest)) {
+            if(!(this.player1.guest || this.player2.guest) && winner !== 0) {
+
+              let elo1 = (await getElo(this.player1.name))[0].elo;
+              let elo2 = (await getElo(this.player2.name))[0].elo;
+
               updateUser(this.player1.name,
                 winner == 1 ? 1 : 0,
                 winner != 1 ? 1 : 0,
+                getRatingDelta(elo1, elo2, winner == 1 ? 1 : 0),
               1);
 
               updateUser(this.player2.name,
                 winner == 2 ? 1 : 0,
                 winner != 2 ? 1 : 0,
+                getRatingDelta(elo2, elo1, winner == 2 ? 1 : 0),
               1);
             }
 
