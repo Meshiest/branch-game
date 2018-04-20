@@ -420,6 +420,7 @@ h3 {
   display: flex;
   flex-direction: row;
   justify-content: center;
+  margin: 0 16px;
 }
 
 .classes.enemy {
@@ -483,13 +484,16 @@ h3 {
   margin: 10px;
   position: relative;
   transform: translate(0, 0);
-  transition: all 0.2s;
-  width: 200px;
+  transition: all 0.4s;
+  width: 150px;
 }
 
 .class-card .name {
   color: #fff;
+  text-transform: capitalize;
   font-weight: normal;
+  top: 5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 .class-card:hover .hidden-buff {
@@ -498,6 +502,7 @@ h3 {
 
 .class-card .hidden-buff {
   align-items: center;
+  text-align: center;
   background-color: rgba(0, 0, 0, 0.7);
   color: #fff;
   display: flex;
@@ -512,7 +517,7 @@ h3 {
   top: 50%;
   transform: translate(-50%, -50%);
   transition: all 0.2s;
-  width: 200px;
+  width: 150px;
 }
 
 .hidden-buff > div {
@@ -538,15 +543,23 @@ h3 {
 }
 
 .class-icon.future {
-  background-position-y: 31px;
+  background-position-y: 93px;
 }
 
 .class-icon.feudal {
-  background-position-y: 62px;
+  background-position-y: 124px;
 }
 
 .class-icon.fantasy {
-  background-position-y: 0;
+  background-position-y: 0px;
+}
+
+.class-icon.feral {
+  background-position-y: 31px;
+}
+
+.class-icon.fanatic {
+  background-position-y: 62px;
 }
 
 .class-icon.attack {
@@ -595,6 +608,10 @@ h3 {
 .class-card .avatar {
   background-image: url('/res/sprites.png');
   height: 192px;
+  position: absolute;
+  top: calc(50% - 30px);
+  left: 50%;
+  transform: translate(-50%, -50%);
   background-position-x: 0;
   -webkit-font-smoothing: subpixel-antialiased;
   width: 192px;
@@ -616,7 +633,7 @@ h3 {
   }
 }
 
-.class-card.attacking .avatar {
+.class-card.attacking .avatar, .class-card.recruit:hover .avatar {
   background-image: url('/res/sprites_attack.png');
 }
 
@@ -624,19 +641,32 @@ h3 {
   box-shadow: 0 0 30px #500;
 }
 
-.class-card.attacking {
-  box-shadow: 0 0 30px #000;
+.team .class-card.attacking {
+  transform: translateY(-20px);
 }
+
+.enemy .class-card.attacking {
+  transform: translateY(20px);
+}
+
 
 .class-card .avatar.future {
   background-position-y: 0;
 }
 
 .class-card .avatar.feudal {
-  background-position-y: 384px;
+  background-position-y: 768px;
 }
 
 .class-card .avatar.fantasy {
+  background-position-y: 576px;
+}
+
+.class-card .avatar.feral {
+  background-position-y: 384px;
+}
+
+.class-card .avatar.fanatic {
   background-position-y: 192px;
 }
 
@@ -665,7 +695,16 @@ h3 {
 }
 
 .class-card.dead {
+  position: relative;
   opacity: 0.5;
+}
+
+.class-card.dead .avatar {
+  transition: all 0.5s ease;
+}
+
+.team .dead .avatar, .enemy .dead .avatar {
+  transform: rotate(180deg) translate(50%, 0);
 }
 
 .class-card.dead .commands {
@@ -673,38 +712,54 @@ h3 {
 }
 
 .class-card.future {
-  background-color: #01579B;
+  background: linear-gradient(transparent, #01579B);
 }
 
 .class-card.future:hover {
-  background-color: #1565C0;
+  background: linear-gradient(transparent, #1565C0);
 }
 
 .class-card.feudal {
-  background-color: #B71C1C;
+  background: linear-gradient(transparent, #B71C1C);
 }
 
 .class-card.feudal:hover {
-  background-color: #C62828;
+  background: linear-gradient(transparent, #C62828);
 }
 
 .class-card.fantasy {
-  background-color: #1B5E20;
+  background: linear-gradient(transparent, #1B5E20);
 }
 
 .class-card.fantasy:hover {
-  background-color: #2E7D32;
+  background: linear-gradient(transparent, #2E7D32);
+}
+
+.class-card.feral {
+  background: linear-gradient(transparent, #876a2c);
+}
+
+.class-card.feral:hover {
+  background: linear-gradient(transparent, #b57e36);
+}
+
+.class-card.fanatic {
+  background: linear-gradient(transparent, #6c0f6d);
+}
+
+.class-card.fanatic:hover {
+  background: linear-gradient(transparent, #941caf);
 }
 
 .status-bar {
   align-items: center;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: row;
+  justify-content: flex-end;
   left: 0;
   padding: 8px;
   position: absolute;
-  top: 0;
+  bottom: 0;
   width: 100%;
 }
 
@@ -811,6 +866,14 @@ h3 {
   border: 2px solid white;
 }
 
+.action-button:hover.attack {
+  border-color: #faa;
+}
+
+.action-button:hover.defend {
+  border-color: #aaf;
+}
+
 .commands .action-button.active {
   background-color: rgba(255, 255, 255, 0.2);
 }
@@ -845,7 +908,7 @@ h3 {
   background-color: #F5F5F5;
   display: flex;
   flex-direction: row;
-  width: 200px;
+  width: 150px;
   height: 250px;
   justify-content: flex-start;
 }
@@ -886,9 +949,10 @@ h3 {
 .attack-speed {
   display: flex;
   flex-direction: column;
-  left: 5px;
+  left: 8px;
   position: absolute;
-  top: 5px; 
+  bottom: 8px;
+  font-family: monospace;
   font-size: 12px;
 }
 

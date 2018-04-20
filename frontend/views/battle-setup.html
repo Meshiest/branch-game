@@ -2,33 +2,13 @@
 <div class="centered">
   <h3>Recruit Three</h3>
   <div class="classes">
-    <div class="class-container">
-      <div class="class-card future">
+    <div class="class-container" ng-repeat="class in ['future', 'feudal', 'fantasy', 'feral', 'fanatic']">
+      <div class="class-card recruit {{class}}">
         <span></span>
-        <div class="avatar future"></div>
-        <h2 class="name">Future</h2>
+        <div class="avatar {{class}}"></div>
+        <h2 class="name">{{class}}</h2>
       </div>
-      <button class="button round" ng-click="addSlot('future')">
-        <i class="material-icons">add</i>
-      </button>
-    </div>
-    <div class="class-container">
-      <div class="class-card feudal">
-        <span></span>
-        <div class="avatar feudal"></div>
-        <h2 class="name">Feudal</h2>
-      </div>
-      <button class="button round" ng-click="addSlot('feudal')">
-        <i class="material-icons">add</i>
-      </button>
-    </div>
-    <div class="class-container">
-      <div class="class-card fantasy">
-        <span></span>
-        <div class="avatar fantasy"></div>
-        <h2 class="name">Fantasy</h2>
-      </div>
-      <button class="button round" ng-click="addSlot('fantasy')">
+      <button class="button round" ng-click="addSlot(class)">
         <i class="material-icons">add</i>
       </button>
     </div>

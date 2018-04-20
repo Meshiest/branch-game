@@ -4,17 +4,37 @@
     "future": {
       "future": 1.0,
       "feudal": 0.666,
-      "fantasy": 1.5
+      "feral": 0.666,
+      "fantasy": 1.5,
+      "fanatic": 1.5
     },
     "feudal": {
       "future": 1.5,
       "feudal": 1.0,
-      "fantasy": 0.666
+      "feral": 1.5,
+      "fantasy": 0.666,
+      "fanatic": 0.666
     },
     "fantasy": {
       "future": 0.666,
       "feudal": 1.5,
-      "fantasy": 1.0
+      "feral": 0.666,
+      "fantasy": 1.0,
+      "fanatic": 1.5
+    },
+    "feral": {
+      "future": 1.5,
+      "feudal": 0.666,
+      "feral": 1.0,
+      "fantasy": 1.5,
+      "fanatic": 0.666
+    },
+    "fanatic": {
+      "future": 0.666,
+      "feudal": 1.5,
+      "fantasy": 0.666,
+      "feral": 1.5,
+      "fanatic": 1.0
     }
   }
 }

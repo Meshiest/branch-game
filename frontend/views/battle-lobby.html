@@ -2,6 +2,7 @@
 <div class="centered">
   <h2 ng-if="challengeTarget">Waiting For <i>{{challengeTarget}}</i></h2>
   <h2 ng-if="!challengeTarget">Waiting For Game...</h2>
+  {{enemyName}} {{inBattle}} {{phase}}
   <span class="subhead">{{onlineCounts.players}} online, {{onlineCounts.games}} games, {{onlineCounts.lobby}} waiting</span>
   <button class="button" ng-click="forfeit()">Back</button>
 </div>

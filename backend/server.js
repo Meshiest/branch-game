@@ -483,8 +483,8 @@ io.on('connection', (socket) => {
   // player is sending a chat message
   socket.on('chatMessage', (message) => {
     // can't send messages if you're a guest
-    if(player.name === "Guest")
-      return;
+    //if(player.name === "Guest")
+    //  return;
 
     // player isn't in a game 
     if(player.game < 0)

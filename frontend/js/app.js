@@ -1,5 +1,4 @@
 (function(){
-
   var timeLeft = 0;
   var BASE_TIME = 120;
   // subtract one from time
@@ -237,12 +236,15 @@
   app.controller('BattleCtrl', function($scope, $rootScope, $http, $location, $timeout){
     var socket = $rootScope.socket = ($rootScope.socket || io.connect(location.origin, {path: '/api/socket.io/'}));
 
+    $scope.typeToClass = type => ['future', 'feudal', 'fantasy', 'feral', 'fanatic'][type[0]-1];
+
     $scope.showChatOverlay = false;
     $scope.disableMessage = false;
     $scope.fail = false;
     $scope.chatMessage = {msg: ''};
     $scope.messages = [];
     $scope.newMessages = false;
+    $scope.phase = 'lobby';
 
     // display a message on the screen
     $scope.addMessage = function(msg) {
@@ -301,7 +303,7 @@
     // you can chat if neither of the players are guests
     // this will probably need to be changed when spectating is implemented
     $scope.canChat = function() {
-      return $scope.enemyName !== "Guest" && $rootScope.username !== "Guest";
+      return true;//$scope.enemyName !== "Guest" && $rootScope.username !== "Guest";
     };
 
     $scope.battleInit = function() {
@@ -317,7 +319,7 @@
         team: 0,
         teams: {1: {}, 2: {}}
       };
-      $scope.phase = 'lobby';
+
       $rootScope.inBattle = false;
       $scope.selectingRecruit = undefined;
       $scope.enemyName = "Guest";
@@ -461,7 +463,7 @@
       timeLeft = BASE_TIME;
       $scope.$evalAsync(() => {
         $scope.enemyName = name;
-        $scope.winnerText = "";
+        $scope.winnerText = '';
         $rootScope.inBattle = true;
         $scope.phase = 'setup';
         socket.emit('ready', false, []);
@@ -656,6 +658,16 @@
             }, ANIMATION_DURATION);
           }
         });
+        range(0, value.shifts.length).forEach((i) => {
+          var shift = value.shifts[i];
+          var recruit = playback.teams[shift.target[0]][shift.target[1]];
+          var newclass = shift.class;
+
+          // stop attack animation
+          $timeout(() => {
+            recruit.class = newclass;
+          }, ANIMATION_DURATION);
+        });
         break;
 
       default:
@@ -669,10 +681,13 @@
 
     function handleBattleStart() {
       // start waiting to join game
-      if($rootScope.challengeTarget)
-        socket.emit('lobby', {join: true, challenge: true, target: $rootScope.challengeTarget});
-      else
-        socket.emit('lobby', {join: true, challenge: false});
+      clearTimeout($rootScope.battleTimeout);
+      $rootScope.battleTimeout = setTimeout(() => {
+        if($rootScope.challengeTarget)
+          socket.emit('lobby', {join: true, challenge: true, target: $rootScope.challengeTarget});
+        else
+          socket.emit('lobby', {join: true, challenge: false});
+      }, 500);
 
       // init base variables
       $scope.battleInit();
@@ -681,8 +696,10 @@
     if($location.path() == '/battle') {
       handleBattleStart();
     } else {
+      clearTimeout($rootScope.battleTimeout);
       // we're not in batle
       socket.emit('lobby', {join: false});
+      $scope.phase = 'lobby';
       $scope.battleInit();
 
       // remove our challenge target
@@ -697,6 +714,7 @@
         socket.emit('lobby', {join: false});
 
         if(next.templateUrl.indexOf("home") > -1) {
+          $scope.phase = 'lobby';
           $scope.battleInit();
 
         } else {

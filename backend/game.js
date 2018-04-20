@@ -2,22 +2,24 @@
 const fs = require("fs");
 const _ = require("underscore");
 
-const types = JSON.parse(fs.readFileSync("json/branch.json"));
-const settings = JSON.parse(fs.readFileSync("json/settings.json"));
+const types = JSON.parse(fs.readFileSync('json/branch.json'));
+const settings = JSON.parse(fs.readFileSync('json/settings.json'));
 
 // give players 2 minutes
 const BASE_TIME = 125;
+const DEFAULT_IP = 0;
 
 const typeConv = {
-  "future": "100",
-  "feudal": "200",
-  "fantasy": "300"
+  future: '100',
+  feudal: '200',
+  fantasy: '300',
+  feral: '400',
+  fanatic: '500',
 };
 
 class Recruit {
   constructor(type, index, player) {
     
-    var base = types[typeConv[type]];
     this.ability = false;
     this.type = typeConv[type];
     this.id = player + index;
@@ -25,7 +27,7 @@ class Recruit {
     this.index = index;
     this.health = 0;
     this.maxHealth = 0;
-    this.applySpecs(base);
+    this.applySpecs(types[typeConv[type]]);
   }
 
   applySpecs(base) {
@@ -42,8 +44,8 @@ class Recruit {
 
     // find the evolutions
     this.evolutions = [];
-    for(var id in types) {
-      var type = types[id];
+    for(let id in types) {
+      let type = types[id];
       if(type.prereq.includes(base.id))
         this.evolutions.push(id);
     }
@@ -76,13 +78,13 @@ module.exports = class {
     this.player1 = player1;
     player1.game = id;
     player1.ready = false;
-    player1.ip = 0;
+    player1.ip = DEFAULT_IP;
 
     // player2 defaults
     this.player2 = player2;
     player2.game = id;
     player2.ready = false;
-    player2.ip = 0;
+    player2.ip = DEFAULT_IP;
 
     this.logs = [];
     this.id = id;
@@ -103,7 +105,7 @@ module.exports = class {
 
   // emit the logs to the players
   emitLogs() {
-    var log = this.logs[this.logs.length-1];
+    let log = this.logs[this.logs.length-1];
     // give players time to view the animation
     this.time += log.length;
     this.player1.socket.emit('logs', 1, log);
@@ -129,7 +131,7 @@ module.exports = class {
   readySetup(player, isReady, classes) {
     player.ready = isReady;
 
-    var num = (player == this.player1) ? "1" : "2";
+    let num = (player == this.player1) ? '1' : '2';
 
     // update the player's class choices
     player.classes = classes.map((type, i)=>{return new Recruit(type, i, num);});
@@ -162,7 +164,7 @@ module.exports = class {
     if(action.target < 0 || action.target > 2)
       return;
 
-    var target = player.classes[action.target];
+    let target = player.classes[action.target];
 
     // can't buff a dead guy
     if(!target.living())
@@ -202,57 +204,59 @@ module.exports = class {
 
   // add healing buffs from the healing recruits
   addBuffs() {
-    var team1Health = 0;
-    var team2Health = 0;
+    let team1Health = 0;
+    let team2Health = 0;
+
+    let { team1bonus, team2bonus } = this.calcBonuses();
 
     // calculate total healing done by team 1
-    for(var i = 0; i < this.player1.classes.length; i++) {
-      var recruit = this.player1.classes[i];
+    for(let i = 0; i < this.player1.classes.length; i++) {
+      let recruit = this.player1.classes[i];
       if(recruit.living() && recruit.ability) {
-        team1Health += types[recruit.type].meta.buffs.ownHp;
+        team1Health += types[recruit.type].meta.buffs.ownHp || 0;
       }
     }
 
     // log healing done by team 1
-    if(team1Health) { 
-      this.log({team: 1, type: "heal", value: team1Health});
-    }
+    if(team1Health && !team1bonus.buffNull) { 
+      this.log({team: 1, type: 'heal', value: team1Health});
+      
+      // heal team 1
+      for(let i = 0; i < this.player1.classes.length; i++) {
+        let recruit = this.player1.classes[i];
+        if(recruit.living()) {
+          recruit.health += team1Health;
 
-    // heal team 1
-    for(var i = 0; i < this.player1.classes.length; i++) {
-      var recruit = this.player1.classes[i];
-      if(recruit.living()) {
-        recruit.health += team1Health;
-
-        // cap health at max
-        recruit.health = Math.min(recruit.maxHealth, recruit.health);
+          // cap health at max
+          recruit.health = Math.min(recruit.maxHealth, recruit.health);
+        }
       }
     }
+
     
     // calculate total healing done by team 2
-    for(var i = 0; i < this.player2.classes.length; i++) {
-      var recruit = this.player2.classes[i];
+    for(let i = 0; i < this.player2.classes.length; i++) {
+      let recruit = this.player2.classes[i];
       if(recruit.living() && recruit.ability) {        
-        team2Health += types[recruit.type].meta.buffs.ownHp;
+        team2Health += types[recruit.type].meta.buffs.ownHp || 0;
       }
     }
     
     // log healing done by team 2
-    if(team2Health) {
-      this.log({team: 2, type: "heal", value: team2Health});
-    }
+    if(team2Health && !team2bonus.buffNull) {
+      this.log({team: 2, type: 'heal', value: team2Health});
 
-    // heal team 2
-    for(var i = 0; i < this.player2.classes.length; i++) {
-      var recruit = this.player2.classes[i];
-      if(recruit.living()) {
-        recruit.health += team2Health;
+      // heal team 2
+      for(let i = 0; i < this.player2.classes.length; i++) {
+        let recruit = this.player2.classes[i];
+        if(recruit.living()) {
+          recruit.health += team2Health;
 
-        // cap health at max
-        recruit.health = Math.min(recruit.maxHealth, recruit.health);
+          // cap health at max
+          recruit.health = Math.min(recruit.maxHealth, recruit.health);
+        }
       }
     }
-
   }
 
   // called when a player readies up in the upgrade/prep phase
@@ -263,17 +267,14 @@ module.exports = class {
     }
   }
 
-  // runs calculations for the entire round
-  runRound() {
-
-    // create bonus information that will be applied to each recruit
-    var team1bonus = {
+  calcBonuses() {
+    let team1bonus = {
       speed: 0,
       attack: 0,
       debuffNull: false,
       buffNull: false
     };
-    var team2bonus = {
+    let team2bonus = {
       speed: 0,
       attack: 0,
       debuffNull: false,
@@ -281,8 +282,8 @@ module.exports = class {
     };
 
     // find team 1 recruits that are debuff and buff nulling
-    for(var i = 0; i < this.player1.classes.length; i++) {
-      var recruit = this.player1.classes[i];
+    for(let i = 0; i < this.player1.classes.length; i++) {
+      let recruit = this.player1.classes[i];
       if(!recruit.living()) continue;
       if(recruit.ability) {        
         if(types[recruit.type].meta.buffs.debuffNull)
@@ -293,8 +294,8 @@ module.exports = class {
     }
 
     // find team 2 recruits that are debuff and buff nulling
-    for(var i = 0; i < this.player2.classes.length; i++) {
-      var recruit = this.player2.classes[i];
+    for(let i = 0; i < this.player2.classes.length; i++) {
+      let recruit = this.player2.classes[i];
       if(!recruit.living()) continue;
 
       if(recruit.ability) {
@@ -305,32 +306,44 @@ module.exports = class {
       }
     }
 
-    var recruits = [];
+    return { team1bonus, team2bonus };
+  }
+
+  // runs calculations for the entire round
+  runRound() {
+
+    // create bonus information that will be applied to each recruit
+    let { team1bonus, team2bonus } = this.calcBonuses();
+
+    let recruits = [];
 
     // apply all buffs and debuffs when applicable
     // also store basic information for tracking damage and speed
-    for(var i = 0; i < this.player1.classes.length; i++) {
-      var recruit = this.player1.classes[i];
+    for(let i = 0; i < this.player1.classes.length; i++) {
+      let recruit = this.player1.classes[i];
 
       // constuct some basic information that is useful for computing new speeds and attacks
-      var blob = {
+      let blob = {
         rec: recruit,
         id: recruit.id,
+        type: recruit.type,
         team: 1,
         speed: recruit.speed,
         attack: recruit.attack,
         priority: recruit.ability && types[recruit.type].meta.buffs.priority,
         health: recruit.health,
         mods: {
-          "future": settings.mods[recruit.class].future,
-          "feudal": settings.mods[recruit.class].feudal,
-          "fantasy": settings.mods[recruit.class].fantasy
+          future: settings.mods[recruit.class].future,
+          feudal: settings.mods[recruit.class].feudal,
+          fantasy: settings.mods[recruit.class].fantasy,
+          feral: settings.mods[recruit.class].feral,
+          fanatic: settings.mods[recruit.class].fanatic
         }
       };
 
       // find if the recruit was defending or attacking and its target
-      var opts = this.player1.options;
-      for(var j = 0; j < Math.min(opts.length, 3); j++) {
+      let opts = this.player1.options;
+      for(let j = 0; j < Math.min(opts.length, 3); j++) {
         // not valid json
         if(!opts[j].id || !opts[j].moveType)
           continue;
@@ -377,28 +390,31 @@ module.exports = class {
     }
 
     // do the same thing we did above on team 2
-    for(var i = 0; i < this.player2.classes.length; i++) {
-      var recruit = this.player2.classes[i];
+    for(let i = 0; i < this.player2.classes.length; i++) {
+      let recruit = this.player2.classes[i];
 
       // constuct some basic information that is useful for computing new speeds and attacks
-      var blob = {
+      let blob = {
         rec: recruit,
         id: recruit.id,
+        type: recruit.type,
         team: 2,
         speed: recruit.speed,
         attack: recruit.attack,
         priority: recruit.ability && types[recruit.type].meta.buffs.priority,
         health: recruit.health,
         mods: {
-          "future": settings.mods[recruit.class].future,
-          "feudal": settings.mods[recruit.class].feudal,
-          "fantasy": settings.mods[recruit.class].fantasy
+          future: settings.mods[recruit.class].future,
+          feudal: settings.mods[recruit.class].feudal,
+          fantasy: settings.mods[recruit.class].fantasy,
+          feral: settings.mods[recruit.class].feral,
+          fanatic: settings.mods[recruit.class].fanatic
         }
       };
 
       // find if the recruit was defending or attacking and its target
-      var opts = this.player2.options;
-      for(var j = 0; j < Math.min(opts.length, 3); j++) {
+      let opts = this.player2.options;
+      for(let j = 0; j < Math.min(opts.length, 3); j++) {
         // not valid json
         if(!opts[j].id || !opts[j].moveType)
           continue;
@@ -450,10 +466,10 @@ module.exports = class {
     if(team2bonus.speed || team2bonus.attack)
       this.log({team: 2, type: "bonus", value: team2bonus});
 
-    var defenders = [];
+    let defenders = [];
     // handle defending
-    for(var i = 0; i < recruits.length; i++) {
-      var recruit = recruits[i];
+    for(let i = 0; i < recruits.length; i++) {
+      let recruit = recruits[i];
 
       // only iterate through living and defending recruits
       if(!recruit.rec.living() || recruit.moveType != 'defend' ) continue;
@@ -461,10 +477,12 @@ module.exports = class {
       // add the player to the list of defenders
       defenders.push(recruit.id);
 
-      // apply provoking defense when using ability
-      if(recruit.rec.ability && types[recruit.rec.type].meta.buffs.provoke) {
-        for(var j = 0; j < recruits.length; j++) {
-          var other = recruits[j];
+      let { debuffNull, buffNull } = recruit.team == 1 ? team1bonus : team2bonus;
+
+      // apply provoking defense when using ability and not buff nulled
+      if(recruit.rec.ability && types[recruit.rec.type].meta.buffs.provoke && !buffNull) {
+        for(let j = 0; j < recruits.length; j++) {
+          let other = recruits[j];
 
           // effect same team only
           if(other.team != recruit.team)
@@ -475,6 +493,8 @@ module.exports = class {
             recruit.mods.feudal = 1;
             recruit.mods.future = 1;
             recruit.mods.fantasy = 1;
+            recruit.mods.feral = 1;
+            recruit.mods.fanatic = 1;
             recruit.mods.provoke = true;
           } else {
             // this player already has the bonus on them
@@ -487,6 +507,8 @@ module.exports = class {
               other.mods.feudal = 0.666;
               other.mods.future = 0.666;
               other.mods.fantasy = 0.666;
+              other.mods.feral = 0.666;
+              other.mods.fanatic = 0.666;
               other.mods.provoked = true;
             }
           }
@@ -495,29 +517,27 @@ module.exports = class {
         recruit.mods.feudal = 0.666;
         recruit.mods.future = 0.666;
         recruit.mods.fantasy = 0.666;
+        recruit.mods.feral = 0.666;
+        recruit.mods.fanatic = 0.666;
         recruit.mods.defend = true;
       } 
     }
 
     // log all the defending recruits
     if(defenders.length)
-      this.log({team: 0, type: "defend", value: defenders});
+      this.log({team: 0, type: 'defend', value: defenders});
 
     // compute attack order
-    var queue = [[]];
+    let queue = [[]];
 
     // get all the living recruits
-    var livingRecruits = [];
-    for(var i = 0; i < recruits.length; i++) {
-      if(recruits[i].rec.living()) {
-        livingRecruits.push(recruits[i]);
-      }
-    }
+    let livingRecruits = recruits.filter(r => r.rec.living());
+
 
     // duplicate the living recruits queue
-    var queueLineup = [].concat(livingRecruits);
-    for(var i = 0; i < queueLineup.length; i++) {
-      var recruit = queueLineup[i];
+    let queueLineup = [].concat(livingRecruits);
+    for(let i = 0; i < queueLineup.length; i++) {
+      let recruit = queueLineup[i];
 
       // remove defending recruits from the queue
       // this queue will be used for attacking recruits only
@@ -527,15 +547,10 @@ module.exports = class {
       }
 
       // apply speed bonuses from each respective team
-      if(recruit.team == 1) {
-        recruit.speed += team1bonus.speed || 0;
-      }
-      if(recruit.team == 2) {
-        recruit.speed += team2bonus.speed || 0;
-      }
+      recruit.speed += (recruit.team == 1 ? team1bonus.speed : team2bonus.speed) || 0;
 
       // make sure the recruit with priority is always placed first
-      if(recruit.priority) {
+      if(recruit.priority && !(recruit.team == 1 ? team1bonus : team2bonus).buffNull) {
         queue[queue.length-1].push(queueLineup.splice(i--, 1)[0]);
       }
     }
@@ -546,63 +561,91 @@ module.exports = class {
     while(queueLineup.length) {
       
       // find max recruit speed
-      var max = 0;
-      for(var i = 0; i < queueLineup.length; i++) {
-        var recruit = queueLineup[i];
+      let max = 0;
+      for(let i = 0; i < queueLineup.length; i++) {
+        let recruit = queueLineup[i];
         if(recruit.speed > max)
           max = recruit.speed;
       }
+
 
       // create a new speed group
       queue.push([]);
 
       // add recruits of the max speed to their own group
-      for(var i = 0; i < queueLineup.length; i++) {
-        var recruit = queueLineup[i];
+      for(let i = 0; i < queueLineup.length; i++) {
+        let recruit = queueLineup[i];
         if(recruit.speed == max) {
           // remove the recruit from the queue so it can't be used twice
           queue[queue.length-1].push(queueLineup.splice(i--, 1)[0]);
         }
       }
+
       // shuffle speed group
       queue[queue.length-1] = _.shuffle(queue[queue.length-1]);
     }
 
+
     // finalized queue of all 
-    var arr = [];
+    let arr = [];
     while(queue.length) {
       arr = arr.concat(queue.splice(0, 1)[0]);
     }
     queue = arr;
-    var damage = 0;
+    let damage = 0;
 
     // loop through all attackers
-    for(var i = 0; i < queue.length; i++) {
-      var recruit = queue[i];
+    for(let i = 0; i < queue.length; i++) {
+      let recruit = queue[i];
+      let { debuffNull, buffNull } = recruit.team == 1 ? team1bonus : team2bonus;
+
       // calculate this recruit's action
       
-      var attacks = [];
+      let attacks = [], shifts = [];
 
       // they can't attack if they're dead
       if(!recruit.rec.living())
         continue;
 
+      let kills = [];
+
       // go through all the possible targets
-      for(var j = 0; j < livingRecruits.length; j++) {
-        var other = livingRecruits[j];
+      for(let j = 0; j < livingRecruits.length; j++) {
+        let other = livingRecruits[j];
 
         // can't attack yourself or a dead person
         if(other.team == recruit.team || !other.rec.living()) continue;
 
         // found my target
         if(other.id == recruit.moveTarget) {
-          var baseDamage = recruit.attack; // base attack
+          if(!other.rec.living())
+            continue;
+
+          let baseDamage = recruit.attack; // base attack
 
           // add team based attack damage
           baseDamage += recruit.team == 1 ? team1bonus.attack : team2bonus.attack;
 
           // add multiplers for defense
-          baseDamage *= other.mods[recruit.rec.class];
+          baseDamage *= other.mods[recruit.rec.class] || 1;
+
+          // Apply motivated buff
+          if(types[recruit.rec.type].meta.buffs.motivated && recruit.rec.ability && !debuffNull) {
+            let livingAllies = this[`player${recruit.team}`].classes.filter(r => r.living()).length;
+            baseDamage *= 1 + (livingAllies - 1) * types[recruit.rec.type].meta.buffs.motivated;
+          }
+
+          // Apply vengeful buff
+          if(types[recruit.rec.type].meta.buffs.vengeful && recruit.rec.ability && !debuffNull) {
+            let livingAllies = this[`player${recruit.team}`].classes.filter(r => r.living()).length;
+            baseDamage *= 1 + (2 - (livingAllies - 1)) * types[recruit.rec.type].meta.buffs.vengeful;
+          }
+
+          // Avenge buff
+          if(types[recruit.rec.type].meta.buffs.avenge && recruit.rec.ability && !debuffNull &&
+              other.moveType === 'attack' && other.moveTarget !== recruit.id) {
+            baseDamage *= 1 + types[recruit.rec.type].meta.buffs.avenge;
+          }
 
           // ceil the damage
           baseDamage = Math.ceil(baseDamage);
@@ -610,16 +653,34 @@ module.exports = class {
           // subtract it
           damage += baseDamage;
           other.rec.health -= baseDamage;
+          // Handle changing of colors for chameleon ability
+          if(types[other.rec.type].meta.buffs.cameleon && other.rec.ability) {
+            other.rec.class = recruit.rec.class;
+            shifts.push({target: other.rec.id, class: recruit.rec.class});
+          }
+
+          if(!other.rec.living())
+            kills.push([j, other.rec.health + baseDamage]);
 
           // log the damage
           attacks.push({
             target: other.id,
             damage: baseDamage
           });
-        } else if(recruit.rec.type == "122" && recruit.rec.ability) { // striker does splash damage when ability is activated
+        } else if(recruit.rec.type === '122' && recruit.rec.ability && !debuffNull) { // striker does splash damage when ability is activated
+          if(other.rec.health <= 0)
+            continue;
           // subtract the splash damage
           damage += 10;
           other.rec.health -= 10;
+          // Handle changing of colors for chameleon ability
+          if(types[other.rec.type].meta.buffs.cameleon && other.rec.ability) {
+            other.rec.class = recruit.rec.class;
+            shifts.push({target: other.rec.id, class: recruit.rec.class});
+          }
+
+          if(!other.rec.living())
+            kills.push([j, other.rec.health + 10]);
 
           // log the damage
           attacks.push({
@@ -630,17 +691,69 @@ module.exports = class {
       }
 
       // log the attack
-      this.log({team: 0, type: "attack", value: {attacker: recruit.id, attacks: attacks}});
+      this.log({team: 0, type: 'attack', value: {attacker: recruit.id, attacks, shifts}});
 
+      // Loop through the killing blows
+      _.each(_.uniq(kills).map(([j, dmg]) => [livingRecruits[j], dmg]), ([other, dmg]) => {
+        // Check what nullifications we are applying
+        let { martyrdom, resurrect } = types[other.rec.type].meta.buffs;
+
+        if(!debuffNull && martyrdom && other.rec.ability) {
+          let payback = Math.ceil(dmg * martyrdom);
+          let attacks = [], shifts = [];
+          let team = this[`player${recruit.team}`];
+
+          // Deal payback damage to the attacking team
+          for(let i = 0; i < team.classes.length; i++) {
+            let r = team.classes[i];
+            if(r.living()) {
+              r.health -= payback;
+              // Handle changing of colors for chameleon ability
+              if(types[r.type].meta.buffs.cameleon && r.ability) {
+                r.class = recruit.rec.class;
+                shifts.push({target: r.id, class: recruit.rec.class});
+              }
+              damage += payback;
+              attacks.push({
+                target: r.id,
+                damage: payback,
+              });
+            }
+          }
+
+          // Log damage done as payback
+          this.log({team: 0, type: 'attack', value: {attacker: other.id, attacks, shifts}});
+        }
+
+        // heal allies based on resurrect buff
+        if(!(other.team == 1 ? team1bonus : team2bonus).buffNull && resurrect && other.rec.ability) {
+          let healing = Math.ceil(dmg * resurrect);
+          this.log({team: other.team, type: 'heal', value: healing});
+          let team = this[`player${other.team}`];
+
+          // heal your resurrection amount
+          for(let i = 0; i < team.classes.length; i++) {
+            let r = team.classes[i];
+            if(r.living()) {
+              r.health += healing;
+
+              // cap health at max
+              r.health = Math.min(r.maxHealth, r.health);
+            }
+          }
+        }
+      });
     }
+
+
     this.time = BASE_TIME;
     this.emitLogs();
 
-    var alive = false;
+    let alive = false;
     // remove negative health and remove it from damage for team 1
     // also check for any living recruits
-    for(var i = 0; i < this.player1.classes.length; i++) {
-      var recruit = this.player1.classes[i];
+    for(let i = 0; i < this.player1.classes.length; i++) {
+      let recruit = this.player1.classes[i];
       if(!recruit.living()) {
         damage += recruit.health;
         recruit.health = 0;
@@ -648,6 +761,8 @@ module.exports = class {
         alive = true;
       }
     }
+
+
     // player 2 won
     if(!alive) {
       this.end(2, "You're Bad", "Good Job", false);
@@ -657,8 +772,8 @@ module.exports = class {
     // remove negative health and remove it from damage for team 2
     // also check for living recruits
     alive = false;
-    for(var i = 0; i < this.player2.classes.length; i++) {
-      var recruit = this.player2.classes[i];
+    for(let i = 0; i < this.player2.classes.length; i++) {
+      let recruit = this.player2.classes[i];
       if(!recruit.living()) {
         damage += recruit.health;
         recruit.health = 0;
@@ -673,11 +788,12 @@ module.exports = class {
       return;
     }
 
-    var ip = Math.floor(damage * settings.ipModifier);
+    let ip = DEFAULT_IP + Math.floor(damage * settings.ipModifier);
     this.player1.ip = ip;
     this.player1.ready = false;
     this.player2.ip = ip;
     this.player2.ready = false;
+
     this.startPrep();
 
   }
@@ -687,13 +803,13 @@ module.exports = class {
     this.player2.ready = false;
     this.state = 'prep';
 
-    var player1State = {
-      classes: this.player1.classes.map((a)=>{return a.blob();}),
+    let player1State = {
+      classes: this.player1.classes.map(a => a.blob()),
       ip: this.player1.ip,
       round: this.rounds,
     };
-    var player2State = {
-      classes: this.player2.classes.map((a)=>{return a.blob();}),
+    let player2State = {
+      classes: this.player2.classes.map(a => a.blob()),
       ip: this.player2.ip,
       round: this.rounds,
     };
@@ -705,9 +821,9 @@ module.exports = class {
   // tell the players what comes next
   nextRound() {
     this.player1.ready = false;
-    this.player1.ip = 0;
+    this.player1.ip = DEFAULT_IP;
     this.player2.ready = false;
-    this.player2.ip = 0;
+    this.player2.ip = DEFAULT_IP;
     this.state = 'round';
     this.rounds++;
 
@@ -715,19 +831,21 @@ module.exports = class {
 
     this.newLog();
 
-    var player1State = {
-      classes: this.player1.classes.map((a)=>{return a.blob();}),
+
+    let player1State = {
+      classes: this.player1.classes.map(a => a.blob()),
       ip: this.player1.ip,
       round: this.rounds,
     };
-    var player2State = {
-      classes: this.player2.classes.map((a)=>{return a.blob();}),
+
+    let player2State = {
+      classes: this.player2.classes.map(a => a.blob()),
       ip: this.player2.ip,
       round: this.rounds,
     };
 
-    this.log({team: 1, type: "state", value: player1State.classes});
-    this.log({team: 2, type: "state", value: player2State.classes});
+    this.log({team: 1, type: 'state', value: player1State.classes});
+    this.log({team: 2, type: 'state', value: player2State.classes});
 
     this.addBuffs();
 
@@ -751,11 +869,11 @@ module.exports = class {
         switch(this.state) {
         case 'setup':
           if(this.player1.ready && !this.player2.ready) {
-            this.end(1, "Opponent Took Too Long", "You Took Too Long", true);
+            this.end(1, 'Opponent Took Too Long', 'You Took Too Long', true);
           } else if(this.player2.ready && !this.player1.ready) {
-            this.end(2, "You Took Too Long", "Opponent Took Too Long", true);
+            this.end(2, 'You Took Too Long', 'Opponent Took Too Long', true);
           } else {
-            this.end(0, "You Took Too Long", "You Took Too Long", true);
+            this.end(0, 'You Took Too Long', 'You Took Too Long', true);
           }
           break;
         case 'round':
@@ -764,6 +882,7 @@ module.exports = class {
 
           if(!this.player2.ready)
             this.player2.options = [];
+
 
           this.runRound();
           break;

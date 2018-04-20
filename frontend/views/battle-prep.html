@@ -5,11 +5,11 @@
       <div class="status-bar">
         <span class="health">{{recruit.health}} / {{recruit.maxHealth}}</span>
       </div>
-      <div class="avatar {{recruit.class}} sprite-{{recruit.sprite}}"></div>
+      <div class="avatar {{typeToClass(recruit.type)}} sprite-{{recruit.sprite}}"></div>
       <h2 class="name">{{recruit.name}}</h2>
       <div class="attack-speed">
-        <span>A: {{recruit.attack}}</span>
-        <span>S: {{recruit.speed}}</span>
+        <span>Atk: {{recruit.attack}}</span>
+        <span>Spd: {{recruit.speed}}</span>
       </div>
       <div class="show-ability" ng-if="recruit.ability">
         <i class="material-icons">add</i>
@@ -40,11 +40,11 @@
         <div class="status-bar">
           <span class="health">{{recruit.health}} / {{recruit.maxHealth}}</span>
         </div>
-        <div class="avatar {{recruit.class}} sprite-{{recruit.sprite}}"></div>
+        <div class="avatar {{typeToClass(recruit.type)}} sprite-{{recruit.sprite}}"></div>
         <h2 class="name">{{recruit.name}}</h2>
         <div class="attack-speed">
-          <span>A: {{recruit.attack}}</span>
-          <span>S: {{recruit.speed}}</span>
+          <span>Atk: {{recruit.attack}}</span>
+          <span>Spd: {{recruit.speed}}</span>
         </div>
         <div class="show-ability" ng-if="recruit.ability">
           <i class="material-icons">add</i>
@@ -65,8 +65,8 @@
         <div class="avatar {{recruit.class}} sprite-{{types[type].sprite}}"></div>
         <h2 class="name">{{types[type].displayName}}</h2>
         <div class="attack-speed">
-          <span>A: {{types[type].meta.atk}}</span>
-          <span>S: {{types[type].meta.spd}}</span>
+          <span>Atk: {{types[type].meta.atk}}</span>
+          <span>Spd: {{types[type].meta.spd}}</span>
         </div>
         <div class="hidden-buff" ng-if="types[type].buffs.length">
           <div ng-repeat="buff in types[type].buffs">
