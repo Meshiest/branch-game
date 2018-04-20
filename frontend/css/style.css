@@ -473,6 +473,28 @@ h3 {
   justify-content: center;
 }
 
+.howto-tree .class-card {
+  height: 150px;
+  width: 90px;
+}
+
+.howto-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.howto-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.howto-column.reverse {
+  flex-direction: column-reverse;
+}
+
 .class-card {
   color: #fff;
   box-shadow: 0 0 0 #000;
@@ -493,7 +515,13 @@ h3 {
   text-transform: capitalize;
   font-weight: normal;
   top: 5px;
+  word-break: keep-all;
+  white-space: nowrap;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.howto-tree .name {
+  font-size: 13px;
 }
 
 .class-card:hover .hidden-buff {
@@ -617,6 +645,13 @@ h3 {
   width: 192px;
 }
 
+.howto-tree .avatar {
+  height: 115px;
+  top: calc(50% - 15px);
+  width: 115px;
+  background-size: 690px 575px;
+}
+
 .class-card.attacked {
   animation: 0.5s pulse infinite linear;
 }
@@ -663,11 +698,11 @@ h3 {
 }
 
 .class-card .avatar.feral {
-  background-position-y: 384px;
+  background-position-y: 383px;
 }
 
 .class-card .avatar.fanatic {
-  background-position-y: 192px;
+  background-position-y: 193px;
 }
 
 .class-card .avatar.sprite-0 {
@@ -692,6 +727,51 @@ h3 {
 
 .class-card .avatar.sprite-5 {
   background-position-x: 192px;
+}
+
+
+.howto-tree .avatar.future {
+  background-position-y: 0;
+}
+
+.howto-tree .avatar.feudal {
+  background-position-y: 460px;
+}
+
+.howto-tree .avatar.fantasy {
+  background-position-y: 345px;
+}
+
+.howto-tree .avatar.feral {
+  background-position-y: 229px;
+}
+
+.howto-tree .avatar.fanatic {
+  background-position-y: 114px;
+}
+
+.howto-tree .avatar.sprite-0 {
+  background-position-x: 0;
+}
+
+.howto-tree .avatar.sprite-1 {
+  background-position-x: 575px;
+}
+
+.howto-tree .avatar.sprite-2 {
+  background-position-x: 460px;
+}
+
+.howto-tree .avatar.sprite-3 {
+  background-position-x: 345px;
+}
+
+.howto-tree .avatar.sprite-4 {
+  background-position-x: 230px;
+}
+
+.howto-tree .avatar.sprite-5 {
+  background-position-x: 115px;
 }
 
 .class-card.dead {
@@ -924,10 +1004,33 @@ h3 {
 
 .stylish-table td:first-child {
   font-weight: bold;
+  word-wrap: normal;
+  white-space: nowrap;
   min-width: 100px;
   padding-right: 5px;
   text-align: right;
 }
+
+.red {
+  color: #900;
+}
+
+.blue {
+  color: #009;
+}
+
+.green {
+  color: #070;
+}
+
+.purple {
+  color: #808;
+}
+
+.orange {
+  color: #880;
+}
+
 
 .power-up {
   align-items: center;
@@ -970,8 +1073,8 @@ h3 {
   flex-direction: column;
   justify-content: flex-start;
   max-width: 800px;
-  padding: 10px;
-  padding-top: 12px;
+  padding: 20px;
+  margin: 20px auto;
 }
 
 .how-to ul {
@@ -985,6 +1088,17 @@ h3 {
     margin: 0;
     max-width: none;
     width: 100%;
+  }
+
+  .button {
+    font-size: 25px;
+    padding: 8px;
+    min-width: 200px;
+  }
+
+  .round {
+    min-width: 150px;
+    border-radius: 8px;
   }
 }
 

@@ -13,7 +13,46 @@
   <p>
     When entering a battle, you may choose any combination of three of the five types of classes shown below. Each class tree's third tier unit has a unique, <b>unlockable</b> ability.
   </p>
-  <img src="/res/howto_tree.png">
+  <div class="howto-tree">
+    <div class="howto-container" ng-repeat="class in ['future', 'feudal', 'fantasy', 'feral', 'fanatic']">
+      <div class="howto-column">
+        <div class="class-card recruit {{class}}">
+          <span></span>
+          <div class="avatar {{class}}"></div>
+          <h2 class="name">{{types[($index+1) + '00'].displayName}}</h2>
+        </div>
+      </div>
+      <div class="howto-column {{class=='fantasy' ? 'reverse' : ''}}">
+        <div class="class-card recruit {{class}}">
+          <span></span>
+          <div class="avatar {{class}} sprite-1"></div>
+          <h2 class="name">{{types[($index+1) + '10'].displayName}}</h2>
+        </div>
+        <div class="class-card recruit {{class}}">
+          <span></span>
+          <div class="avatar {{class}} sprite-2"></div>
+          <h2 class="name">{{types[($index+1) + '11'].displayName}}</h2>
+        </div>
+      </div>
+      <div class="howto-column">
+        <div class="class-card recruit {{class}}">
+          <span></span>
+          <div class="avatar {{class}} sprite-3"></div>
+          <h2 class="name">{{types[($index+1) + '20'].displayName}}</h2>
+        </div>
+        <div class="class-card recruit {{class}}">
+          <span></span>
+          <div class="avatar {{class}} sprite-4"></div>
+          <h2 class="name">{{types[($index+1) + '21'].displayName}}</h2>
+        </div>
+        <div class="class-card recruit {{class}}">
+          <span></span>
+          <div class="avatar {{class}} sprite-5"></div>
+          <h2 class="name">{{types[($index+1) + '22'].displayName}}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
   <p>
     After choosing your recruits, the battle begins. Note the Atk (Attack) and Spd (Speed) values on the bottom left of each recruit card. <b>Attack is the amount of base damage</b> each recruit will do and <b>speed controls the order in which recruits will attack</b>. Ties in speed result in random ordering.
   </p>
@@ -33,21 +72,21 @@
     Each tier 3 unit has a unique ability, listed here:
   </p>
   <table class="stylish-table">
-    <tr><td>(B) Sniper</td><td>-10 Enemy team Speed</td></tr>
-    <tr><td>(B) Ranger</td><td>Attack Priority</td></tr>
-    <tr><td>(B) Striker</td><td>Splash Damage when attacking</td></tr>
-    <tr><td>(R) Great Knight</td><td>Protects Ally team from incoming damage</td></tr>
-    <tr><td>(R) Royal Knight</td><td>Ally team +5 Attack and +5 Speed</td></tr>
-    <tr><td>(R) Assassin</td><td>+10 Ally team Speed</td></tr>
-    <tr><td>(G) Dragon Master</td><td>+13 HP to allies on each Round</td></tr>
-    <tr><td>(G) Summoner</td><td>Nullifies enemy attack abilities and debuffs</td></tr>
-    <tr><td>(G) Arch Mage</td><td>Nullifies enemy healing abilities and buffs</td></tr>
-    <tr><td>(P) Diviner</td><td>Heal allies upon death (2 x remaining health before last attack)</td></tr>
-    <tr><td>(P) Turncoat</td><td>Change color to match last attacker</td></tr>
-    <tr><td>(P) Tormented</td><td>Damage enemies upon death (2 x remaining health before last attack)</td></tr>
-    <tr><td>(O) Grograman</td><td>50% more damage done for every living ally</td></tr>
-    <tr><td>(O) Stelmaria</td><td>50% more damage to an enemy attacking an ally</td></tr>
-    <tr><td>(O) Guenhwyvar</td><td>50% more damage done for every dead ally</td></tr>
+    <tr><td class="blue">Sniper</td><td>-10 Enemy team speed</td></tr>
+    <tr><td class="blue">Ranger</td><td>Attack priority</td></tr>
+    <tr><td class="blue">Striker</td><td>Splash damage when attacking</td></tr>
+    <tr><td class="red">Great Knight</td><td>Protects ally team from incoming damage</td></tr>
+    <tr><td class="red">Royal Knight</td><td>Ally team +5 attack and +5 speed</td></tr>
+    <tr><td class="red">Assassin</td><td>+10 Ally team speed</td></tr>
+    <tr><td class="green">Dragon Master</td><td>Heals allies +10 HP each round</td></tr>
+    <tr><td class="green">Summoner</td><td>Nullifies enemy attack abilities and debuffs</td></tr>
+    <tr><td class="green">Arch Mage</td><td>Nullifies enemy healing abilities and buffs</td></tr>
+    <tr><td class="purple">Diviner</td><td>Heal allies upon death (2 x remaining health before last attack)</td></tr>
+    <tr><td class="purple">Turncoat</td><td>Change color to match last attacker</td></tr>
+    <tr><td class="purple">Tormented</td><td>Damage enemies upon death (2 x remaining health before last attack)</td></tr>
+    <tr><td class="orange">Grograman</td><td>50% more damage done for every living ally</td></tr>
+    <tr><td class="orange">Stelmaria</td><td>50% more damage to an enemy attacking an ally</td></tr>
+    <tr><td class="orange">Guenhwyvar</td><td>50% more damage done for every dead ally</td></tr>
   </table>
   <p>
     <b>Note</b>: The abilities are only active once the <b>Power Up</b> upgrade is purchased. This upgrade can be purchased at any time but is <b>not useful to anyone other than tier 3</b>.

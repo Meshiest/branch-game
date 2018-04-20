@@ -303,14 +303,14 @@
     "class": "fantasy",
     "displayName": "Dragon Master",
     "buffs": [
-      "+ 13 HP for Team Units (per turn)"
+      "+ 10 HP for Team Units (per turn)"
     ],
     "meta": {
       "hp": 100,
       "atk": 20,
       "spd": 20,
       "buffs": {
-        "ownHp": 13
+        "ownHp": 10
       }
     },
     "sprite": 3
