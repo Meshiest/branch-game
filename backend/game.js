@@ -742,7 +742,7 @@ module.exports = class {
         }
 
         // heal allies based on resurrect buff
-        if(!(target.team == 1 ? team1bonus : team2bonus).buffNull && resurrect && target.rec.ability) {
+        if(!(target.team == 1 ? team1bonus : team2bonus).buffNull && resurrect && target.ability) {
           let healing = Math.ceil(dmg * resurrect);
           this.log({team: target.team, type: 'heal', value: healing});
           let team = this[`player${target.team}`];
