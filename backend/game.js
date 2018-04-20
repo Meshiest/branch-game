@@ -7,7 +7,7 @@ const settings = JSON.parse(fs.readFileSync('json/settings.json'));
 
 // give players 2 minutes
 const BASE_TIME = 125;
-const DEFAULT_IP = 50;
+const DEFAULT_IP = 0;
 const DEFEND_MOD = 0.5;
 
 const typeConv = {
@@ -26,6 +26,7 @@ class Recruit {
     this.id = player + index;
     this.player = player;
     this.index = index;
+    this.isChameleon = false;
     this.health = 0;
     this.maxHealth = 0;
     this.applySpecs(types[typeConv[type]]);
@@ -58,6 +59,7 @@ class Recruit {
       attack: this.attack,
       class: this.class,
       id: this.id,
+      isChameleon: this.isChameleon,
       evolutions: this.evolutions,
       maxHealth: this.maxHealth,
       health: this.health,
@@ -331,6 +333,7 @@ module.exports = class {
         team: 1,
         speed: recruit.speed,
         attack: recruit.attack,
+        isChameleon: recruit.isChameleon,
         priority: recruit.ability && types[recruit.type].meta.buffs.priority,
         health: recruit.health,
         mods: {
@@ -400,6 +403,7 @@ module.exports = class {
         id: recruit.id,
         type: recruit.type,
         team: 2,
+        isChameleon: recruit.isChameleon,
         speed: recruit.speed,
         attack: recruit.attack,
         priority: recruit.ability && types[recruit.type].meta.buffs.priority,
@@ -655,13 +659,18 @@ module.exports = class {
           damage += baseDamage;
           other.rec.health -= baseDamage;
           // Handle changing of colors for chameleon ability
-          if(types[other.rec.type].meta.buffs.cameleon && other.rec.ability) {
+          if(types[other.rec.type].meta.buffs.chameleon && other.rec.ability || other.rec.isChameleon) {
             other.rec.class = recruit.rec.class;
             shifts.push({target: other.rec.id, class: recruit.rec.class});
           }
 
+          if(types[recruit.rec.type].meta.buffs.chameleon && recruit.rec.ability && !other.rec.isChameleon) {
+            other.rec.isChameleon = true;
+            shifts.push({target: other.rec.id, active: true, class: other.rec.class});
+          }
+
           if(!other.rec.living())
-            kills.push([j, other.rec.health + baseDamage]);
+            kills.push([recruit.rec, other.rec, other.rec.health + baseDamage]);
 
           // log the damage
           attacks.push({
@@ -675,13 +684,13 @@ module.exports = class {
           damage += 10;
           other.rec.health -= 10;
           // Handle changing of colors for chameleon ability
-          if(types[other.rec.type].meta.buffs.cameleon && other.rec.ability) {
+          if(types[other.rec.type].meta.buffs.chameleon && other.rec.ability || other.rec.isChameleon) {
             other.rec.class = recruit.rec.class;
             shifts.push({target: other.rec.id, class: recruit.rec.class});
           }
 
           if(!other.rec.living())
-            kills.push([j, other.rec.health + 10]);
+            kills.push([recruit.rec, other.rec, other.rec.health + 10]);
 
           // log the damage
           attacks.push({
@@ -695,14 +704,16 @@ module.exports = class {
       this.log({team: 0, type: 'attack', value: {attacker: recruit.id, attacks, shifts}});
 
       // Loop through the killing blows
-      _.each(_.uniq(kills).map(([j, dmg]) => [livingRecruits[j], dmg]), ([other, dmg]) => {
-        // Check what nullifications we are applying
-        let { martyrdom, resurrect } = types[other.rec.type].meta.buffs;
+      for(let k = 0; k < kills.length; k++) {
+        let [killer, target, dmg] = kills[k];
 
-        if(!debuffNull && martyrdom && other.rec.ability) {
+        // Check what nullifications we are applying
+        let { martyrdom, resurrect } = types[target.type].meta.buffs;
+
+        if(!debuffNull && martyrdom && target.ability) {
           let payback = Math.ceil(dmg * martyrdom);
           let attacks = [], shifts = [];
-          let team = this[`player${recruit.team}`];
+          let team = this[`player${killer.id[0]}`];
 
           // Deal payback damage to the attacking team
           for(let i = 0; i < team.classes.length; i++) {
@@ -710,10 +721,14 @@ module.exports = class {
             if(r.living()) {
               r.health -= payback;
               // Handle changing of colors for chameleon ability
-              if(types[r.type].meta.buffs.cameleon && r.ability) {
-                r.class = recruit.rec.class;
-                shifts.push({target: r.id, class: recruit.rec.class});
+              if(types[r.type].meta.buffs.chameleon && r.ability || r.isChameleon) {
+                r.class = killer.class;
+                shifts.push({target: r.id, class: killer.class});
               }
+
+              if(!r.living())
+                kills.push([target, r, r.health + payback]);
+
               damage += payback;
               attacks.push({
                 target: r.id,
@@ -723,14 +738,14 @@ module.exports = class {
           }
 
           // Log damage done as payback
-          this.log({team: 0, type: 'attack', value: {attacker: other.id, attacks, shifts}});
+          this.log({team: 0, type: 'attack', value: {attacker: target.id, attacks, shifts}});
         }
 
         // heal allies based on resurrect buff
-        if(!(other.team == 1 ? team1bonus : team2bonus).buffNull && resurrect && other.rec.ability) {
+        if(!(target.team == 1 ? team1bonus : team2bonus).buffNull && resurrect && target.rec.ability) {
           let healing = Math.ceil(dmg * resurrect);
-          this.log({team: other.team, type: 'heal', value: healing});
-          let team = this[`player${other.team}`];
+          this.log({team: target.team, type: 'heal', value: healing});
+          let team = this[`player${target.team}`];
 
           // heal your resurrection amount
           for(let i = 0; i < team.classes.length; i++) {
@@ -743,7 +758,7 @@ module.exports = class {
             }
           }
         }
-      });
+      }
     }
 
 
@@ -887,6 +902,12 @@ module.exports = class {
 
           if(!this.player2.ready)
             this.player2.options = [];
+
+          if(this.player2.ready && typeof this.player2.options === 'undefined')
+            break;
+
+          if(this.player1.ready && typeof this.player1.options === 'undefined')
+            break;
 
 
           this.runRound();

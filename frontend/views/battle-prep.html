@@ -11,8 +11,9 @@
         <span>Atk: {{recruit.attack}}</span>
         <span>Spd: {{recruit.speed}}</span>
       </div>
-      <div class="show-ability" ng-if="recruit.ability">
-        <i class="material-icons">add</i>
+      <div class="show-ability">
+        <i class="material-icons" ng-if="recruit.isChameleon">swap_horiz</i>
+        <i class="material-icons" ng-if="recruit.ability">add</i>
       </div>
       <div class="hidden-buff" ng-if="types[recruit.type].buffs.length">
         <div ng-repeat="buff in types[recruit.type].buffs">
@@ -46,8 +47,9 @@
           <span>Atk: {{recruit.attack}}</span>
           <span>Spd: {{recruit.speed}}</span>
         </div>
-        <div class="show-ability" ng-if="recruit.ability">
-          <i class="material-icons">add</i>
+        <div class="show-ability">
+          <i class="material-icons" ng-if="recruit.isChameleon">swap_horiz</i>
+          <i class="material-icons" ng-if="recruit.ability">add</i>
         </div>
         <div class="hidden-buff" ng-if="types[recruit.type].buffs.length">
           <div ng-repeat="buff in types[recruit.type].buffs">

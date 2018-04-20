@@ -11,8 +11,9 @@
         <span>Atk: <span ng-class="{animateText: recruit.animate_attack}">{{recruit.attack}}</span></span>
         <span>Spd: <span ng-class="{animateText: recruit.animate_speed}">{{recruit.speed}}</span></span>
       </div>
-      <div class="show-ability" ng-if="recruit.ability">
-        <i class="material-icons">add</i>
+      <div class="show-ability">
+        <i class="material-icons" ng-if="recruit.isChameleon">swap_horiz</i>
+        <i class="material-icons" ng-if="recruit.ability">add</i>
       </div>
       <div class="defend-overlay" ng-show="recruit.defending">
         <div class="class-icon {{recruit.class}} defend"></div>
@@ -39,8 +40,9 @@
         <span>Atk: <span ng-class="{animateText: recruit.animate_attack}">{{recruit.attack}}</span></span>
         <span>Spd: <span ng-class="{animateText: recruit.animate_speed}">{{recruit.speed}}</span></span>
       </div>
-      <div class="show-ability" ng-if="recruit.ability">
-        <i class="material-icons">add</i>
+      <div class="show-ability">
+        <i class="material-icons" ng-if="recruit.isChameleon">swap_horiz</i>
+        <i class="material-icons" ng-if="recruit.ability">add</i>
       </div>
       <div class="defend-overlay" ng-show="recruit.defending">
         <div class="class-icon {{recruit.class}} defend"></div>

@@ -665,6 +665,8 @@
 
           // stop attack animation
           $timeout(() => {
+            if(shift.active)
+              recruit.isChameleon = true;
             recruit.class = newclass;
           }, ANIMATION_DURATION);
         });

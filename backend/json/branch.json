@@ -550,7 +550,7 @@
     "tier": 3,
     "prereq": ["510", "511"],
     "class": "fanatic",
-    "displayName": "Turncoat",
+    "displayName": "Cultist",
     "buffs": [
       "Become same the same color as your last attacker"
     ],
@@ -559,7 +559,7 @@
       "atk": 25,
       "spd": 25,
       "buffs": {
-        "cameleon": true
+        "chameleon": true
       }
     },
     "sprite": 4
