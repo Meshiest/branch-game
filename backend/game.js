@@ -671,7 +671,7 @@ module.exports = class {
           if(isCultist || other.rec.isChameleon) {            
             other.rec.class = recruit.rec.class;
             shifts.push({target: other.rec.id, class: recruit.rec.class});
-            if(isCultist)
+            if(isCultist && recruit.rec.ability)
               other.rec.addBuffs(recruit.rec.buffs());
           }
 
@@ -699,7 +699,7 @@ module.exports = class {
           if(isCultist || other.rec.isChameleon) {
             other.rec.class = recruit.rec.class;
             shifts.push({target: other.rec.id, class: recruit.rec.class});
-            if(isCultist)
+            if(isCultist && recruit.rec.ability)
               other.rec.addBuffs(recruit.rec.buffs());
           }
 
@@ -739,7 +739,7 @@ module.exports = class {
               if(isCultist || r.isChameleon) {
                 r.class = killer.class;
                 shifts.push({target: r.id, class: killer.class});
-                if(isCultist)
+                if(isCultist && killer.ability)
                   r.addBuffs(killer.buffs());
               }
 
