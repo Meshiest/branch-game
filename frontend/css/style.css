@@ -165,6 +165,7 @@ h3 {
 }
 
 .button {
+  cursor: pointer;
   background-color: #0288D1;
   border: none;
   border-radius: 0;
