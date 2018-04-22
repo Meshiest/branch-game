@@ -13,10 +13,10 @@ const crypto = require('crypto');
 const redis = require('redis');
 const base64url = require('base64url');
 const Game = require('./game.js');
-const sharedsession = require("express-socket.io-session");
-const _ = require("lodash");
+const sharedsession = require('express-socket.io-session');
+const _ = require('lodash');
 
-const types = JSON.parse(fs.readFileSync("json/branch.json"));
+const types = JSON.parse(fs.readFileSync('json/branch.json'));
 
 
 const SECRET = process.env.HASH_SECRET;

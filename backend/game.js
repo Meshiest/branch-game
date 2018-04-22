@@ -28,6 +28,7 @@ class Recruit {
     this.index = index;
     this.isChameleon = false;
     this.health = 0;
+    this.abilities = {};
     this.maxHealth = 0;
     this.applySpecs(types[typeConv[type]]);
   }
@@ -37,6 +38,7 @@ class Recruit {
       this.health += base.meta.hp - this.maxHealth;
     }
     this.attack = base.meta.atk;
+    this.abilities = base.meta.buffs;
     this.class = base.class;
     this.type = base.id;
     this.maxHealth = base.meta.hp;
@@ -75,11 +77,11 @@ class Recruit {
   }
 
   buffs() {
-    return _.merge(types[this.type].meta.buffs, this.buffs);
+    return this.abilities;//_.merge(types[this.type].meta.buffs, this.buffs);
   }
 
   addBuffs(buffs) {
-    this.buffs = _.merge(this.buffs, buffs);
+    this.abilities = _.merge(this.abilities, buffs);
   }
 }
 
@@ -224,7 +226,7 @@ module.exports = class {
     for(let i = 0; i < this.player1.classes.length; i++) {
       let recruit = this.player1.classes[i];
       if(recruit.living() && recruit.ability) {
-        team1Health += types[recruit.type].meta.buffs.ownHp || 0;
+        team1Health += recruit.buffs().ownHp || 0;
       }
     }
 
@@ -249,7 +251,7 @@ module.exports = class {
     for(let i = 0; i < this.player2.classes.length; i++) {
       let recruit = this.player2.classes[i];
       if(recruit.living() && recruit.ability) {        
-        team2Health += types[recruit.type].meta.buffs.ownHp || 0;
+        team2Health += recruit.buffs().ownHp || 0;
       }
     }
     
@@ -297,9 +299,9 @@ module.exports = class {
       let recruit = this.player1.classes[i];
       if(!recruit.living()) continue;
       if(recruit.ability) {        
-        if(types[recruit.type].meta.buffs.debuffNull)
+        if(recruit.buffs().debuffNull)
           team2bonus.debuffNull = true;
-        if(types[recruit.type].meta.buffs.buffNull)
+        if(recruit.buffs().buffNull)
           team2bonus.buffNull = true;
       }
     }
@@ -310,9 +312,9 @@ module.exports = class {
       if(!recruit.living()) continue;
 
       if(recruit.ability) {
-        if(types[recruit.type].meta.buffs.debuffNull) 
+        if(recruit.buffs().debuffNull) 
           team1bonus.debuffNull = true;
-        if(types[recruit.type].meta.buffs.buffNull)
+        if(recruit.buffs().buffNull)
           team1bonus.buffNull = true;
       }
     }
@@ -342,7 +344,7 @@ module.exports = class {
         speed: recruit.speed,
         attack: recruit.attack,
         isChameleon: recruit.isChameleon,
-        priority: recruit.ability && types[recruit.type].meta.buffs.priority,
+        priority: recruit.ability && recruit.buffs().priority,
         health: recruit.health,
         mods: {
           future: settings.mods[recruit.class].future,
@@ -389,14 +391,14 @@ module.exports = class {
       if(recruit.ability) {
         // add buffs to this team if this team hasn't been buff nulled
         if(!team1bonus.buffNull) {
-          team1bonus.speed += types[recruit.type].meta.buffs.ownSpd || 0;
-          team1bonus.attack += types[recruit.type].meta.buffs.ownAtk || 0;
+          team1bonus.speed += recruit.buffs().ownSpd || 0;
+          team1bonus.attack += recruit.buffs().ownAtk || 0;
         }
 
         // add debuffs to enemy team if this team hasn't been debuff nulled
         if(!team1bonus.debuffNull) {
-          team2bonus.speed += types[recruit.type].meta.buffs.offSpd || 0;
-          team2bonus.attack += types[recruit.type].meta.buffs.offAtk || 0;
+          team2bonus.speed += recruit.buffs().offSpd || 0;
+          team2bonus.attack += recruit.buffs().offAtk || 0;
         }
       }
     }
@@ -414,7 +416,7 @@ module.exports = class {
         isChameleon: recruit.isChameleon,
         speed: recruit.speed,
         attack: recruit.attack,
-        priority: recruit.ability && types[recruit.type].meta.buffs.priority,
+        priority: recruit.ability && recruit.buffs().priority,
         health: recruit.health,
         mods: {
           future: settings.mods[recruit.class].future,
@@ -461,14 +463,14 @@ module.exports = class {
       if(recruit.ability) {
         // add buffs if this team hasn't been buff nulled
         if(!team2bonus.buffNull) {
-          team2bonus.speed += types[recruit.type].meta.buffs.ownSpd || 0;
-          team2bonus.attack += types[recruit.type].meta.buffs.ownAtk || 0;
+          team2bonus.speed += recruit.buffs().ownSpd || 0;
+          team2bonus.attack += recruit.buffs().ownAtk || 0;
         }
 
         // add debuffs to enemy if this team hasn't been debuff nulled
         if(!team2bonus.debuffNull) {
-          team1bonus.speed += types[recruit.type].meta.buffs.offSpd || 0;
-          team1bonus.attack += types[recruit.type].meta.buffs.offAtk || 0;
+          team1bonus.speed += recruit.buffs().offSpd || 0;
+          team1bonus.attack += recruit.buffs().offAtk || 0;
         }
       }
     }
@@ -493,7 +495,7 @@ module.exports = class {
       let { debuffNull, buffNull } = recruit.team == 1 ? team1bonus : team2bonus;
 
       // apply provoking defense when using ability and not buff nulled
-      if(recruit.rec.ability && types[recruit.rec.type].meta.buffs.provoke && !buffNull) {
+      if(recruit.rec.ability && recruit.rec.buffs().provoke && !buffNull) {
         for(let j = 0; j < recruits.length; j++) {
           let other = recruits[j];
 
@@ -516,7 +518,7 @@ module.exports = class {
 
             // don't effect other provoked great knights that are defending and provoking
             // this will effect everyone else
-            if(!(other.rec.ability && types[other.rec.type].meta.buffs.provoke && recruit.moveType == 'defend')) {
+            if(!(other.rec.ability && other.rec.buffs().provoke && recruit.moveType == 'defend')) {
               other.mods.feudal = DEFEND_MOD;
               other.mods.future = DEFEND_MOD;
               other.mods.fantasy = DEFEND_MOD;
@@ -538,7 +540,7 @@ module.exports = class {
 
     // log all the defending recruits
     if(defenders.length)
-      this.log({team: 0, type: 'defend', value: defenders});
+      this.log({type: 'defend', value: defenders});
 
     // compute attack order
     let queue = [[]];
@@ -614,7 +616,7 @@ module.exports = class {
 
       // calculate this recruit's action
       
-      let attacks = [], shifts = [];
+      let attacks = [], shifts = [], saps = [];
 
       // they can't attack if they're dead
       if(!recruit.rec.living())
@@ -643,21 +645,21 @@ module.exports = class {
           baseDamage *= other.mods[recruit.rec.class] || 1;
 
           // Apply motivated buff
-          if(types[recruit.rec.type].meta.buffs.motivated && recruit.rec.ability && !debuffNull) {
+          if(recruit.rec.buffs().motivated && recruit.rec.ability && !debuffNull) {
             let livingAllies = this[`player${recruit.team}`].classes.filter(r => r.living()).length;
-            baseDamage *= 1 + (livingAllies - 1) * types[recruit.rec.type].meta.buffs.motivated;
+            baseDamage *= 1 + (livingAllies - 1) * recruit.rec.buffs().motivated;
           }
 
           // Apply vengeful buff
-          if(types[recruit.rec.type].meta.buffs.vengeful && recruit.rec.ability && !debuffNull) {
+          if(recruit.rec.buffs().vengeful && recruit.rec.ability && !debuffNull) {
             let livingAllies = this[`player${recruit.team}`].classes.filter(r => r.living()).length;
-            baseDamage *= 1 + (2 - (livingAllies - 1)) * types[recruit.rec.type].meta.buffs.vengeful;
+            baseDamage *= 1 + (2 - (livingAllies - 1)) * recruit.rec.buffs().vengeful;
           }
 
           // Avenge buff
-          if(types[recruit.rec.type].meta.buffs.avenge && recruit.rec.ability && !debuffNull &&
+          if(recruit.rec.buffs().avenge && recruit.rec.ability && !debuffNull &&
               other.moveType === 'attack' && other.moveTarget !== recruit.id) {
-            baseDamage *= 1 + types[recruit.rec.type].meta.buffs.avenge;
+            baseDamage *= 1 + recruit.rec.buffs().avenge;
           }
 
           // ceil the damage
@@ -667,95 +669,150 @@ module.exports = class {
           damage += baseDamage;
           other.rec.health -= baseDamage;
           // Handle changing of colors for chameleon ability
-          let isCultist = types[other.rec.type].meta.buffs.chameleon && other.rec.ability;
+          let isCultist = other.rec.buffs().chameleon && other.rec.ability;
           if(isCultist || other.rec.isChameleon) {            
             other.rec.class = recruit.rec.class;
             shifts.push({target: other.rec.id, class: recruit.rec.class});
-            if(isCultist && recruit.rec.ability)
+            if(isCultist && recruit.rec.ability && !buffNull)
               other.rec.addBuffs(recruit.rec.buffs());
           }
 
-          if(types[recruit.rec.type].meta.buffs.chameleon && recruit.rec.ability && !other.rec.isChameleon) {
+          if(recruit.rec.buffs().chameleon && recruit.rec.ability && !other.rec.isChameleon && !debuffNull) {
             other.rec.isChameleon = true;
             shifts.push({target: other.rec.id, active: true, class: other.rec.class});
           }
 
-          if(!other.rec.living())
+          let hasSap = recruit.rec.buffs().sap && recruit.rec.ability && !buffNull;
+          let sapAmount = baseDamage;
+          if(!other.rec.living()) {
             kills.push([recruit.rec, other.rec, other.rec.health + baseDamage]);
+            sapAmount += other.rec.health;
+          }
+
+          if(hasSap) {
+            let healing = Math.ceil(sapAmount * recruit.rec.buffs().sap);
+            this[`player${recruit.team}`].classes
+              .filter(r => r.living())
+              .forEach(r => {
+                r.health += healing;
+                r.health = Math.min(r.maxHealth, r.health);
+              });
+            saps.push({team: recruit.team, type: 'heal', value: healing});
+          }
 
           // log the damage
           attacks.push({
             target: other.id,
             damage: baseDamage
           });
-        } else if(recruit.rec.type === '122' && recruit.rec.ability && !debuffNull) { // striker does splash damage when ability is activated
+        } else if(recruit.rec.buffs().splash && recruit.rec.ability && !debuffNull) { // striker does splash damage when ability is activated
           if(other.rec.health <= 0)
             continue;
+          let splash = recruit.rec.buffs().splash;
           // subtract the splash damage
-          damage += 10;
-          other.rec.health -= 10;
+          damage += splash;
+          other.rec.health -= splash;
           // Handle changing of colors for chameleon ability
-          let isCultist = types[other.rec.type].meta.buffs.chameleon && other.rec.ability;
+          let isCultist = other.rec.buffs().chameleon && other.rec.ability;
           if(isCultist || other.rec.isChameleon) {
             other.rec.class = recruit.rec.class;
             shifts.push({target: other.rec.id, class: recruit.rec.class});
-            if(isCultist && recruit.rec.ability)
+            if(isCultist && recruit.rec.ability && !buffNull)
               other.rec.addBuffs(recruit.rec.buffs());
           }
 
-          if(!other.rec.living())
-            kills.push([recruit.rec, other.rec, other.rec.health + 10]);
+          let hasSap = recruit.rec.buffs().sap && recruit.rec.ability && !buffNull;
+          let sapAmount = splash;
+          
+          if(!other.rec.living()) {
+            kills.push([recruit.rec, other.rec, other.rec.health + splash]);
+            sapAmount += other.rec.health;
+          }
+
+          if(hasSap) {
+            let healing = Math.ceil(sapAmount * recruit.rec.buffs().sap);
+            this[`player${recruit.team}`].classes
+              .filter(r => r.living())
+              .forEach(r => {
+                r.health += healing;
+                r.health = Math.min(r.maxHealth, r.health);
+              });
+            saps.push({team: recruit.team, type: 'heal', value: healing});
+          }
 
           // log the damage
           attacks.push({
             target: other.id,
-            damage: 10
+            damage: splash
           });
         }
       }
 
       // log the attack
-      this.log({team: 0, type: 'attack', value: {attacker: recruit.id, attacks, shifts}});
+      this.log({type: 'attack', value: {attacker: recruit.id, attacks, shifts}});
+
+      // log the health saps
+      saps.map(this.log.bind(this));
 
       // Loop through the killing blows
       for(let k = 0; k < kills.length; k++) {
         let [killer, target, dmg] = kills[k];
 
         // Check what nullifications we are applying
-        let { martyrdom, resurrect } = types[target.type].meta.buffs;
+        let { martyrdom, resurrect } = target.buffs();
 
         if(!debuffNull && martyrdom && target.ability) {
           let payback = Math.ceil(dmg * martyrdom);
-          let attacks = [], shifts = [];
+          let attacks = [], shifts = [], saps = [];
           let team = this[`player${killer.id[0]}`];
 
           // Deal payback damage to the attacking team
           for(let i = 0; i < team.classes.length; i++) {
             let r = team.classes[i];
+            let rBuffNull = (r.id[0] == 1 ? team1bonus : team2bonus).buffNull
+
             if(r.living()) {
               r.health -= payback;
               // Handle changing of colors for chameleon ability
-              let isCultist = types[r.type].meta.buffs.chameleon && r.ability;
+              let isCultist = r.buffs().chameleon && r.ability;
               if(isCultist || r.isChameleon) {
                 r.class = killer.class;
                 shifts.push({target: r.id, class: killer.class});
-                if(isCultist && killer.ability)
+                if(isCultist && killer.ability && !rBuffNull)
                   r.addBuffs(killer.buffs());
               }
 
-              if(!r.living())
+              let hasSap = target.buffs().sap && target.ability && !rBuffNull;
+              let sapAmount = payback;
+              if(!r.living()) {
                 kills.push([target, r, r.health + payback]);
+                sapAmount += r.health;
+              }
 
               damage += payback;
               attacks.push({
                 target: r.id,
                 damage: payback,
               });
+
+              
+              if(hasSap) {
+                let healing = Math.ceil(sapAmount * target.buffs().sap);
+                this[`player${target.team}`].classes
+                  .filter(r2 => r2.living())
+                  .forEach(r2 => {
+                    r2.health += healing;
+                    r2.health = Math.min(r2.maxHealth, r2.health);
+                  });
+                saps.push({team: target.team, type: 'heal', value: healing});
+              }
             }
           }
 
           // Log damage done as payback
-          this.log({team: 0, type: 'attack', value: {attacker: target.id, attacks, shifts}});
+          this.log({type: 'attack', value: {attacker: target.id, attacks, shifts}});
+          // log the health saps
+          saps.map(this.log.bind(this));
         }
 
         // heal allies based on resurrect buff
@@ -767,6 +824,7 @@ module.exports = class {
           // heal your resurrection amount
           for(let i = 0; i < team.classes.length; i++) {
             let r = team.classes[i];
+
             if(r.living()) {
               r.health += healing;
 

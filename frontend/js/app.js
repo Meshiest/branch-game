@@ -148,11 +148,12 @@
     // log out button on top right
     $scope.logOut = function() {
       $rootScope.loggedIn = false;
-      $rootScope.username = "Guest";
+      $rootScope.username = 'Guest';
       $rootScope.elo = '';
       $location.path('/');
       $http.post("/api/logout").then(() => {
         $rootScope.loggedIn = false;
+        $rootScope.username = 'Guest';
       }, () => {
         // wat
       });
