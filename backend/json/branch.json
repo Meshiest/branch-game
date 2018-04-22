@@ -533,7 +533,7 @@
     "class": "fanatic",
     "displayName": "Diviner",
     "buffs": [
-      "Heal Allies Upon Death"
+      "Heal Allies Upon Death, Heals allies half of its attack"
     ],
     "meta": {
       "hp": 100,

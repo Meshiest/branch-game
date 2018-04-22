@@ -798,13 +798,13 @@ module.exports = class {
               
               if(hasSap) {
                 let healing = Math.ceil(sapAmount * target.buffs().sap);
-                this[`player${target.team}`].classes
+                this[`player${target.id[0]}`].classes
                   .filter(r2 => r2.living())
                   .forEach(r2 => {
                     r2.health += healing;
                     r2.health = Math.min(r2.maxHealth, r2.health);
                   });
-                saps.push({team: target.team, type: 'heal', value: healing});
+                saps.push({team: target.id[0], type: 'heal', value: healing});
               }
             }
           }
@@ -816,10 +816,10 @@ module.exports = class {
         }
 
         // heal allies based on resurrect buff
-        if(!(target.team == 1 ? team1bonus : team2bonus).buffNull && resurrect && target.ability) {
+        if(!(target.id[0] == 1 ? team1bonus : team2bonus).buffNull && resurrect && target.ability) {
           let healing = Math.ceil(dmg * resurrect);
-          this.log({team: target.team, type: 'heal', value: healing});
-          let team = this[`player${target.team}`];
+          this.log({team: target.id[0], type: 'heal', value: healing});
+          let team = this[`player${target.id[0]}`];
 
           // heal your resurrection amount
           for(let i = 0; i < team.classes.length; i++) {
