@@ -1,6 +1,6 @@
 'use-strict';
-const fs = require("fs");
-const _ = require("underscore");
+const fs = require('fs');
+const _ = require('lodash');
 
 const types = JSON.parse(fs.readFileSync('json/branch.json'));
 const settings = JSON.parse(fs.readFileSync('json/settings.json'));
@@ -72,6 +72,14 @@ class Recruit {
 
   living() {
     return this.health > 0;
+  }
+
+  buffs() {
+    return _.merge(types[this.type].meta.buffs, this.buffs);
+  }
+
+  addBuffs(buffs) {
+    this.buffs = _.merge(this.buffs, buffs);
   }
 }
 
@@ -659,9 +667,12 @@ module.exports = class {
           damage += baseDamage;
           other.rec.health -= baseDamage;
           // Handle changing of colors for chameleon ability
-          if(types[other.rec.type].meta.buffs.chameleon && other.rec.ability || other.rec.isChameleon) {
+          let isCultist = types[other.rec.type].meta.buffs.chameleon && other.rec.ability;
+          if(isCultist || other.rec.isChameleon) {            
             other.rec.class = recruit.rec.class;
             shifts.push({target: other.rec.id, class: recruit.rec.class});
+            if(isCultist)
+              other.rec.addBuffs(recruit.rec.buffs());
           }
 
           if(types[recruit.rec.type].meta.buffs.chameleon && recruit.rec.ability && !other.rec.isChameleon) {
@@ -684,9 +695,12 @@ module.exports = class {
           damage += 10;
           other.rec.health -= 10;
           // Handle changing of colors for chameleon ability
-          if(types[other.rec.type].meta.buffs.chameleon && other.rec.ability || other.rec.isChameleon) {
+          let isCultist = types[other.rec.type].meta.buffs.chameleon && other.rec.ability;
+          if(isCultist || other.rec.isChameleon) {
             other.rec.class = recruit.rec.class;
             shifts.push({target: other.rec.id, class: recruit.rec.class});
+            if(isCultist)
+              other.rec.addBuffs(recruit.rec.buffs());
           }
 
           if(!other.rec.living())
@@ -721,9 +735,12 @@ module.exports = class {
             if(r.living()) {
               r.health -= payback;
               // Handle changing of colors for chameleon ability
-              if(types[r.type].meta.buffs.chameleon && r.ability || r.isChameleon) {
+              let isCultist = types[r.type].meta.buffs.chameleon && r.ability;
+              if(isCultist || r.isChameleon) {
                 r.class = killer.class;
                 shifts.push({target: r.id, class: killer.class});
+                if(isCultist)
+                  r.addBuffs(killer.buffs());
               }
 
               if(!r.living())
