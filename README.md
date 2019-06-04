@@ -18,7 +18,6 @@ Branch is a competitive dueling game where players' armies fight and level up *i
 * Jake - Design, Core Mechanics, Balancing,
 * David - Design, Softcoding
 * Isaac - Design, Application
-* Lisp - Hosting <3
 
 ### Special Thanks
 
